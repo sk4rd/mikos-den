@@ -7,6 +7,8 @@
 {
   imports = [ inputs.den.flakeModule ];
 
+  den.default.includes = [ den.batteries.hostname ];
+
   den.schema.host.includes = [
     den.aspects.zram
     den.aspects.systemd-boot
