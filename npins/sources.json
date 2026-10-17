@@ -26,18 +26,18 @@
       "url": "https://github.com/nix-community/disko/archive/725ea35e410ad83be4931d1bff7e090eacaf3563.tar.gz",
       "hash": "sha256-uZkBR7yHdIKUFB5SZdfgh1qkGfI3XmYmI/lTiquxbck="
     },
-    "home-manager": {
+    "hjem": {
       "type": "Git",
       "repository": {
         "type": "GitHub",
-        "owner": "nix-community",
-        "repo": "home-manager"
+        "owner": "feel-co",
+        "repo": "hjem"
       },
-      "branch": "master",
+      "branch": "main",
       "submodules": false,
-      "revision": "640725978b99076e18e069f6e7d2959124584f8f",
-      "url": "https://github.com/nix-community/home-manager/archive/640725978b99076e18e069f6e7d2959124584f8f.tar.gz",
-      "hash": "sha256-u4DIIZgznEGzByxXrxWCXK19VcMtTBmi/M9gZ7Jk9bM="
+      "revision": "6b2cc57463bbbac3d7c61206ab365a2c928861a4",
+      "url": "https://github.com/feel-co/hjem/archive/6b2cc57463bbbac3d7c61206ab365a2c928861a4.tar.gz",
+      "hash": "sha256-Q5hGcKBaqz1L0neSRDfQgQPBKmSCkV1N5YBRwp+RtUc="
     },
     "import-tree": {
       "type": "Git",
