@@ -1,3 +1,5 @@
+{ den, ... }:
+
 {
   den.aspects.systemd-boot.nixos = {
     boot.loader = {
@@ -6,4 +8,8 @@
       efi.canTouchEfiVariables = true;
     };
   };
+
+  den.schema.host.includes = [
+    den.aspects.systemd-boot
+  ];
 }
