@@ -13,6 +13,19 @@
       "url": "https://github.com/denful/den/archive/6e5e413880e3d1f05713c617b569c2f268c4bd9c.tar.gz",
       "hash": "sha256-ITDya5NtTtmNl+XsOY5LX3asCxoAcZcaiHMl5Pz7vAM="
     },
+    "disko": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "disko"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "725ea35e410ad83be4931d1bff7e090eacaf3563",
+      "url": "https://github.com/nix-community/disko/archive/725ea35e410ad83be4931d1bff7e090eacaf3563.tar.gz",
+      "hash": "sha256-uZkBR7yHdIKUFB5SZdfgh1qkGfI3XmYmI/lTiquxbck="
+    },
     "home-manager": {
       "type": "Git",
       "repository": {
