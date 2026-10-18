@@ -1,5 +1,9 @@
+{ den, ... }:
+
 {
   den.aspects.plasma = {
+    includes = [ den.aspects.printing-scanning ];
+
     nixos = { pkgs, ... }: {
       services = {
         displayManager.sddm.enable = true;
