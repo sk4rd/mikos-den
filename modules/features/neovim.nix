@@ -10,5 +10,7 @@
         ];
       })
     ];
+
+    files.".config/nvim/init.lua".source = ../../dots/neovim/init.lua;
   };
 }
