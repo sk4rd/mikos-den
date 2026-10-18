@@ -7,6 +7,7 @@
     includes = [
       den.aspects.disko
       den.aspects.plasma
+      den.aspects.brave
     ];
 
     nixos = {
