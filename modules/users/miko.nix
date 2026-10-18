@@ -12,6 +12,7 @@
       (den.batteries.user-shell "fish")
       den.aspects.ghostty
       den.aspects.neovim
+      den.aspects.yubikey
     ];
 
     user = {
