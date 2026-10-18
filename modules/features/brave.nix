@@ -20,7 +20,15 @@
         };
       };
 
-      extraOptsRecommended.PasswordManagerEnabled = false;
+      extraOptsRecommended = {
+        PasswordManagerEnabled = false;
+
+        # Default to startpage
+        DefaultSearchProviderEnabled = true;
+        DefaultSearchProviderName = "Startpage";
+        DefaultSearchProviderKeyword = "startpage.com";
+        DefaultSearchProviderSearchURL = "https://www.startpage.com/sp/search?query={searchTerms}";
+      };
     };
 
     xdg.mime.defaultApplications = {
