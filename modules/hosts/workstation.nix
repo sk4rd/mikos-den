@@ -4,7 +4,11 @@
   den.hosts.x86_64-linux.workstation = { };
 
   den.aspects.workstation = {
-    includes = [ den.aspects.disko ];
+    includes = [
+      den.aspects.disko
+      den.aspects.plasma
+    ];
+
     nixos = {
       system.stateVersion = "26.11"; # No need to change this line
 
