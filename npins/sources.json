@@ -1,5 +1,18 @@
 {
   "pins": {
+    "agenix": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "ryantm",
+        "repo": "agenix"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "847720f0e73a77ce6503b63fba6c357c742c28a7",
+      "url": "https://github.com/ryantm/agenix/archive/847720f0e73a77ce6503b63fba6c357c742c28a7.tar.gz",
+      "hash": "sha256-Ptf4Drj8JYQDpNGEo9o+Tc7+hyjYxe+zrYO3J4jrYT4="
+    },
     "den": {
       "type": "Git",
       "repository": {
