@@ -1,4 +1,4 @@
-{ den, ... }:
+{ inputs, den, ... }:
 
 {
   den.hosts.x86_64-linux.thinkpad-z13 = { };
@@ -11,7 +11,13 @@
     ];
 
     nixos = {
+      imports = [ inputs.nixos-hardware.nixosModules.lenovo-thinkpad-z13-gen1 ];
+
       system.stateVersion = "26.11"; # No need to change this line
+
+      # Laptop hardware support
+      services.fwupd.enable = true;
+      services.power-profiles-daemon.enable = true;
 
       # Manage disk with disko
       disko.devices.disk.main = (

@@ -52,6 +52,19 @@
       "url": "https://github.com/denful/import-tree/archive/eb1b52eaecc57f7c136d07ae8a93e724dfecac46.tar.gz",
       "hash": "sha256-ljEMTXP/rH0tOvDzc9gzwww6KcHRPRnEHzd9lK48V7s="
     },
+    "nixos-hardware": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nixos",
+        "repo": "nixos-hardware"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "60a624466c08787ee8303393b7d4752d1826f14f",
+      "url": "https://github.com/nixos/nixos-hardware/archive/60a624466c08787ee8303393b7d4752d1826f14f.tar.gz",
+      "hash": "sha256-BYhx89XJltnRyQeuDKHVL5eSqbbfAcOKuDts7QRsrxQ="
+    },
     "nixpkgs": {
       "type": "Channel",
       "name": "nixpkgs-unstable",
