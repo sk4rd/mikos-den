@@ -19,6 +19,10 @@
           hashedPasswordFile = lib.mkForce null;
           initialHashedPassword = lib.mkForce null;
         }) (lib.filterAttrs (_: user: user.isNormalUser) config.users.users);
+
+        # vm logs in with the test password above so the real password is not
+        # needed
+        age.secrets.miko-password.enable = lib.mkForce false;
       };
     };
 
