@@ -2,6 +2,9 @@
   den.aspects.brave.nixos = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.brave ];
 
+    # Prefer native wayland for chromium browsers
+    environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
     # This module writes settings for chromium based browsers such as brave
     programs.chromium = {
       enable = true;
