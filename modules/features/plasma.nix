@@ -1,5 +1,14 @@
 { den, ... }:
 
+let
+  kcminputrc = ''
+    [Libinput][Defaults][Pointer]
+    PointerAccelerationProfile=1
+
+    [Libinput][Defaults][Touchpad]
+    PointerAccelerationProfile=2
+  '';
+in
 {
   den.aspects.plasma = {
     includes = [ den.aspects.printing-scanning ];
@@ -34,9 +43,20 @@
         union
       ];
 
+      # Pointer settings for the login screen
+      systemd.tmpfiles.rules = [
+        "d /var/lib/sddm/.config 0755 sddm sddm -"
+        "L+ /var/lib/sddm/.config/kcminputrc - - - - ${pkgs.writeText "sddm-kcminputrc" kcminputrc}"
+      ];
     };
 
     hjem = { pkgs, ... }: {
+      # Apply pointer accel profile to plasma
+      files.".config/kcminputrc" = {
+        text = kcminputrc;
+        clobber = true;
+      };
+
     };
   };
 }
