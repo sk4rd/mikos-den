@@ -1,16 +1,23 @@
 { inputs, den, ... }:
 
 {
-  den.aspects.secrets.nixos = {
-    imports = [ inputs.agenix.nixosModules.default ];
+  den.aspects.secrets.nixos =
+    { pkgs, ... }:
+    {
+      imports = [ inputs.agenix.nixosModules.default ];
 
-    # Each host decrypts with its own age key provisioned manually
-    age.identityPaths = [ "/etc/age/host.key" ];
+      environment.systemPackages = [
+        pkgs.age
+        inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.agenix
+      ];
 
-    systemd.tmpfiles.rules = [
-      "d /etc/age 0700 root root -"
-    ];
-  };
+      # Each host decrypts with its own age key provisioned manually
+      age.identityPaths = [ "/etc/age/host.key" ];
+
+      systemd.tmpfiles.rules = [
+        "d /etc/age 0700 root root -"
+      ];
+    };
 
   den.schema.host.includes = [ den.aspects.secrets ];
 }
