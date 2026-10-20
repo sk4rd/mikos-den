@@ -27,6 +27,13 @@
       layout = "us";
       variant = "intl";
     };
+
+    # Since GTK 4.20, GTK delegates dead keys and compose sequences to the
+    # Wayland text-input protocol. Without an input method (fcitx5/ibus),
+    # dead keys such as ' " ` are swallowed in GTK4 apps like Ghostty.
+    # Use GTK's built-in handling until an input method is configured.
+    # Remove this if you enable i18n.inputMethod.
+    environment.sessionVariables.GTK_IM_MODULE = "simple";
   };
 
   den.schema.host.includes = [ den.aspects.locale ];
