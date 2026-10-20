@@ -21,6 +21,7 @@
       files.".config/ghostty/config.ghostty".text = ''
         theme = ${config.miko.theme.name}
         font-family = BlexMono Nerd Font Mono
+        font-size = 11
       '';
 
       # Register default plasma shortcut
