@@ -25,6 +25,9 @@ in
         geoclue2.enable = false;
       };
 
+      # SDDM's PAM stack includes the login service
+      security.pam.services.login.fprintAuth = false;
+
       programs.kde-pim.enable = false;
 
       environment.plasma6.excludePackages = with pkgs.kdePackages; [
