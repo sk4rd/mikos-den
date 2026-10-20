@@ -1,5 +1,9 @@
+{ den, ... }:
+
 {
   den.aspects.ghostty = {
+    includes = [ den.aspects.theme ];
+
     nixos = { pkgs, ... }: {
       fonts.packages = with pkgs; [ nerd-fonts.blex-mono ];
 
@@ -11,11 +15,11 @@
       '';
     };
 
-    hjem = { pkgs, ... }: {
+    hjem = { pkgs, config, ... }: {
       packages = with pkgs; [ ghostty ];
 
       files.".config/ghostty/config.ghostty".text = ''
-        theme = Firefox Dev
+        theme = ${config.miko.theme.name}
         font-family = BlexMono Nerd Font Mono
       '';
 
