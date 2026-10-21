@@ -8,6 +8,7 @@
       den.aspects.disko
       den.aspects.plasma
       den.aspects.brave
+      den.aspects.gaming
     ];
 
     nixos = {
