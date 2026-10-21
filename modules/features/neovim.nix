@@ -20,6 +20,7 @@
               neogit
               diffview-nvim
               nvim-web-devicons
+              nvim-highlight-colors
               which-key-nvim
             ];
           })
