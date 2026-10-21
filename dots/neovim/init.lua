@@ -67,6 +67,25 @@ end, {
   desc = 'Accept command-line completion first',
 })
 
+-- Completion
+-- nixd only advertises '.' as a trigger character.
+vim.api.nvim_create_autocmd('InsertCharPre', {
+  callback = function()
+    vim.lsp.completion.get()
+  end,
+})
+
+-- LSP
+vim.lsp.enable('nixd')
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(event)
+    vim.lsp.completion.enable(true, event.data.client_id, event.buf, {
+      autotrigger = true,
+    })
+  end,
+})
+
 -- which-key
 require('which-key').setup({
   preset = 'helix',
