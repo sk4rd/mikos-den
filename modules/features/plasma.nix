@@ -9,6 +9,7 @@ let
     [Libinput][Defaults][Touchpad]
     NaturalScroll=true
     PointerAccelerationProfile=2
+    ScrollFactor=0.5
   '';
 in
 {
