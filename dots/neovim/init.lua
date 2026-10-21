@@ -2,6 +2,9 @@
 vim.g.mapleader = ' ' -- space
 vim.g.maplocalleader = ','
 
+-- Colors
+require('theme')(require('palette'))
+
 -- UI / display
 vim.opt.number = true
 vim.opt.relativenumber = true
