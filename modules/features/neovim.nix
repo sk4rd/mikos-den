@@ -10,6 +10,9 @@
           lualine-nvim
           telescope-nvim
           plenary-nvim
+          neogit
+          diffview-nvim
+          nvim-web-devicons
         ];
       })
     ];

@@ -76,3 +76,17 @@ vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Find help' })
 vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = 'Find diagnostics' })
 vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = 'Resume search' })
+
+-- Telescope: git
+vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = 'Git status' })
+vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'Git commits' })
+vim.keymap.set('n', '<leader>gB', builtin.git_bcommits, { desc = 'Git buffer commits' })
+vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = 'Git stash' })
+
+-- Neogit
+require('neogit').setup({
+  integrations = { diffview = true },
+  diff_viewer = 'diffview',
+})
+
+vim.keymap.set('n', '<leader>gg', '<cmd>Neogit<CR>', { desc = 'Neogit status' })
