@@ -16,6 +16,7 @@
             plugins = with pkgs.vimPlugins; [
               lualine-nvim
               telescope-nvim
+              telescope-fzf-native-nvim
               plenary-nvim
               neogit
               diffview-nvim
