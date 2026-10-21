@@ -4,6 +4,9 @@ vim.g.maplocalleader = ','
 
 -- Colors
 require('theme')(require('palette'))
+require('nvim-highlight-colors').setup({
+  enable_named_colors = false,
+})
 
 -- UI / display
 vim.opt.number = true
