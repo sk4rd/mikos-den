@@ -13,6 +13,7 @@
           neogit
           diffview-nvim
           nvim-web-devicons
+          which-key-nvim
         ];
       })
     ];

@@ -61,6 +61,17 @@ end, {
   desc = 'Accept command-line completion first',
 })
 
+-- which-key
+require('which-key').setup({
+  preset = 'helix',
+  delay = 100,
+})
+
+require('which-key').add({
+  { '<leader>f', group = 'find' },
+  { '<leader>g', group = 'git' },
+})
+
 -- Telescope
 require('telescope').setup({
   defaults = {
