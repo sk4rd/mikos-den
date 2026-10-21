@@ -101,6 +101,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+-- Statusline
+require('lualine').setup({
+  sections = {
+    lualine_x = { 'lsp_status', 'encoding', 'fileformat', 'filetype' },
+  },
+})
+
 -- which-key
 require('which-key').setup({
   preset = 'helix',
