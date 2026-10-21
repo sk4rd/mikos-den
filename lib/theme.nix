@@ -1,31 +1,31 @@
 {
-  name = "Firefox Dev";
+  name = "Peppermint";
   mode = "dark";
 
-  background = "#0e1011";
-  foreground = "#7c8fa4";
-  cursor = "#708284";
-  cursorText = "#002831";
-  selectionBackground = "#163c61";
-  selectionForeground = "#f2f5f9";
+  background = "#000000";
+  foreground = "#c8c8c8";
+  cursor = "#bbbbbb";
+  cursorText = "#ffffff";
+  selectionBackground = "#e6e6e6";
+  selectionForeground = "#000000";
 
   palette = {
-    black = "#002831";
-    red = "#e63853";
-    green = "#5eb83c";
-    yellow = "#a57706";
-    blue = "#359ddf";
-    magenta = "#d75cff";
-    cyan = "#4b73a2";
-    white = "#dcdcdc";
+    black = "#353535";
+    red = "#e74669";
+    green = "#89d287";
+    yellow = "#dab853";
+    blue = "#449fd0";
+    magenta = "#da62dc";
+    cyan = "#65aaaf";
+    white = "#b4b4b4";
 
-    brightBlack = "#26444d";
-    brightRed = "#e1003f";
-    brightGreen = "#1d9000";
-    brightYellow = "#cd9409";
-    brightBlue = "#006fc0";
-    brightMagenta = "#a200da";
-    brightCyan = "#005794";
-    brightWhite = "#e2e2e2";
+    brightBlack = "#535353";
+    brightRed = "#e4859b";
+    brightGreen = "#a3cca2";
+    brightYellow = "#e1e487";
+    brightBlue = "#6fbce2";
+    brightMagenta = "#e586e7";
+    brightCyan = "#96dcdb";
+    brightWhite = "#dfdfdf";
   };
 }
