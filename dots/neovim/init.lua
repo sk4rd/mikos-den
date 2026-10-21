@@ -68,6 +68,16 @@ end, {
 })
 
 -- LSP
+vim.lsp.config('nixd', {
+  settings = {
+    nixd = {
+      formatting = {
+        command = { 'nixfmt' },
+      },
+    },
+  },
+})
+
 vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
@@ -84,6 +94,17 @@ vim.lsp.config('lua_ls', {
 })
 
 vim.lsp.enable({ 'nixd', 'lua_ls' })
+
+vim.keymap.set('n', '<leader>cf', function()
+  vim.lsp.buf.format()
+end, { desc = 'Format buffer' })
+
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*.nix',
+  callback = function(event)
+    vim.lsp.buf.format({ bufnr = event.buf, async = false })
+  end,
+})
 
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(event)

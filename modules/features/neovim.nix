@@ -10,6 +10,7 @@
         packages = [
           pkgs.ripgrep
           pkgs.nixd
+          pkgs.nixfmt
           pkgs.lua-language-server
           (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
             # Don't override the init.el path
