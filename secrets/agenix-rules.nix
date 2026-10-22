@@ -12,4 +12,5 @@ in
     nas
   ];
   "wg-server-key.age".publicKeys = [ nas ];
+  "cloudflare-dns-token.age".publicKeys = [ nas ];
 }
