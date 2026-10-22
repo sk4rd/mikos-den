@@ -23,6 +23,7 @@
               plenary-nvim
               nvim-lspconfig
               gitsigns-nvim
+              render-markdown-nvim
               neogit
               diffview-nvim
               nvim-web-devicons
