@@ -174,6 +174,9 @@ vim.keymap.set('n', '<leader>gP', gitsigns.toggle_deleted, { desc = 'Toggle dele
 vim.keymap.set('n', '<leader>gn', gitsigns.next_hunk, { desc = 'Next hunk' })
 vim.keymap.set('n', '<leader>gN', gitsigns.prev_hunk, { desc = 'Previous hunk' })
 
+-- Markdown rendering
+require('render-markdown').setup({})
+
 -- Neogit
 require('neogit').setup({
   integrations = { diffview = true },
