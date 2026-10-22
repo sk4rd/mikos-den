@@ -32,11 +32,14 @@ in
             connection = {
               id = "nas-vpn";
               type = "wireguard";
-              interface-name = "wg0";
+              interface-name = "wg-nas";
               autoconnect = false;
             };
 
-            wireguard.private-key = "$WG_PRIVATE_KEY";
+            wireguard = {
+              private-key = "$WG_PRIVATE_KEY";
+              fwmark = 51821;
+            };
 
             "wireguard-peer.${nasPublicKey}" = {
               endpoint = "vpn.sk4rd.com:51820";

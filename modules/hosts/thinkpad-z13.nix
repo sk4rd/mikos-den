@@ -6,6 +6,11 @@
       address = "10.100.0.3/32";
       secret = "wg-thinkpad-env";
     };
+    settings.proton-vpn-client = {
+      publicKey = "c/PBUk5lfuqGRwA57J7SLNirHU476Op5QuihdNZZkFA=";
+      endpoint = "89.222.96.187:51820";
+      secret = "proton-thinkpad-env";
+    };
   };
 
   den.aspects.thinkpad-z13 = {
@@ -18,6 +23,7 @@
       den.aspects.bluetooth
       den.aspects.flatpak
       den.aspects.nas-vpn-client
+      den.aspects.proton-vpn-client
     ];
 
     nixos = {
