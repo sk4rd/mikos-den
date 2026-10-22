@@ -199,6 +199,49 @@ in
           };
         };
 
+        # Wireguard config
+        age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
+
+        networking.wireguard.interfaces.wg0 = {
+          ips = [ "10.100.0.1/24" ];
+          listenPort = 51820;
+          privateKeyFile = config.age.secrets.wg-server-key.path;
+          peers = [
+            {
+              # workstation
+              publicKey = "fQ6d2wm3vg44c782BN5uaddSeSyy40alcQhjISsELzA=";
+              allowedIPs = [ "10.100.0.2/32" ];
+            }
+            {
+              # thinkpad-z13
+              publicKey = "QUiRCvPcetsdkeRGM3NIxD5amJdDqxM6CZdMQY4RTzU=";
+              allowedIPs = [ "10.100.0.3/32" ];
+            }
+            {
+              # phone
+              publicKey = "rajGvU9NK6lHJm3ncM2PGZB22xbuw2cnmc66oOstcE4=";
+              allowedIPs = [ "10.100.0.4/32" ];
+            }
+          ];
+        };
+
+        networking.firewall = {
+          allowedUDPPorts = [ 51820 ];
+          trustedInterfaces = [ "wg0" ];
+        };
+
+        # Restart wireguard when key changes
+        systemd.services.wireguard-wg0.restartTriggers = [
+          (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
+        ];
+
+        networking.nat = {
+          enable = true;
+          internalInterfaces = [ "wg0" ];
+          externalInterface = "enp1s0";
+        };
+
+        boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
         services.zfs = {
           autoScrub.enable = true;
           expandOnBoot = "all";
