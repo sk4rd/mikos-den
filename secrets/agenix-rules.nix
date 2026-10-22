@@ -17,4 +17,8 @@ in
     thinkpad-z13
   ];
   "cloudflare-dns-token.age".publicKeys = [ nas ];
+  "proton-thinkpad-env.age".publicKeys = [
+    yubikey
+    thinkpad-z13
+  ];
 }
