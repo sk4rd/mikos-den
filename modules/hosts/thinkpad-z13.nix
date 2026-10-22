@@ -1,7 +1,12 @@
 { inputs, den, ... }:
 
 {
-  den.hosts.x86_64-linux.thinkpad-z13 = { };
+  den.hosts.x86_64-linux.thinkpad-z13 = {
+    settings.nas-vpn-client = {
+      address = "10.100.0.3/32";
+      secret = "wg-thinkpad-env";
+    };
+  };
 
   den.aspects.thinkpad-z13 = {
     includes = [
@@ -12,6 +17,7 @@
       den.aspects.audio
       den.aspects.bluetooth
       den.aspects.flatpak
+      den.aspects.nas-vpn-client
     ];
 
     nixos = {
