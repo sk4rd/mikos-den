@@ -13,6 +13,7 @@
       den.aspects.git
       den.aspects.ghostty
       den.aspects.neovim
+      den.aspects.vesktop
       den.aspects.yubikey
     ];
 
