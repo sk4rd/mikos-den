@@ -1,4 +1,4 @@
-{ den, lib, ... }:
+{ lib, ... }:
 
 let
   nasPublicKey = "gEhN/FkLUEKlbjfu2Vixc4iTM3d6abuQWAMGdxORRSo=";
@@ -13,7 +13,7 @@ in
 
       secret = lib.mkOption {
         type = lib.types.str;
-        description = "Name of the agenix secret containing WG_PRIVATE_KEY";
+        description = "Name of the agenix environment file containing WG_PRIVATE_KEY";
       };
     };
 
