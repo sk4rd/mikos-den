@@ -27,6 +27,17 @@ install:
 sudo nixos-install --flake .#<host>
 ```
 
+## Secrets
+
+Before adding a secret make sure to declare its recipients in
+=agenix-rules.nix=.
+
+Adding and editing a secret:
+```sh
+cd secrets
+agenix -e very-secret-secret.age  # opens $EDITOR
+```
+
 ## Test VM
 
 Every host includes the `nixos-testing-vm` aspect, which sets up
