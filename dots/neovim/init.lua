@@ -164,6 +164,16 @@ vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'Git commits' })
 vim.keymap.set('n', '<leader>gB', builtin.git_bcommits, { desc = 'Git buffer commits' })
 vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = 'Git stash' })
 
+-- Gitsigns
+local gitsigns = require('gitsigns')
+
+gitsigns.setup()
+
+vim.keymap.set('n', '<leader>gp', gitsigns.preview_hunk_inline, { desc = 'Preview hunk inline' })
+vim.keymap.set('n', '<leader>gP', gitsigns.toggle_deleted, { desc = 'Toggle deleted lines' })
+vim.keymap.set('n', '<leader>gn', gitsigns.next_hunk, { desc = 'Next hunk' })
+vim.keymap.set('n', '<leader>gN', gitsigns.prev_hunk, { desc = 'Previous hunk' })
+
 -- Neogit
 require('neogit').setup({
   integrations = { diffview = true },
