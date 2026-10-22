@@ -1,4 +1,4 @@
-{ den, ... }:
+{ ... }:
 
 {
   den.aspects.flatpak.nixos = { pkgs, ... }: {
@@ -13,6 +13,4 @@
       '';
     };
   };
-
-  den.schema.host.includes = [ den.aspects.flatpak ];
 }
