@@ -12,5 +12,9 @@ in
     nas
   ];
   "wg-server-key.age".publicKeys = [ nas ];
+  "wg-thinkpad-env.age".publicKeys = [
+    yubikey
+    thinkpad-z13
+  ];
   "cloudflare-dns-token.age".publicKeys = [ nas ];
 }
