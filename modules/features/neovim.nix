@@ -22,6 +22,7 @@
               telescope-fzf-native-nvim
               plenary-nvim
               nvim-lspconfig
+              gitsigns-nvim
               neogit
               diffview-nvim
               nvim-web-devicons
