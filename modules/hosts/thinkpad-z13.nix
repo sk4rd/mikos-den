@@ -9,6 +9,9 @@
       den.aspects.plasma
       den.aspects.brave
       den.aspects.gaming
+      den.aspects.audio
+      den.aspects.bluetooth
+      den.aspects.flatpak
     ];
 
     nixos = {
