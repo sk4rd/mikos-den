@@ -11,4 +11,5 @@ in
     thinkpad-z13
     nas
   ];
+  "wg-server-key.age".publicKeys = [ nas ];
 }
