@@ -51,47 +51,73 @@ let
     let
       ds = "tank/${name}";
       mountpoint = cfg.mountpoint or "/tank/${name}";
-      pairs = [
-        "mountpoint=${mountpoint}"
-        "canmount=${cfg.canmount or "on"}"
+      properties = [
+        {
+          name = "mountpoint";
+          value = mountpoint;
+        }
+        {
+          name = "canmount";
+          value = cfg.canmount or "on";
+        }
       ]
-      ++ lib.mapAttrsToList (k: v: "${k}=${v}") (cfg.props or { });
+      ++ lib.mapAttrsToList (name: value: { inherit name value; }) (cfg.props or { });
+
+      dsArg = lib.escapeShellArg ds;
+      mountpointArg = lib.escapeShellArg mountpoint;
+
+      setIfChanged =
+        property:
+        let
+          propertyArg = lib.escapeShellArg "${property.name}=${property.value}";
+          nameArg = lib.escapeShellArg property.name;
+          valueArg = lib.escapeShellArg property.value;
+        in
+        ''
+          if [ "$(zfs get -H -o value ${nameArg} ${dsArg} 2>/dev/null || true)" != ${valueArg} ]; then
+            zfs set ${propertyArg} ${dsArg}
+          fi
+        '';
+
+      createArgs = lib.concatMap (property: [
+        "-o"
+        "${property.name}=${property.value}"
+      ]) properties;
 
       modeScript = lib.optionalString (cfg ? mode) ''
-        if [ "$(zfs get -H -o value mounted ${ds})" != "yes" ]; then
-          zfs mount ${ds}
+        if [ "$(zfs get -H -o value mounted ${dsArg})" != "yes" ]; then
+          zfs mount ${dsArg}
         fi
-        chmod ${cfg.mode} ${mountpoint}
+        chmod ${lib.escapeShellArg cfg.mode} ${mountpointArg}
       '';
     in
     ''
-      if zfs list -H -o name ${ds} >/dev/null 2>&1; then
-        zfs set ${lib.escapeShellArgs (pairs ++ [ ds ])}
+      if zfs list -H -o name ${dsArg} >/dev/null 2>&1; then
+        ${lib.concatMapStringsSep "\n" setIfChanged properties}
       else
-        zfs create ${
-          lib.escapeShellArgs (
-            lib.concatMap (p: [
-              "-o"
-              p
-            ]) pairs
-            ++ [ ds ]
-          )
-        }
+        zfs create ${lib.escapeShellArgs (createArgs ++ [ ds ])}
       fi
       ${modeScript}
     '';
-
-  layoutScript = lib.concatStringsSep "\n" (lib.mapAttrsToList datasetBlock tankDatasets);
 in
 
 {
   den.hosts.x86_64-linux.nas = { };
 
   den.aspects.nas = {
-    includes = [ den.aspects.disko ];
+    includes = [
+      den.aspects.disko
+    ];
 
     nixos =
-      { config, pkgs, ... }:
+      {
+        config,
+        pkgs,
+        ...
+      }:
+      let
+        layoutScript = lib.concatMapAttrsStringsSep "\n" datasetBlock tankDatasets;
+      in
       {
         system.stateVersion = "26.11"; # No need to change this line
 
