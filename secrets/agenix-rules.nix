@@ -11,12 +11,18 @@ in
     thinkpad-z13
     nas
   ];
-  "wg-server-key.age".publicKeys = [ nas ];
+  "wg-server-key.age".publicKeys = [
+    yubikey
+    nas
+  ];
   "wg-thinkpad-env.age".publicKeys = [
     yubikey
     thinkpad-z13
   ];
-  "cloudflare-dns-token.age".publicKeys = [ nas ];
+  "cloudflare-dns-token.age".publicKeys = [
+    yubikey
+    nas
+  ];
   "proton-thinkpad-env.age".publicKeys = [
     yubikey
     thinkpad-z13
