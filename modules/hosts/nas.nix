@@ -38,6 +38,13 @@ let
     "services" = {
       canmount = "off";
     };
+    "services/home-assistant" = {
+      mountpoint = "/var/lib/hass";
+      owner = "hass";
+      group = "hass";
+      mode = "0750";
+      inherit props;
+    };
     "backups" = {
       canmount = "off";
     };
@@ -84,11 +91,16 @@ let
         "${property.name}=${property.value}"
       ]) properties;
 
-      modeScript = lib.optionalString (cfg ? mode) ''
+      ownerScript = lib.optionalString (cfg ? owner) ''
+        chown ${lib.escapeShellArg "${cfg.owner}:${cfg.group or cfg.owner}"} ${mountpointArg}
+      '';
+
+      modeScript = lib.optionalString (cfg ? mode || cfg ? owner) ''
         if [ "$(zfs get -H -o value mounted ${dsArg})" != "yes" ]; then
           zfs mount ${dsArg}
         fi
-        chmod ${lib.escapeShellArg cfg.mode} ${mountpointArg}
+        ${ownerScript}
+        ${lib.optionalString (cfg ? mode) "chmod ${lib.escapeShellArg cfg.mode} ${mountpointArg}"}
       '';
     in
     ''
@@ -107,6 +119,7 @@ in
   den.aspects.nas = {
     includes = [
       den.aspects.disko
+      den.aspects.home-assistant
     ];
 
     nixos =
@@ -116,7 +129,7 @@ in
         ...
       }:
       let
-        layoutScript = lib.concatMapAttrsStringsSep "\n" datasetBlock tankDatasets;
+        layoutScript = lib.concatMapAttrsStringSep "\n" datasetBlock tankDatasets;
       in
       {
         system.stateVersion = "26.11"; # No need to change this line
