@@ -35,8 +35,13 @@ Before adding a secret make sure to declare its recipients in
 Adding and editing a secret:
 ```sh
 cd secrets
-agenix -e very-secret-secret.age  # opens $EDITOR
+agenix -e very-secret-secret.age -i ~/.config/age/keys.txt  # opens $EDITOR
 ```
+
+The identity is the YubiKey age plugin key, provisioned by
+`modules/features/yubikey.nix` (PIV slot 2) at the same path on every
+host. `agenix` only auto-detects `~/.ssh/id_*`, so pass it with `-i` — or
+let the fish wrapper fill it in: `agenix -e very-secret-secret.age`.
 
 ## Test VM
 
