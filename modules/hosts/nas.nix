@@ -122,6 +122,7 @@ in
     includes = [
       den.aspects.disko
       den.aspects.home-assistant
+      den.aspects.service-names
     ];
 
     nixos =
@@ -281,8 +282,11 @@ in
 
         boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
-        # DDNS token for vpn.sk4rd.com.
-        age.secrets.cloudflare-dns-token.file = ../../secrets/cloudflare-dns-token.age;
+        # Cloudflare DNS token: DDNS for vpn.sk4rd.com and DNS-01 certs.
+        age.secrets.cloudflare-dns-token = {
+          file = ../../secrets/cloudflare-dns-token.age;
+          owner = "caddy";
+        };
 
         systemd.services.ddns-update = {
           description = "Point vpn.sk4rd.com at the current public IPv4";
