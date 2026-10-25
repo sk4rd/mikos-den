@@ -49,6 +49,8 @@ let
       canmount = "off";
     };
     "private" = {
+      owner = "miko";
+      group = "users";
       mode = "0700";
     };
   };
@@ -380,6 +382,9 @@ in
             };
             "tank/data/public" = {
               useTemplate = [ "archive" ];
+            };
+            "tank/private" = {
+              useTemplate = [ "working" ];
             };
           };
         };
