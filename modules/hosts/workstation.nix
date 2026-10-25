@@ -15,7 +15,7 @@
     ];
 
     nixos = {
-      system.stateVersion = "26.11"; # No need to change this line
+      system.stateVersion = "26.11";
 
       hardware = {
         enableRedistributableFirmware = true;
@@ -28,7 +28,6 @@
 
       boot.kernelParams = [ "amd_pstate=active" ];
 
-      # Manage disk with disko
       disko.devices.disk.main = (
         import ../../lib/disks/encrypted-ext4.nix "/dev/disk/by-id/nvme-CT4000P3PSSD8_2339E879EA19"
       );

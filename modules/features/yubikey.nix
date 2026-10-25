@@ -22,7 +22,6 @@
       ];
     };
 
-    # Use pcscd instead of direct ccid access.
     provides.to-users.hjem.files.".gnupg/scdaemon.conf".text = ''
       disable-ccid
     '';

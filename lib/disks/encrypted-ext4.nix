@@ -1,5 +1,4 @@
-# Create a fat32 boot parition with luks encrypted ext4 root
-# Pass the device disk-id
+# FAT32 ESP + LUKS2 ext4 root; takes the disk id.
 device: {
   inherit device;
   type = "disk";

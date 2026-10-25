@@ -134,9 +134,8 @@ in
         layoutScript = lib.concatMapAttrsStringSep "\n" datasetBlock tankDatasets;
       in
       {
-        system.stateVersion = "26.11"; # No need to change this line
+        system.stateVersion = "26.11";
 
-        # Configure boot ssd zfs pool
         disko.devices = {
           disk.main = {
             device = "/dev/disk/by-id/ata-WDC_WDS240G1G0B-00RC30_1711A9801663";
@@ -240,7 +239,6 @@ in
           };
         };
 
-        # Wireguard config
         age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
 
         networking.wireguard.interfaces.wg0 = {
@@ -271,7 +269,6 @@ in
           trustedInterfaces = [ "wg0" ];
         };
 
-        # Restart wireguard when key changes
         systemd.services.wireguard-wg0.restartTriggers = [
           (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
         ];
@@ -284,7 +281,7 @@ in
 
         boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
-        # Keep vpn ip up to date
+        # DDNS token for vpn.sk4rd.com.
         age.secrets.cloudflare-dns-token.file = ../../secrets/cloudflare-dns-token.age;
 
         systemd.services.ddns-update = {

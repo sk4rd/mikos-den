@@ -49,7 +49,6 @@ in
         union
       ];
 
-      # Pointer settings for the login screen
       systemd.tmpfiles.rules = [
         "d /var/lib/sddm/.config 0755 sddm sddm -"
         "L+ /var/lib/sddm/.config/kcminputrc - - - - ${pkgs.writeText "sddm-kcminputrc" kcminputrc}"
@@ -57,13 +56,12 @@ in
     };
 
     hjem = { pkgs, ... }: {
-      # Apply pointer accel profile to plasma
       files.".config/kcminputrc" = {
         text = kcminputrc;
         clobber = true;
       };
 
-      # Apply vim window motions
+      # Vim-style window motions.
       systemd.services.plasma-vim-shortcuts = {
         description = "Configure Plasma Vim window shortcuts";
         wantedBy = [

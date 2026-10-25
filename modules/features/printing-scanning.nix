@@ -14,7 +14,6 @@
       hardware.sane.enable = true;
     };
 
-    # Add normal users to scanning groups
     provides.to-users = { user, ... }: {
       nixos = { config, lib, ... }: {
         users.users.${user.userName}.extraGroups =
