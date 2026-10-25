@@ -3,9 +3,7 @@ let
   stateDir = "/var/lib/hass";
   dataset = "tank/services/home-assistant";
 
-  # Home Assistant pins aioipp==0.19.3 for the ipp integration, but nixpkgs only
-  # ships pyipp 0.17.2. Without 0.19.3 the requirement check fails and the
-  # printer integration refuses to load.
+  # HA pins aioipp 0.19.3, nixpkgs ships 0.17.2; without it the printer integration refuses to load.
   mkAioipp =
     pkgs: ps:
     ps.buildPythonPackage rec {
@@ -38,9 +36,7 @@ in
         enable = true;
         configDir = stateDir;
 
-        # default_config only. Anything else has to be listed here, otherwise
-        # the integration is not registered and its config flow fails with
-        # "Invalid handler specified".
+        # Only default_config is implicit; anything else is unregistered and its config flow fails.
         extraComponents = [
           "fritz" # FRITZ!Box Tools: presence trackers for LAN/WiFi devices
           "google_translate" # onboarding TTS choice; needs the gtts module
@@ -49,12 +45,8 @@ in
           "zha" # SLZB-06M Zigbee coordinator
         ];
 
-        # nixpkgs' component->requirement map is incomplete for 2026.10.2, so
-        # the python modules of a few default_config integrations have to be
-        # pulled in by hand. These land in the store and Home Assistant skips
-        # pip, so it only needs the modules to be importable at all: a
-        # default_config dependency that cannot be imported takes the whole
-        # bundle (and with it ssdp/zeroconf discovery) down.
+        # nixpkgs' requirement map misses some default_config deps; one that cannot import
+        # takes the whole bundle (and ssdp/zeroconf discovery) down.
         extraPackages = ps: [
           (mkAioipp pkgs ps) # ipp
           ps.aiodhcpwatcher # dhcp
@@ -70,10 +62,7 @@ in
       fileSystems.${stateDir} = {
         device = dataset;
         fsType = "zfs";
-        # Do not add this mount to local-fs.target. The dataset is created by
-        # zfs-datasets.service at multi-user; a boot-time mount attempt would
-        # fail first and drop the system into emergency mode. Home Assistant's
-        # RequiresMountsFor starts the mount after dataset reconciliation.
+        # noauto: zfs-datasets creates it at multi-user; a boot mount would hit emergency mode.
         options = [ "zfsutil" "noauto" ];
       };
 

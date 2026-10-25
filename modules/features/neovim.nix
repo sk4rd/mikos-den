@@ -13,8 +13,7 @@
           pkgs.nixfmt
           pkgs.lua-language-server
           (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
-            # Don't override the init.el path
-            # https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/editors/neovim/wrapper.nix#L69-L72
+            # Keep init.lua as the rc file (wrapRc = false).
             wrapRc = false;
             plugins = with pkgs.vimPlugins; [
               lualine-nvim

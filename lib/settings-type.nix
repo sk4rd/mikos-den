@@ -3,16 +3,13 @@ let
   inherit (lib) mkOption types;
   inherit (den.lib.aspects.fx.keyClassification) isStructuralKey;
 
-  # Keys that are pipeline machinery, class content or quirk data,
-  # never child aspects.
+  # Pipeline, class and quirk keys are never child aspects.
   skipKey =
     k:
     isStructuralKey k
     || (den.classes or { }) ? ${k}
     || (den.quirks or { }) ? ${k};
 
-  # `settings` is either a bare attrset of options, or a module with
-  # options / config / imports.
   reshape =
     raw:
     if raw ? options || raw ? config || raw ? imports then raw else { options = raw; };
@@ -25,8 +22,6 @@ let
       || lib.any (k: !(skipKey k) && hasSettingsDeep (node.${k} or null)) (builtins.attrNames node)
     );
 
-  # One submodule per aspect-tree node. A node can carry its own settings
-  # and also be the parent of aspects that do.
   nodeModule =
     node:
     let

@@ -10,8 +10,7 @@
           cores = 4;
         };
 
-        # Keep existing normal users and their configuration.
-        # Override only their VM login credentials.
+        # Keep users; override only the VM login credentials.
         users.users = lib.mapAttrs (_: _: {
           initialPassword = lib.mkForce "test";
           password = lib.mkForce null;
@@ -20,8 +19,7 @@
           initialHashedPassword = lib.mkForce null;
         }) (lib.filterAttrs (_: user: user.isNormalUser) config.users.users);
 
-        # vm logs in with the test password above so the real password is not
-        # needed
+        # The VM logs in with the test password instead.
         age.secrets.miko-password.enable = lib.mkForce false;
       };
     };
