@@ -3,7 +3,7 @@
 let
   kcminputrc = ''
     [Libinput][Defaults][Pointer]
-    NaturalScroll=true
+    NaturalScroll=false
     PointerAccelerationProfile=1
 
     [Libinput][Defaults][Touchpad]
