@@ -2,15 +2,34 @@
 
 let
   domain = "sk4rd.com";
-
-  proxies = {
-    "ha.${domain}" = "reverse_proxy 127.0.0.1:8123";
-  };
 in
 {
+  den.quirks.service-routes.description = "Reverse-proxy routes contributed by services";
+
   den.aspects.service-names.nixos =
-    { config, pkgs, ... }:
     {
+      config,
+      pkgs,
+      service-routes,
+      ...
+    }:
+    let
+      routes = lib.foldl' (acc: entry: acc // entry) { } service-routes;
+      names = lib.concatMap builtins.attrNames service-routes;
+    in
+    {
+      age.secrets.cloudflare-dns-token = {
+        file = ../../secrets/cloudflare-dns-token.age;
+        owner = "caddy";
+      };
+
+      assertions = [
+        {
+          assertion = builtins.length names == builtins.length (lib.unique names);
+          message = "Service route contributions must have unique hostnames";
+        }
+      ];
+
       # Certs come from DNS-01, so nothing has to be reachable from outside.
       services.caddy = {
         enable = true;
@@ -29,7 +48,7 @@ in
             }
             ${proxy}
           '';
-        }) proxies;
+        }) routes;
       };
 
       networking.firewall.allowedTCPPorts = [
