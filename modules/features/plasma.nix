@@ -14,7 +14,10 @@ let
 in
 {
   den.aspects.plasma = {
-    includes = [ den.aspects.printing-scanning ];
+    includes = [
+      den.aspects.printing-scanning
+      den.aspects.viewers
+    ];
 
     nixos = { pkgs, ... }: {
       services = {
