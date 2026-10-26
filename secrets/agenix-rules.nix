@@ -23,6 +23,10 @@ in
     yubikey
     nas
   ];
+  "proton-nas-key.age".publicKeys = [
+    yubikey
+    nas
+  ];
   "proton-thinkpad-env.age".publicKeys = [
     yubikey
     thinkpad-z13
