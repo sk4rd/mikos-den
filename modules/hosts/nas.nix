@@ -1,119 +1,4 @@
-{ lib, den, ... }:
-
-let
-  props = {
-    recordsize = "128K";
-    compression = "zstd";
-  };
-
-  tankDatasets = {
-    "data" = {
-      canmount = "off";
-    };
-    "data/documents" = {
-      inherit props;
-    };
-    "data/projects" = {
-      inherit props;
-    };
-    "data/media" = {
-      props = {
-        recordsize = "1M";
-        compression = "off";
-      };
-    };
-    "data/personal" = {
-      inherit props;
-    };
-    "data/public" = {
-      inherit props;
-    };
-    "data/torrents" = {
-      props = {
-        recordsize = "1M";
-        compression = "lz4";
-        refquota = "2T";
-      };
-    };
-    "services" = {
-      canmount = "off";
-    };
-    "services/home-assistant" = {
-      mountpoint = "/var/lib/hass";
-      owner = "hass";
-      group = "hass";
-      mode = "0750";
-      inherit props;
-    };
-    "backups" = {
-      canmount = "off";
-    };
-    "private" = {
-      owner = "miko";
-      group = "users";
-      mode = "0700";
-    };
-  };
-
-  datasetBlock =
-    name: cfg:
-    let
-      ds = "tank/${name}";
-      mountpoint = cfg.mountpoint or "/tank/${name}";
-      properties = [
-        {
-          name = "mountpoint";
-          value = mountpoint;
-        }
-        {
-          name = "canmount";
-          value = cfg.canmount or "on";
-        }
-      ]
-      ++ lib.mapAttrsToList (name: value: { inherit name value; }) (cfg.props or { });
-
-      dsArg = lib.escapeShellArg ds;
-      mountpointArg = lib.escapeShellArg mountpoint;
-
-      setIfChanged =
-        property:
-        let
-          propertyArg = lib.escapeShellArg "${property.name}=${property.value}";
-          nameArg = lib.escapeShellArg property.name;
-          valueArg = lib.escapeShellArg property.value;
-        in
-        ''
-          if [ "$(zfs get -H -o value ${nameArg} ${dsArg} 2>/dev/null || true)" != ${valueArg} ]; then
-            zfs set ${propertyArg} ${dsArg}
-          fi
-        '';
-
-      createArgs = lib.concatMap (property: [
-        "-o"
-        "${property.name}=${property.value}"
-      ]) properties;
-
-      ownerScript = lib.optionalString (cfg ? owner) ''
-        chown ${lib.escapeShellArg "${cfg.owner}:${cfg.group or cfg.owner}"} ${mountpointArg}
-      '';
-
-      modeScript = lib.optionalString (cfg ? mode || cfg ? owner) ''
-        if [ "$(zfs get -H -o value mounted ${dsArg})" != "yes" ]; then
-          zfs mount ${dsArg}
-        fi
-        ${ownerScript}
-        ${lib.optionalString (cfg ? mode) "chmod ${lib.escapeShellArg cfg.mode} ${mountpointArg}"}
-      '';
-    in
-    ''
-      if zfs list -H -o name ${dsArg} >/dev/null 2>&1; then
-        ${lib.concatMapStringsSep "\n" setIfChanged properties}
-      else
-        zfs create ${lib.escapeShellArgs (createArgs ++ [ ds ])}
-      fi
-      ${modeScript}
-    '';
-in
+{ den, ... }:
 
 {
   den.hosts.x86_64-linux.nas = { };
@@ -121,6 +6,7 @@ in
   den.aspects.nas = {
     includes = [
       den.aspects.disko
+      den.aspects.nas-storage
       den.aspects.home-assistant
       den.aspects.service-names
     ];
@@ -131,9 +17,6 @@ in
         pkgs,
         ...
       }:
-      let
-        layoutScript = lib.concatMapAttrsStringSep "\n" datasetBlock tankDatasets;
-      in
       {
         system.stateVersion = "26.11";
 
@@ -211,8 +94,6 @@ in
         };
 
         boot = {
-          supportedFilesystems = [ "zfs" ];
-          zfs.extraPools = [ "tank" ];
           kernelParams = [ "zfs.zfs_arc_max=4294967296" ];
         };
 
@@ -282,12 +163,6 @@ in
 
         boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
-        # Cloudflare DNS token: DDNS for vpn.sk4rd.com and DNS-01 certs.
-        age.secrets.cloudflare-dns-token = {
-          file = ../../secrets/cloudflare-dns-token.age;
-          owner = "caddy";
-        };
-
         systemd.services.ddns-update = {
           description = "Point vpn.sk4rd.com at the current public IPv4";
           wantedBy = [ "multi-user.target" ];
@@ -348,75 +223,6 @@ in
           };
         };
 
-        services.zfs = {
-          autoScrub.enable = true;
-          expandOnBoot = "all";
-        };
-
-        services.sanoid = {
-          enable = true;
-          interval = "hourly";
-          templates.working = {
-            hourly = 24;
-            daily = 7;
-            weekly = 4;
-            monthly = 3;
-            autosnap = true;
-            autoprune = true;
-          };
-          templates.archive = {
-            daily = 7;
-            weekly = 4;
-            monthly = 6;
-            autosnap = true;
-            autoprune = true;
-          };
-          datasets = {
-            "tank/data/documents" = {
-              useTemplate = [ "working" ];
-            };
-            "tank/data/personal" = {
-              useTemplate = [ "working" ];
-            };
-            "tank/data/projects" = {
-              useTemplate = [ "working" ];
-            };
-            "tank/data/public" = {
-              useTemplate = [ "archive" ];
-            };
-            "tank/private" = {
-              useTemplate = [ "working" ];
-            };
-          };
-        };
-
-        systemd.services.zfs-datasets = {
-          description = "Apply the declarative dataset layout on tank";
-          wantedBy = [ "multi-user.target" ];
-          after = [
-            "zfs-import.target"
-            "zfs-mount.service"
-          ];
-          requires = [ "zfs-import.target" ];
-          path = [
-            config.boot.zfs.package
-            pkgs.coreutils
-          ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-          };
-          script = ''
-            set -eu
-
-            if ! zpool list -H -o name tank >/dev/null 2>&1; then
-              echo "zfs-datasets: pool tank is not imported" >&2
-              exit 1
-            fi
-
-            ${layoutScript}
-          '';
-        };
       };
   };
 }

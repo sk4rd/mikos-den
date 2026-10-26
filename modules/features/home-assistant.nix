@@ -1,4 +1,4 @@
-{ ... }:
+{ den, ... }:
 let
   stateDir = "/var/lib/hass";
   dataset = "tank/services/home-assistant";
@@ -29,12 +29,32 @@ let
     };
 in
 {
+  den.aspects.home-assistant.includes = [ den.aspects.nas-storage ];
+
+  den.aspects.home-assistant.service-routes = {
+    "ha.sk4rd.com" = "reverse_proxy 127.0.0.1:8123";
+  };
+
+  den.aspects.home-assistant.storage-datasets = {
+    "services/home-assistant" = {
+      mountpoint = "/var/lib/hass";
+      owner = "hass";
+      group = "hass";
+      mode = "0750";
+      props = {
+        recordsize = "128K";
+        compression = "zstd";
+      };
+    };
+  };
+
   den.aspects.home-assistant.nixos =
     { lib, pkgs, ... }:
     {
       services.home-assistant = {
         enable = true;
         configDir = stateDir;
+        config = { };
 
         # Only default_config is implicit; anything else is unregistered and its config flow fails.
         extraComponents = [
@@ -63,7 +83,10 @@ in
         device = dataset;
         fsType = "zfs";
         # noauto: zfs-datasets creates it at multi-user; a boot mount would hit emergency mode.
-        options = [ "zfsutil" "noauto" ];
+        options = [
+          "zfsutil"
+          "noauto"
+        ];
       };
 
       users.users.hass.createHome = lib.mkForce false;
