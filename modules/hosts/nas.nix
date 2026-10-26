@@ -4,10 +4,15 @@
   den.hosts.x86_64-linux.nas = { };
 
   den.aspects.nas = {
+    provides.miko.includes = [ den.aspects.media-access ];
     includes = [
       den.aspects.disko
       den.aspects.nas-storage
       den.aspects.home-assistant
+      den.aspects.media-downloads
+      den.aspects.servarr
+      den.aspects.jellyfin
+      den.aspects.seerr
       den.aspects.service-names
     ];
 
