@@ -5,7 +5,12 @@
     includes = [ den.aspects.theme ];
 
     hjem =
-      { pkgs, config, lib, ... }:
+      {
+        pkgs,
+        config,
+        lib,
+        ...
+      }:
       {
         packages = [
           pkgs.ripgrep
