@@ -1,7 +1,13 @@
 { den, ... }:
 
 {
-  den.hosts.x86_64-linux.workstation = { };
+  den.hosts.x86_64-linux.workstation = {
+    settings.proton-vpn-client = {
+      publicKey = "c/PBUk5lfuqGRwA57J7SLNirHU476Op5QuihdNZZkFA=";
+      endpoint = "89.222.96.187:51820";
+      secret = "proton-workstation-env";
+    };
+  };
 
   den.aspects.workstation = {
     includes = [
@@ -12,6 +18,7 @@
       den.aspects.audio
       den.aspects.bluetooth
       den.aspects.flatpak
+      den.aspects.proton-vpn-client
     ];
 
     nixos = {
