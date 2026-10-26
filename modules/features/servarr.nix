@@ -7,9 +7,15 @@
   ];
 
   den.aspects.servarr.service-routes = {
-    "sonarr.sk4rd.com" = "reverse_proxy 127.0.0.1:8989";
-    "radarr.sk4rd.com" = "reverse_proxy 127.0.0.1:7878";
-    "prowlarr.sk4rd.com" = "reverse_proxy 127.0.0.1:9696";
+    "sonarr.sk4rd.com" = {
+      proxy = "reverse_proxy 127.0.0.1:8989";
+    };
+    "radarr.sk4rd.com" = {
+      proxy = "reverse_proxy 127.0.0.1:7878";
+    };
+    "prowlarr.sk4rd.com" = {
+      proxy = "reverse_proxy 127.0.0.1:9696";
+    };
   };
 
   den.aspects.servarr.nixos = { pkgs, ... }: {

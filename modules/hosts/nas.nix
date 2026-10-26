@@ -169,7 +169,7 @@
         boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
         systemd.services.ddns-update = {
-          description = "Point vpn.sk4rd.com at the current public IPv4";
+          description = "Point the public service names at the current public IPv4";
           wantedBy = [ "multi-user.target" ];
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
@@ -189,7 +189,7 @@
             token=$(cat "$CREDENTIALS_DIRECTORY/cf-token")
             api=https://api.cloudflare.com/client/v4
             zone=sk4rd.com
-            name=vpn.sk4rd.com
+            names=(vpn.sk4rd.com jellyfin.sk4rd.com)
 
             auth() { printf 'Authorization: Bearer %s\n' "$token"; }
 
@@ -200,22 +200,33 @@
               | jq -r '.result[0].id // empty')
             [ -n "$zone_id" ] || { echo "zone lookup for $zone failed" >&2; exit 1; }
 
-            record=$(auth | curl -fsS --max-time 10 -H @- \
-              "$api/zones/$zone_id/dns_records?type=A&name=$name")
-            record_id=$(printf '%s' "$record" | jq -r '.result[0].id // empty')
-            current=$(printf '%s' "$record" | jq -r '.result[0].content // empty')
-            [ -n "$record_id" ] || { echo "no A record for $name" >&2; exit 1; }
+            for name in "''${names[@]}"; do
+              record=$(auth | curl -fsS --max-time 10 -H @- \
+                "$api/zones/$zone_id/dns_records?type=A&name=$name")
+              record_id=$(printf '%s' "$record" | jq -r '.result[0].id // empty')
+              current=$(printf '%s' "$record" | jq -r '.result[0].content // empty')
 
-            if [ "$ip" = "$current" ]; then
-              echo "$name already points at $ip"
-              exit 0
-            fi
+              if [ -z "$record_id" ]; then
+                auth | curl -fsS --max-time 10 -o /dev/null -X POST -H @- \
+                  -H "Content-Type: application/json" \
+                  --data "$(jq -n --arg name "$name" --arg ip "$ip" \
+                    '{type: "A", name: $name, content: $ip, ttl: 300, proxied: false}')" \
+                  "$api/zones/$zone_id/dns_records"
+                echo "created $name -> $ip"
+                continue
+              fi
 
-            auth | curl -fsS --max-time 10 -o /dev/null -X PATCH -H @- \
-              -H "Content-Type: application/json" \
-              --data "$(jq -n --arg ip "$ip" '{content: $ip}')" \
-              "$api/zones/$zone_id/dns_records/$record_id"
-            echo "updated $name: $current -> $ip"
+              if [ "$ip" = "$current" ]; then
+                echo "$name already points at $ip"
+                continue
+              fi
+
+              auth | curl -fsS --max-time 10 -o /dev/null -X PATCH -H @- \
+                -H "Content-Type: application/json" \
+                --data "$(jq -n --arg ip "$ip" '{content: $ip}')" \
+                "$api/zones/$zone_id/dns_records/$record_id"
+              echo "updated $name: $current -> $ip"
+            done
           '';
         };
 

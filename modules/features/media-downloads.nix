@@ -4,7 +4,9 @@
   den.aspects.media-downloads.includes = [ den.aspects.media-storage ];
 
   den.aspects.media-downloads.service-routes = {
-    "qbittorrent.sk4rd.com" = "reverse_proxy 10.200.0.2:8080";
+    "qbittorrent.sk4rd.com" = {
+      proxy = "reverse_proxy 10.200.0.2:8080";
+    };
   };
 
   den.aspects.media-downloads.nixos = { config, pkgs, ... }: {

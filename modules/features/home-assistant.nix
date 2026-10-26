@@ -32,7 +32,9 @@ in
   den.aspects.home-assistant.includes = [ den.aspects.nas-storage ];
 
   den.aspects.home-assistant.service-routes = {
-    "ha.sk4rd.com" = "reverse_proxy 127.0.0.1:8123";
+    "ha.sk4rd.com" = {
+      proxy = "reverse_proxy 127.0.0.1:8123";
+    };
   };
 
   den.aspects.home-assistant.storage-datasets = {

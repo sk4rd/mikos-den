@@ -4,7 +4,10 @@
   den.aspects.jellyfin.includes = [ den.aspects.media-storage ];
 
   den.aspects.jellyfin.service-routes = {
-    "jellyfin.sk4rd.com" = "reverse_proxy 127.0.0.1:8096";
+    "jellyfin.sk4rd.com" = {
+      proxy = "reverse_proxy 127.0.0.1:8096";
+      public = true;
+    };
   };
 
   den.aspects.jellyfin.nixos = { pkgs, ... }: {
