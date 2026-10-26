@@ -31,4 +31,8 @@ in
     yubikey
     thinkpad-z13
   ];
+  "proton-workstation-env.age".publicKeys = [
+    yubikey
+    workstation
+  ];
 }
