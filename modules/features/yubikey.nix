@@ -15,6 +15,13 @@
           enable = true;
           enableSSHSupport = true;
           pinentryPackage = pkgs.pinentry-qt;
+          settings = {
+            default-cache-ttl = 28800;
+            max-cache-ttl = 86400;
+            default-cache-ttl-ssh = 28800;
+            max-cache-ttl-ssh = 86400;
+            pinentry-timeout = 180;
+          };
         };
 
         # gpg-agent handles ssh requests instead
@@ -27,6 +34,9 @@
         environment.systemPackages = [
           pkgs.age-plugin-yubikey
           pkgs.yubikey-manager
+          # puts org.gnupg.pinentry-qt.desktop in XDG_DATA_DIRS so the
+          # portal can focus the PIN dialog
+          pkgs.pinentry-qt
         ];
       };
 
@@ -54,6 +64,9 @@
                 return
             end
 
+            # gpg-agent holds the reader exclusively; release it to pcscd
+            command gpgconf --kill scdaemon 2>/dev/null
+
             set -l serial (command ykman list --serials 2>/dev/null | head -n1)
             set -l identity ~/.config/age/keys-$serial.txt
             if not test -f $identity
@@ -69,12 +82,10 @@
         end
       '';
 
+      # pcsc-shared disables scdaemon's PIN cache.
+      # The agenix wrapper releases the card instead.
       provides.to-users.hjem.files.".gnupg/scdaemon.conf".text = ''
         disable-ccid
-        # share the PC/SC reader, so age-plugin-yubikey can talk to the
-        # card while gpg-agent has it open (otherwise pcscd returns
-        # "SCardConnect() Error Reader Exclusive")
-        pcsc-shared
       '';
     };
 }
