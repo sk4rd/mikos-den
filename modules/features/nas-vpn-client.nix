@@ -33,7 +33,7 @@ in
               id = "nas-vpn";
               type = "wireguard";
               interface-name = "wg-nas";
-              autoconnect = false;
+              autoconnect = true;
             };
 
             wireguard = {
