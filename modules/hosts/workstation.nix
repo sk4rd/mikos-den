@@ -14,6 +14,7 @@
       den.aspects.disko
       den.aspects.plasma
       den.aspects.brave
+      den.aspects.orca-slicer
       den.aspects.gaming
       den.aspects.audio
       den.aspects.bluetooth
