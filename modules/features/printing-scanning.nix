@@ -15,13 +15,11 @@
     };
 
     provides.to-users = { user, ... }: {
-      nixos = { config, lib, ... }: {
-        users.users.${user.userName}.extraGroups =
-          lib.mkIf config.users.users.${user.userName}.isNormalUser
-            [
-              "lp"
-              "scanner"
-            ];
+      user = { osConfig, lib, ... }: {
+        extraGroups = lib.mkIf osConfig.users.users.${user.userName}.isNormalUser [
+          "lp"
+          "scanner"
+        ];
       };
     };
   };

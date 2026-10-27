@@ -8,7 +8,7 @@
       };
     in
     {
-      nixos = { pkgs, ... }: {
+      provides.to-hosts.nixos = { pkgs, ... }: {
         services.pcscd.enable = true;
 
         programs.gnupg.agent = {
