@@ -38,10 +38,13 @@ cd secrets
 agenix -e very-secret-secret.age -i ~/.config/age/keys.txt  # opens $EDITOR
 ```
 
-The identity is the YubiKey age plugin key, provisioned by
-`modules/features/yubikey.nix` (PIV slot 2) at the same path on every
-host. `agenix` only auto-detects `~/.ssh/id_*`, so pass it with `-i` — or
-let the fish wrapper fill it in: `agenix -e very-secret-secret.age`.
+The identities are the YubiKey age plugin keys (PIV slot 2), provisioned by
+`modules/features/yubikey.nix` as `~/.config/age/keys-<serial>.txt` on every
+host, one per YubiKey. `agenix` only auto-detects `~/.ssh/id_*`, so the fish
+wrapper passes the file matching the connected YubiKey; give `-i` yourself to
+override it. Without the wrapper, `~/.config/age/keys.txt` holds both
+identities — but `age-plugin-yubikey` will then ask for the YubiKey you are
+not using, on every decryption.
 
 ## Test VM
 
