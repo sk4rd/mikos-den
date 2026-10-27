@@ -4,7 +4,7 @@
   den.aspects.ghostty = {
     includes = [ den.aspects.theme ];
 
-    nixos = { pkgs, ... }: {
+    provides.to-hosts.nixos = { pkgs, ... }: {
       fonts.packages = with pkgs; [ nerd-fonts.blex-mono ];
 
       environment.sessionVariables.TERMINAL = "${pkgs.ghostty}/bin/ghostty";
