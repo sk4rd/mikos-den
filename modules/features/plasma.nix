@@ -64,6 +64,14 @@ in
         clobber = true;
       };
 
+      files.".config/ksmserverrc" = {
+        text = ''
+          [General]
+          loginMode=emptySession
+        '';
+        clobber = true;
+      };
+
       # Vim-style window motions.
       systemd.services.plasma-vim-shortcuts = {
         description = "Configure Plasma Vim window shortcuts";
