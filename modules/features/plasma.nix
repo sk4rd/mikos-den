@@ -14,12 +14,17 @@ let
 in
 {
   den.aspects.plasma = {
-    includes = [
-      den.aspects.printing-scanning
-      den.aspects.viewers
-    ];
-
     nixos = { pkgs, ... }: {
+      fonts.packages = [ pkgs.nerd-fonts.blex-mono ];
+
+      environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+      environment.etc."xdg/kdeglobals".text = ''
+        [General]
+        TerminalApplication=${pkgs.ghostty}/bin/ghostty
+        TerminalService=com.mitchellh.ghostty.desktop
+      '';
+
       services = {
         displayManager.sddm.enable = true;
         displayManager.sddm.wayland.enable = true;

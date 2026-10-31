@@ -1,7 +1,7 @@
-{ den, ... }:
+{ lib, den, ... }:
 
 {
-  den.schema.host.users.miko.classes = [ "hjem" ];
+  den.schema.user.classes = lib.mkDefault [ "hjem" ];
 
   den.aspects.miko = {
     includes = [

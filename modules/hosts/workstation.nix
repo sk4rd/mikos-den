@@ -2,6 +2,7 @@
 
 {
   den.hosts.x86_64-linux.workstation = {
+    users.miko = { };
     settings.proton-vpn-client = {
       publicKey = "c/PBUk5lfuqGRwA57J7SLNirHU476Op5QuihdNZZkFA=";
       endpoint = "89.222.96.187:51820";
@@ -12,19 +13,10 @@
   den.aspects.workstation = {
     includes = [
       den.aspects.disko
-      den.aspects.plasma
-      den.aspects.brave
-      den.aspects.orca-slicer
-      den.aspects.gaming
-      den.aspects.audio
-      den.aspects.bluetooth
-      den.aspects.flatpak
-      den.aspects.proton-vpn-client
+      den.aspects.desktop
     ];
 
     nixos = {
-      system.stateVersion = "26.11";
-
       hardware = {
         enableRedistributableFirmware = true;
         cpu.amd.updateMicrocode = true;

@@ -20,7 +20,9 @@
         }) (lib.filterAttrs (_: user: user.isNormalUser) config.users.users);
 
         # The VM logs in with the test password instead.
-        age.secrets.miko-password.enable = lib.mkForce false;
+        age.secrets.miko-password.enable = lib.mkIf (config.age.secrets ? miko-password) (
+          lib.mkForce false
+        );
       };
     };
 

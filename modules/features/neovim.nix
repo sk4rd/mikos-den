@@ -7,7 +7,6 @@
     hjem =
       {
         pkgs,
-        config,
         lib,
         ...
       }:
@@ -41,7 +40,9 @@
         files = {
           ".config/nvim/init.lua".source = ../../dots/neovim/init.lua;
           ".config/nvim/lua/theme.lua".source = ../../dots/neovim/theme.lua;
-          ".config/nvim/lua/palette.lua".text = "return ${lib.generators.toLua { } config.miko.theme};\n";
+          ".config/nvim/lua/palette.lua".text = "return ${
+            lib.generators.toLua { } den.aspects.theme.miko.theme
+          };\n";
         };
       };
   };

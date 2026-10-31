@@ -22,14 +22,6 @@
     };
 
     time.timeZone = "Europe/Berlin";
-
-    services.xserver.xkb = {
-      layout = "us";
-      variant = "intl";
-    };
-
-    # GTK 4.20 swallows dead keys without an input method; drop this once i18n.inputMethod is set.
-    environment.sessionVariables.GTK_IM_MODULE = "simple";
   };
 
   den.schema.host.includes = [ den.aspects.locale ];

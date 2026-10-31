@@ -1,7 +1,7 @@
 { ... }:
 
 {
-  den.aspects.orca-slicer.hjem = { pkgs, ... }: {
+  den.aspects.orca-slicer.provides.to-users.hjem = { pkgs, ... }: {
     packages = [ pkgs.orca-slicer ];
 
     files.".config/environment.d/orca-slicer.conf".text = ''

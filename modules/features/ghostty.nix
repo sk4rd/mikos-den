@@ -5,21 +5,14 @@
     includes = [ den.aspects.theme ];
 
     provides.to-hosts.nixos = { pkgs, ... }: {
-      fonts.packages = with pkgs; [ nerd-fonts.blex-mono ];
-
       environment.sessionVariables.TERMINAL = "${pkgs.ghostty}/bin/ghostty";
-      environment.etc."xdg/kdeglobals".text = ''
-        [General]
-        TerminalApplication=${pkgs.ghostty}/bin/ghostty
-        TerminalService=com.mitchellh.ghostty.desktop
-      '';
     };
 
-    hjem = { pkgs, config, ... }: {
+    hjem = { pkgs, ... }: {
       packages = with pkgs; [ ghostty ];
 
       files.".config/ghostty/config.ghostty".text = ''
-        theme = ${config.miko.theme.name}
+        theme = ${den.aspects.theme.miko.theme.name}
         font-family = BlexMono Nerd Font Mono
         font-size = 10
       '';

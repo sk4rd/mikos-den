@@ -8,6 +8,7 @@
 {
   imports = [ inputs.den.flakeModule ];
   den.default.includes = [ den.batteries.hostname ];
+  den.default.nixos.system.stateVersion = "26.11";
 
   den.reservedKeys = [ "settings" ];
 

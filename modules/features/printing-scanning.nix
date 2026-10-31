@@ -14,13 +14,9 @@
       hardware.sane.enable = true;
     };
 
-    provides.to-users = { user, ... }: {
-      user = { osConfig, lib, ... }: {
-        extraGroups = lib.mkIf osConfig.users.users.${user.userName}.isNormalUser [
-          "lp"
-          "scanner"
-        ];
-      };
-    };
+    provides.to-users.user.extraGroups = [
+      "lp"
+      "scanner"
+    ];
   };
 }

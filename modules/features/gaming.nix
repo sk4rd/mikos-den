@@ -15,9 +15,5 @@
         extraPackages = [ pkgs.mangohud ];
       };
     };
-
-    hjem = { pkgs, ... }: {
-      packages = [ pkgs.mangohud ];
-    };
   };
 }
