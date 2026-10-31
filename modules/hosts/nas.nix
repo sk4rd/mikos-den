@@ -22,7 +22,7 @@
   };
 
   den.aspects.nas = {
-    provides.miko.includes = [ den.aspects.media-access ];
+    provides.miko.user.extraGroups = [ "media" ];
     includes = [
       den.aspects.disko
       den.aspects.nas-storage
