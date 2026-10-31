@@ -181,6 +181,9 @@ vim.keymap.set('n', '<leader>gN', gitsigns.prev_hunk, { desc = 'Previous hunk' }
 -- Markdown rendering
 require('render-markdown').setup({})
 
+-- Mermaid
+require('mermaid').setup()
+
 -- Neogit
 require('neogit').setup({
   integrations = { diffview = true },
