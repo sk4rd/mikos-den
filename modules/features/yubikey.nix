@@ -43,21 +43,21 @@
       # age identities (PIV slot 2, name AGENIX), one file per YubiKey: given
       # several identities, age-plugin-yubikey also connects to the YubiKeys it
       # did not decrypt with and asks you to insert them
-      provides.to-users.hjem.files.".config/age/keys-25869697.txt" = identityFile ''
+      hjem.files.".config/age/keys-25869697.txt" = identityFile ''
         AGE-PLUGIN-YUBIKEY-1SX7C5QVRPRM8U3CW29PK5
       '';
-      provides.to-users.hjem.files.".config/age/keys-23819186.txt" = identityFile ''
+      hjem.files.".config/age/keys-23819186.txt" = identityFile ''
         AGE-PLUGIN-YUBIKEY-1KFEKKQVR979TCMQJL45JT
       '';
 
       # both identities, for plain `age -i ~/.config/age/keys.txt`
-      provides.to-users.hjem.files.".config/age/keys.txt" = identityFile ''
+      hjem.files.".config/age/keys.txt" = identityFile ''
         AGE-PLUGIN-YUBIKEY-1SX7C5QVRPRM8U3CW29PK5
         AGE-PLUGIN-YUBIKEY-1KFEKKQVR979TCMQJL45JT
       '';
 
       # autoloaded only when agenix runs, and works for pasted or recalled lines
-      provides.to-users.hjem.files.".config/fish/functions/agenix.fish".text = ''
+      hjem.files.".config/fish/functions/agenix.fish".text = ''
         function agenix --wraps=agenix --description 'agenix with the age identity of the connected YubiKey'
             if contains -- -i $argv; or contains -- --identity $argv
                 command agenix $argv
@@ -84,7 +84,7 @@
 
       # pcsc-shared disables scdaemon's PIN cache.
       # The agenix wrapper releases the card instead.
-      provides.to-users.hjem.files.".gnupg/scdaemon.conf".text = ''
+      hjem.files.".gnupg/scdaemon.conf".text = ''
         disable-ccid
       '';
     };

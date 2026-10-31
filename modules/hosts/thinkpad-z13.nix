@@ -2,6 +2,7 @@
 
 {
   den.hosts.x86_64-linux.thinkpad-z13 = {
+    users.miko = { };
     settings.nas-vpn-client = {
       address = "10.100.0.3/32";
       secret = "wg-thinkpad-env";
@@ -16,21 +17,12 @@
   den.aspects.thinkpad-z13 = {
     includes = [
       den.aspects.disko
-      den.aspects.plasma
-      den.aspects.brave
-      den.aspects.orca-slicer
-      den.aspects.gaming
-      den.aspects.audio
-      den.aspects.bluetooth
-      den.aspects.flatpak
+      den.aspects.desktop
       den.aspects.nas-vpn-client
-      den.aspects.proton-vpn-client
     ];
 
     nixos = {
       imports = [ inputs.nixos-hardware.nixosModules.lenovo-thinkpad-z13-gen1 ];
-
-      system.stateVersion = "26.11";
 
       services.fwupd.enable = true;
       services.power-profiles-daemon.enable = true;

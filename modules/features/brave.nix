@@ -2,8 +2,6 @@
   den.aspects.brave.nixos = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.brave ];
 
-    environment.sessionVariables.NIXOS_OZONE_WL = "1";
-
     programs.chromium = {
       enable = true;
       extraOpts.ExtensionSettings = {

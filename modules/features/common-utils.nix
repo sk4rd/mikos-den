@@ -22,7 +22,5 @@
     ];
   };
 
-  den.aspects.common-utils.provides.to-hosts.nixos.programs.zoxide.enable = true;
-
   den.schema.user.includes = [ den.aspects.common-utils ];
 }
