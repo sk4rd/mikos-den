@@ -7,7 +7,6 @@
       btop
       dust
       file
-      fzf
       git
       jq
       killall
