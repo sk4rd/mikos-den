@@ -15,6 +15,7 @@
         theme = ${den.aspects.theme.miko.theme.name}
         font-family = BlexMono Nerd Font Mono
         font-size = 10
+        shell-integration = fish
       '';
 
       # Register default plasma shortcut
