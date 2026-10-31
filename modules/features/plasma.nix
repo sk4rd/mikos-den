@@ -25,6 +25,26 @@ in
         TerminalService=com.mitchellh.ghostty.desktop
       '';
 
+      xdg.mime.defaultApplications = {
+        "application/pdf" = "okularApplication_pdf.desktop";
+
+        "image/avif" = "org.kde.gwenview.desktop";
+        "image/bmp" = "org.kde.gwenview.desktop";
+        "image/gif" = "org.kde.gwenview.desktop";
+        "image/jpeg" = "org.kde.gwenview.desktop";
+        "image/png" = "org.kde.gwenview.desktop";
+        "image/svg+xml" = "org.kde.gwenview.desktop";
+        "image/tiff" = "org.kde.gwenview.desktop";
+        "image/webp" = "org.kde.gwenview.desktop";
+
+        "video/mp4" = "org.kde.haruna.desktop";
+        "video/mpeg" = "org.kde.haruna.desktop";
+        "video/quicktime" = "org.kde.haruna.desktop";
+        "video/webm" = "org.kde.haruna.desktop";
+        "video/x-matroska" = "org.kde.haruna.desktop";
+        "video/x-msvideo" = "org.kde.haruna.desktop";
+      };
+
       services = {
         displayManager.sddm.enable = true;
         displayManager.sddm.wayland.enable = true;
@@ -64,6 +84,12 @@ in
     };
 
     hjem = { pkgs, ... }: {
+      packages = [
+        pkgs.kdePackages.gwenview
+        pkgs.haruna
+        pkgs.kdePackages.okular
+      ];
+
       files.".config/kcminputrc" = {
         text = kcminputrc;
         clobber = true;

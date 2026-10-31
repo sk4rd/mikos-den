@@ -11,7 +11,6 @@
     den.aspects.bluetooth
     den.aspects.flatpak
     den.aspects.printing-scanning
-    den.aspects.viewers
     den.aspects.keyboard
     den.aspects.proton-vpn-client
   ];
