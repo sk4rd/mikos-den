@@ -1,7 +1,10 @@
 { den, ... }:
 
 {
-  den.aspects.jellyfin.includes = [ den.aspects.media-storage ];
+  den.aspects.jellyfin.includes = [
+    den.aspects.media-storage
+    den.aspects.intel-qsv
+  ];
 
   den.aspects.jellyfin.service-routes = {
     "jellyfin.sk4rd.com" = {
@@ -10,16 +13,16 @@
     };
   };
 
+  den.aspects.jellyfin.status-endpoints = [
+    {
+      name = "Jellyfin";
+      group = "Media";
+      url = "http://127.0.0.1:8096/health";
+      conditions = [ "[STATUS] == 200" ];
+    }
+  ];
+
   den.aspects.jellyfin.nixos = { pkgs, ... }: {
-    hardware.enableRedistributableFirmware = true;
-    hardware.graphics = {
-      enable = true;
-      extraPackages = [
-        pkgs.intel-media-driver
-        pkgs.vpl-gpu-rt
-        pkgs.intel-compute-runtime
-      ];
-    };
     services.jellyfin = {
       enable = true;
       hardwareAcceleration = {

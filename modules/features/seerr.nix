@@ -9,6 +9,15 @@
     };
   };
 
+  den.aspects.seerr.status-endpoints = [
+    {
+      name = "Seerr";
+      group = "Media";
+      url = "http://127.0.0.1:5055/";
+      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+    }
+  ];
+
   den.aspects.seerr.nixos = { pkgs, ... }: {
     services.seerr = {
       enable = true;

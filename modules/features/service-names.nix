@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, den, ... }:
 
 let
   domain = "sk4rd.com";
@@ -12,7 +12,14 @@ let
   ];
 in
 {
-  den.quirks.service-routes.description = "Reverse-proxy routes contributed by services";
+  den.aspects.service-names.status-endpoints = [
+    {
+      name = "Caddy";
+      group = "Core";
+      url = "tcp://127.0.0.1:443";
+      conditions = [ "[CONNECTED] == true" ];
+    }
+  ];
 
   den.aspects.service-names.nixos =
     {
