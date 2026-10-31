@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     den.url = "github:denful/den";
+    den-diagram = {
+      url = "github:denful/den-diagram";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     import-tree.url = "github:denful/import-tree";
 
     agenix = {
