@@ -6,6 +6,16 @@ Switch to the config using flakes:
 sudo nixos-rebuild switch --flake .#<host>
 ```
 
+## Explore aspects
+
+Generate a static overview of the repository's aspects and their relationships:
+
+```sh
+nix eval --raw .#diagrams.overview > /tmp/mikos-den-overview.mmd
+```
+
+The overview includes authored `includes` and schema-level root relationships.
+
 ## Install from a NixOS live ISO
 
 Partition disk using disko:
