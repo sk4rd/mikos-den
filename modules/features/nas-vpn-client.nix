@@ -1,10 +1,12 @@
-{ lib, ... }:
+{ lib, den, ... }:
 
 let
   nasPublicKey = "gEhN/FkLUEKlbjfu2Vixc4iTM3d6abuQWAMGdxORRSo=";
 in
 {
   den.aspects.nas-vpn-client = {
+    includes = [ den.aspects.secrets ];
+
     settings = {
       address = lib.mkOption {
         type = lib.types.str;

@@ -1,7 +1,10 @@
 { lib, den, ... }:
 
 {
-  den.aspects.media-downloads.includes = [ den.aspects.media-storage ];
+  den.aspects.media-downloads.includes = [
+    den.aspects.media-storage
+    den.aspects.secrets
+  ];
 
   den.aspects.media-downloads.service-routes = {
     "qbittorrent.sk4rd.com" = {
@@ -60,13 +63,11 @@
         ip link set wg-media netns media-vpn
         ip netns exec media-vpn wg set wg-media \
           private-key "$CREDENTIALS_DIRECTORY/private-key" \
-          peer '8/kdhoN9UcJuptbdwaVqfkTGpQDZZC0bOGs5Dr2F2zg=' \
-          endpoint 169.150.196.130:51820 allowed-ips 0.0.0.0/0,::/0 persistent-keepalive 25
+          peer 'OJv7H1H34Og2BqBwrUdTQPXZPD0oG1rh7wkMWAgGUAQ=' \
+          endpoint 103.69.224.5:51820 allowed-ips 0.0.0.0/0 persistent-keepalive 25
         ip -n media-vpn address add 10.2.0.2/32 dev wg-media
-        ip -n media-vpn -6 address add 2a07:b944::2:2/128 dev wg-media
         ip -n media-vpn link set wg-media mtu 1420 up
         ip -n media-vpn route add default dev wg-media
-        ip -n media-vpn -6 route add default dev wg-media
       '';
       postStop = ''
         ip link del wg-media 2>/dev/null || true
@@ -154,7 +155,10 @@
         NetworkNamespacePath = "/run/netns/media-vpn";
         BindReadOnlyPaths = [
           "${pkgs.writeText "media-vpn-resolv.conf" "nameserver 10.2.0.1\n"}:/etc/resolv.conf"
+          "${pkgs.writeText "media-vpn-nsswitch.conf" "passwd: files\ngroup: files\nhosts: files dns\n"}:/etc/nsswitch.conf"
         ];
+        # nscd's socket is host-wide and would resolve through the host network.
+        TemporaryFileSystem = [ "/run/nscd" ];
         ProtectSystem = lib.mkForce "strict";
         ReadWritePaths = [
           "/var/lib/media-stack/qbittorrent"
