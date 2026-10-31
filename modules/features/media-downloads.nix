@@ -12,6 +12,15 @@
     };
   };
 
+  den.aspects.media-downloads.status-endpoints = [
+    {
+      name = "qBittorrent";
+      group = "Media";
+      url = "http://10.200.0.2:8080/";
+      conditions = [ "[STATUS] == any(200, 401)" ];
+    }
+  ];
+
   den.aspects.media-downloads.nixos = { config, pkgs, ... }: {
     age.secrets.proton-nas-key.file = ../../secrets/proton-nas-key.age;
 

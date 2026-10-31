@@ -2,7 +2,6 @@
 
 {
   den.aspects.media-storage.includes = [ den.aspects.nas-storage ];
-  den.aspects.media-access.user.extraGroups = [ "media" ];
 
   den.aspects.media-storage.storage-datasets = {
     "services/media-stack" = {

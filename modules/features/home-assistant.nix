@@ -1,7 +1,8 @@
 { den, ... }:
 let
+  serviceName = "home-assistant";
   stateDir = "/var/lib/hass";
-  dataset = "tank/services/home-assistant";
+  dataset = "tank/services/${serviceName}";
 
   # HA pins aioipp 0.19.3, nixpkgs ships 0.17.2; without it the printer integration refuses to load.
   mkAioipp =
@@ -37,8 +38,17 @@ in
     };
   };
 
+  den.aspects.home-assistant.status-endpoints = [
+    {
+      name = "Home Assistant";
+      group = "Home";
+      url = "http://127.0.0.1:8123/";
+      conditions = [ "[STATUS] == 200" ];
+    }
+  ];
+
   den.aspects.home-assistant.storage-datasets = {
-    "services/home-assistant" = {
+    "services/${serviceName}" = {
       mountpoint = "/var/lib/hass";
       owner = "hass";
       group = "hass";

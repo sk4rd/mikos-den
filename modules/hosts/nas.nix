@@ -34,6 +34,8 @@
       den.aspects.jellyfin
       den.aspects.seerr
       den.aspects.service-names
+      den.aspects.media-vpn-health
+      den.aspects.status
     ];
 
     nixos =

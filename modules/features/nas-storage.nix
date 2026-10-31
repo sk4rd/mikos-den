@@ -112,8 +112,6 @@ let
     '';
 in
 {
-  den.quirks.storage-datasets.description = "Dataset definitions contributed by services";
-
   den.aspects.nas-storage.nixos =
     {
       config,

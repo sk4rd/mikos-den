@@ -18,6 +18,27 @@
     };
   };
 
+  den.aspects.servarr.status-endpoints = [
+    {
+      name = "Sonarr";
+      group = "Media";
+      url = "http://127.0.0.1:8989/";
+      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+    }
+    {
+      name = "Radarr";
+      group = "Media";
+      url = "http://127.0.0.1:7878/";
+      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+    }
+    {
+      name = "Prowlarr";
+      group = "Media";
+      url = "http://127.0.0.1:9696/";
+      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+    }
+  ];
+
   den.aspects.servarr.nixos = { pkgs, ... }: {
     services.sonarr = {
       enable = true;
