@@ -16,6 +16,12 @@
       den.aspects.yubikey
     ];
 
+    hjem.files.".gitconfig".text = ''
+      [user]
+        name = Mikołaj Bajtkiewicz
+        email = mikolaj.ba@pm.me
+    '';
+
     user = { osConfig, ... }: {
       createHome = true;
       description = "Mikołaj Bajtkiewicz";
