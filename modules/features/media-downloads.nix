@@ -127,6 +127,11 @@
         "/tank/data/media"
       ];
       preStart = ''
+        set -eu
+        if [ -S /run/nscd/socket ]; then
+          echo "qbittorrent: nscd socket is visible in the service namespace; refusing to start" >&2
+          exit 1
+        fi
         ${pkgs.python3}/bin/python3 - <<'PY'
         import configparser
         from pathlib import Path
@@ -165,9 +170,11 @@
         BindReadOnlyPaths = [
           "${pkgs.writeText "media-vpn-resolv.conf" "nameserver 10.2.0.1\n"}:/etc/resolv.conf"
           "${pkgs.writeText "media-vpn-nsswitch.conf" "passwd: files\ngroup: files\nhosts: files dns\n"}:/etc/nsswitch.conf"
+          # nscd's socket is host-wide and would resolve through the host network.
+          "${pkgs.emptyDirectory}:/run/nscd"
         ];
-        # nscd's socket is host-wide and would resolve through the host network.
-        TemporaryFileSystem = [ "/run/nscd" ];
+        Restart = "on-failure";
+        RestartSec = "5s";
         ProtectSystem = lib.mkForce "strict";
         ReadWritePaths = [
           "/var/lib/media-stack/qbittorrent"
