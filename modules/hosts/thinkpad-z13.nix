@@ -21,6 +21,10 @@
       den.aspects.nas-vpn-client
     ];
 
+    provides.miko.includes = [
+      den.aspects.gh
+    ];
+
     nixos = {
       imports = [ inputs.nixos-hardware.nixosModules.lenovo-thinkpad-z13-gen1 ];
 

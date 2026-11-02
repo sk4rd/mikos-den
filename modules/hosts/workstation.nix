@@ -16,6 +16,10 @@
       den.aspects.desktop
     ];
 
+    provides.miko.includes = [
+      den.aspects.gh
+    ];
+
     nixos = {
       hardware = {
         enableRedistributableFirmware = true;
