@@ -29,6 +29,10 @@ vim.opt.smartcase = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.scrolloff = 10
+vim.opt.diffopt = vim.tbl_filter(function(option)
+  return not option:match('^algorithm:') and not option:match('^linematch:')
+end, vim.opt.diffopt:get())
+vim.opt.diffopt:append({ 'algorithm:histogram', 'indent-heuristic', 'linematch:60' })
 
 -- Responsiveness
 vim.opt.updatetime = 250
@@ -130,6 +134,7 @@ require('which-key').setup({
 require('which-key').add({
   { '<leader>f', group = 'find' },
   { '<leader>g', group = 'git' },
+  { '<leader>gd', group = 'diff review' },
 })
 
 -- Telescope
@@ -175,8 +180,77 @@ gitsigns.setup()
 
 vim.keymap.set('n', '<leader>gp', gitsigns.preview_hunk_inline, { desc = 'Preview hunk inline' })
 vim.keymap.set('n', '<leader>gP', gitsigns.toggle_deleted, { desc = 'Toggle deleted lines' })
-vim.keymap.set('n', '<leader>gn', gitsigns.next_hunk, { desc = 'Next hunk' })
-vim.keymap.set('n', '<leader>gN', gitsigns.prev_hunk, { desc = 'Previous hunk' })
+vim.keymap.set('n', '<leader>gn', function()
+  if vim.wo.diff then
+    vim.cmd.normal({ ']c', bang = true })
+  else
+    gitsigns.next_hunk()
+  end
+end, { desc = 'Next hunk' })
+vim.keymap.set('n', '<leader>gN', function()
+  if vim.wo.diff then
+    vim.cmd.normal({ '[c', bang = true })
+  else
+    gitsigns.prev_hunk()
+  end
+end, { desc = 'Previous hunk' })
+
+local diff_actions = require('diffview.actions')
+
+local function goto_working_file()
+  local tab = require('diffview.lib').get_prev_non_view_tabpage()
+  if tab and vim.bo[vim.api.nvim_win_get_buf(vim.api.nvim_tabpage_get_win(tab))].buftype == 'terminal' then
+    diff_actions.goto_file_tab()
+  else
+    diff_actions.goto_file_edit()
+  end
+end
+
+require('diffview').setup({
+  view = {
+    default = { layout = 'diff2_horizontal' },
+    file_history = { layout = 'diff2_horizontal' },
+  },
+  keymaps = {
+    view = {
+      { 'n', ']r', diff_actions.select_next_commit, { desc = 'Next commit' } },
+      { 'n', '[r', diff_actions.select_prev_commit, { desc = 'Previous commit' } },
+      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
+    },
+    file_panel = {
+      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
+    },
+    file_history_panel = {
+      { 'n', ']r', diff_actions.select_next_commit, { desc = 'Next commit' } },
+      { 'n', '[r', diff_actions.select_prev_commit, { desc = 'Previous commit' } },
+      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
+    },
+  },
+})
+
+local function history_file()
+  local path = vim.api.nvim_buf_get_name(0)
+  if vim.bo.buftype ~= '' or path == '' then
+    vim.notify('File history requires a file buffer', vim.log.levels.WARN)
+    return
+  end
+  return path
+end
+
+vim.keymap.set('n', '<leader>gdd', '<cmd>DiffviewOpen<CR>', { desc = 'Review working tree' })
+vim.keymap.set('n', '<leader>gds', '<cmd>DiffviewOpen --cached<CR>', { desc = 'Review staged changes' })
+vim.keymap.set('n', '<leader>gdh', '<cmd>DiffviewFileHistory<CR>', { desc = 'Review repository history' })
+vim.keymap.set('n', '<leader>gdf', function()
+  local path = history_file()
+  if path then
+    require('diffview').file_history(nil, { path, '--follow' })
+  end
+end, { desc = 'Review file history' })
+vim.keymap.set('x', '<leader>gdf', function()
+  return history_file() and ':DiffviewFileHistory<CR>' or '<Esc>'
+end, { expr = true, desc = 'Review selected lines history' })
+vim.keymap.set('n', '<leader>gdr', ':DiffviewOpen ', { desc = 'Review revision or range' })
+vim.keymap.set('n', '<leader>gdq', '<cmd>DiffviewClose<CR>', { desc = 'Close diff review' })
 
 -- Markdown rendering
 require('render-markdown').setup({})
