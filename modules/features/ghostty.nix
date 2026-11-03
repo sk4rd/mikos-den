@@ -2,6 +2,18 @@
 
 let
   inherit (config) theme;
+  c = theme.colors;
+
+  ghosttyTheme = ''
+    ${builtins.concatStringsSep "\n" (
+      builtins.genList (i: "palette = ${toString i}=${builtins.elemAt theme.ansi i}") 16
+    )}
+    background = ${c.bg}
+    foreground = ${c.fg}
+    cursor-color = ${c.cursor}
+    cursor-text = ${c.cursorText}
+    selection-background = ${c.selection}
+  '';
 in
 {
   den.aspects.ghostty = {
@@ -12,10 +24,12 @@ in
     hjem = { pkgs, ... }: {
       packages = with pkgs; [ ghostty ];
 
+      files.".config/ghostty/themes/${theme.name}".text = ghosttyTheme;
+
       files.".config/ghostty/config.ghostty".text = ''
-        theme = ${theme.displayName}
-        font-family = BlexMono Nerd Font Mono
-        font-size = 10
+        theme = ${theme.name}
+        font-family = ${theme.fonts.mono.name}
+        font-size = ${toString theme.fonts.mono.size}
         shell-integration = fish
       '';
 
