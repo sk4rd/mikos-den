@@ -24,6 +24,7 @@
   blend = "#131313";
 
   # IBM Carbon tokens.
+  gray50 = "#8d8d8d";
   yellow30 = "#f1c21b";
   yellow20 = "#fddc69";
   orange40 = "#ff832b";
