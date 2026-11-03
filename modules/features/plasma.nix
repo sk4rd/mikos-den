@@ -15,8 +15,6 @@ in
 {
   den.aspects.plasma = {
     nixos = { pkgs, ... }: {
-      fonts.packages = [ pkgs.nerd-fonts.blex-mono ];
-
       environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
       environment.etc."xdg/kdeglobals".text = ''
