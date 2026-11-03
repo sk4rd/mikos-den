@@ -16,6 +16,18 @@ nix eval --raw .#diagrams.overview > /tmp/mikos-den-overview.mmd
 
 The overview includes authored `includes` and schema-level root relationships.
 
+## Formatting
+
+Format the whole repository (Nix, Lua, shell, Python, TOML) with
+[treefmt-nix](https://github.com/numtide/treefmt-nix), configured in
+`modules/formatter.nix`:
+
+```sh
+nix fmt
+```
+
+`nix flake check` fails if any file is not formatted.
+
 ## Install from a NixOS live ISO
 
 Partition disk using disko:
