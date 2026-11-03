@@ -51,4 +51,9 @@ in
     yubikey-5c
     workstation
   ];
+  "restic-password.age".publicKeys = [
+    yubikey-nfc
+    yubikey-5c
+    nas
+  ];
 }

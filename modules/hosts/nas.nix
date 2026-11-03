@@ -37,6 +37,7 @@
       den.aspects.media-vpn-health
       den.aspects.status
       den.aspects.syncthing
+      den.aspects.proton-backup
     ];
 
     nixos =
