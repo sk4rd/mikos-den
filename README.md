@@ -64,3 +64,29 @@ Every host includes the `nixos-testing-vm` aspect, which sets up
 nixos-rebuild build-vm --flake .#<host>
 ./result/bin/run-<host>-vm
 ```
+
+## Notes vault and backup
+
+Obsidian vault `~/Notes` on the workstation and thinkpad, synced by Syncthing
+through the NAS (`/tank/data/documents/notes`, covered by ZFS snapshots). Every
+night the NAS backs the vault up with restic to `/tank/backups/restic` and copies
+that repository to Proton Drive (`/my-files/Backups/nas`). Gatus on the NAS
+alerts via ntfy when a backup, upload or the weekly integrity check fails or
+doesn't run (group **Backups**).
+
+The restic password is in `secrets/restic-password.age`; keep a copy in your
+password manager, since the backups can't be restored without it.
+
+Restore from Proton Drive: download `/my-files/Backups/nas` to a folder, then
+```sh
+restic -r <folder> unlock   # if it complains about a lock
+restic -r <folder> snapshots
+restic -r <folder> restore latest --target <dest>
+```
+On the NAS the local copy is restored with `sudo restic -r /tank/backups/restic
+--password-file /run/agenix/restic-password restore latest --target <dest>`.
+
+If the Proton sign-in expires, run `sudo proton-backup-login` on the NAS again.
+
+An old Logseq database from the vault folder was moved to
+`/tank/data/documents/logseq-notes-old` (2026-11-03); delete it when sure.
