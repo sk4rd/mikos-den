@@ -54,19 +54,11 @@ in
 
         files = {
           ".config/nvim/init.lua".source = ../../dots/neovim/init.lua;
-          ".config/nvim/lua/theme.lua".source = ../../dots/neovim/theme.lua;
+          ".config/nvim/colors/oxocarbon.lua".source = ../../dots/neovim/colors/oxocarbon.lua;
+          ".config/nvim/lua/lualine/themes/oxocarbon.lua".source = ../../dots/neovim/lualine-oxocarbon.lua;
           ".config/nvim/lua/palette.lua".text = "return ${
-            lib.generators.toLua { } {
-              # Shape expected by dots/neovim/theme.lua until it is replaced.
-              background = theme.colors.bg;
-              foreground = theme.colors.fg;
-              cursor = theme.colors.cursor;
-              cursorText = theme.colors.cursorText;
-              selectionBackground = theme.colors.selection;
-              selectionForeground = theme.colors.fg;
-              palette = theme.ansiNamed;
-            }
-          };\n";
+            lib.generators.toLua { } { inherit (theme) name colors ansi; }
+          }\n";
         };
       };
   };

@@ -3,7 +3,7 @@ vim.g.mapleader = ' ' -- space
 vim.g.maplocalleader = ','
 
 -- Colors
-require('theme')(require('palette'))
+vim.cmd.colorscheme('oxocarbon')
 require('nvim-highlight-colors').setup({
   enable_named_colors = false,
 })
@@ -120,6 +120,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 -- Statusline
 require('lualine').setup({
+  options = { theme = 'oxocarbon' },
   sections = {
     lualine_x = { 'lsp_status', 'encoding', 'fileformat', 'filetype' },
   },
