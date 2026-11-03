@@ -50,6 +50,7 @@ in
     surface = p.base01;
     overlay = p.base02;
     muted = p.base03;
+    dim = p.gray50; # between muted and subtle: inactive UI text
     subtle = p.base04;
     fg = p.base05;
     fgBright = p.base06;

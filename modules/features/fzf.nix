@@ -1,4 +1,9 @@
-{ config, den, lib, ... }:
+{
+  config,
+  den,
+  lib,
+  ...
+}:
 
 let
   c = config.theme.colors;
