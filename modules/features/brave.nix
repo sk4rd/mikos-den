@@ -1,9 +1,12 @@
+{ config, ... }:
+
 {
   den.aspects.brave.nixos = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.brave ];
 
     programs.chromium = {
       enable = true;
+      extraOpts.BrowserThemeColor = config.theme.colors.bg;
       extraOpts.ExtensionSettings = {
         # Dark Reader
         "eimadpbcbfnmbkopoojfekhnkhdbieeh" = {
