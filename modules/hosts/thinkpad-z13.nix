@@ -23,6 +23,7 @@
 
     provides.miko.includes = [
       den.aspects.gh
+      den.aspects.obsidian
     ];
 
     nixos = {
