@@ -1,9 +1,10 @@
-{ den, ... }:
+{ config, ... }:
 
+let
+  inherit (config) theme;
+in
 {
   den.aspects.ghostty = {
-    includes = [ den.aspects.theme ];
-
     provides.to-hosts.nixos = { pkgs, ... }: {
       environment.sessionVariables.TERMINAL = "${pkgs.ghostty}/bin/ghostty";
     };
@@ -12,7 +13,7 @@
       packages = with pkgs; [ ghostty ];
 
       files.".config/ghostty/config.ghostty".text = ''
-        theme = ${den.aspects.theme.miko.theme.name}
+        theme = ${theme.displayName}
         font-family = BlexMono Nerd Font Mono
         font-size = 10
         shell-integration = fish

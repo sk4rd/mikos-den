@@ -1,9 +1,10 @@
-{ den, ... }:
+{ config, ... }:
 
+let
+  inherit (config) theme;
+in
 {
   den.aspects.neovim = {
-    includes = [ den.aspects.theme ];
-
     hjem =
       {
         pkgs,
@@ -55,7 +56,16 @@
           ".config/nvim/init.lua".source = ../../dots/neovim/init.lua;
           ".config/nvim/lua/theme.lua".source = ../../dots/neovim/theme.lua;
           ".config/nvim/lua/palette.lua".text = "return ${
-            lib.generators.toLua { } den.aspects.theme.miko.theme
+            lib.generators.toLua { } {
+              # Shape expected by dots/neovim/theme.lua until it is replaced.
+              background = theme.colors.bg;
+              foreground = theme.colors.fg;
+              cursor = theme.colors.cursor;
+              cursorText = theme.colors.cursorText;
+              selectionBackground = theme.colors.selection;
+              selectionForeground = theme.colors.fg;
+              palette = theme.ansiNamed;
+            }
           };\n";
         };
       };
