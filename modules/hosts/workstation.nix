@@ -14,6 +14,7 @@
     includes = [
       den.aspects.disko
       den.aspects.desktop
+      den.aspects.syncthing
     ];
 
     provides.miko.includes = [

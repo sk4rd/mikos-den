@@ -36,6 +36,7 @@
       den.aspects.service-names
       den.aspects.media-vpn-health
       den.aspects.status
+      den.aspects.syncthing
     ];
 
     nixos =
