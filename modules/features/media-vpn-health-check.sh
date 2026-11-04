@@ -25,7 +25,7 @@ if [ -n "${peer:-}" ]; then
   handshake=$(printf '%s\n' "$peer" | awk '{ print $5 }')
   rx_bytes=$(printf '%s\n' "$peer" | awk '{ print $6 }')
   if [ -n "${handshake:-}" ]; then
-    handshake_age=$(( $(date +%s) - handshake ))
+    handshake_age=$(($(date +%s) - handshake))
   else
     fail "wireguard handshake unavailable"
   fi
@@ -85,7 +85,10 @@ if [ "${zfs_capacity:-0}" -ge 85 ]; then
   fail "zfs pool is ${zfs_capacity}% full"
 fi
 
-error_message=$(IFS='; '; echo "${errors[*]:-}")
+error_message=$(
+  IFS='; '
+  echo "${errors[*]:-}"
+)
 
 jq -n \
   --argjson ok "$ok" \
@@ -111,6 +114,6 @@ jq -n \
     zfs_capacity: $zfs_capacity,
     error: $error,
     checked_at: $checked_at
-  }' > "$status_dir/status.json"
+  }' >"$status_dir/status.json"
 
 chmod 0644 "$status_dir/status.json"
