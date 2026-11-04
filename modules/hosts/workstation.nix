@@ -22,6 +22,25 @@
       den.aspects.obsidian
     ];
 
+    # It stays reachable over SSH, so Plasma must not put the machine to sleep when
+    # idle. Sleeping by hand still works; the JetKVM wakes it. Sets only this one
+    # key (0 = do nothing; Plasma's default on AC is to sleep when idle) and
+    # leaves the other power settings alone.
+    provides.miko.hjem =
+      { pkgs, ... }:
+      {
+        systemd.services.plasma-no-idle-sleep = {
+          description = "Keep Plasma from sleeping when idle";
+          wantedBy = [ "plasma-powerdevil.service" ];
+          before = [ "plasma-powerdevil.service" ];
+          serviceConfig.Type = "oneshot";
+          script = ''
+            ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file powerdevilrc \
+              --group AC --group SuspendAndShutdown --key AutoSuspendAction 0
+          '';
+        };
+      };
+
     nixos = {
       hardware = {
         enableRedistributableFirmware = true;
