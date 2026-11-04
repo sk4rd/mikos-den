@@ -1,4 +1,9 @@
-{ den, inputs, ... }:
+{
+  config,
+  den,
+  inputs,
+  ...
+}:
 
 {
   # HUD firmware for the Charybdis. Flash both halves in bootloader mode (double-tap reset) by
@@ -8,8 +13,6 @@
     inputs.keyboard-hud.packages.x86_64-linux.charybdis-firmware;
 
   den.aspects.keyboard = {
-    includes = [ den.aspects.theme ];
-
     nixos = {
       imports = [ inputs.keyboard-hud.nixosModules.default ];
 
@@ -28,7 +31,11 @@
       programs.keyboard-hud = {
         enable = true;
         layout = ./keyboard-argos-layout.json;
-        theme = den.aspects.theme.miko.theme;
+        theme = {
+          background = config.theme.colors.bg;
+          foreground = config.theme.colors.fg;
+          palette = config.theme.ansiNamed;
+        };
         hidrawAccess = false; # granted above
       };
 
