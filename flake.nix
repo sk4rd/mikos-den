@@ -29,6 +29,11 @@
       url = "github:nixos/nixos-hardware";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    keyboard-hud = {
+      url = "github:sk4rd/keyboard-hud";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
