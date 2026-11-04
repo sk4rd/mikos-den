@@ -110,6 +110,26 @@
         "type": "github"
       }
     },
+    "keyboard-hud": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793789174,
+        "narHash": "sha256-fa2HNAY85utmMBrxCTRNhgXyME+D+eVLp59qxeMEPPk=",
+        "owner": "sk4rd",
+        "repo": "keyboard-hud",
+        "rev": "1c9db7ae1b7b487c1f2b6a4015813398fa18242a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sk4rd",
+        "repo": "keyboard-hud",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "inputs": {
         "nixpkgs": [
@@ -154,6 +174,7 @@
         "disko": "disko",
         "hjem": "hjem",
         "import-tree": "import-tree",
+        "keyboard-hud": "keyboard-hud",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs"
       }
