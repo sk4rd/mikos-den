@@ -4,7 +4,7 @@
   den.aspects.keyboard.nixos = {
     services.xserver.xkb = {
       layout = "us";
-      variant = "intl";
+      variant = "altgr-intl";
     };
 
     services.udev.extraRules = ''
