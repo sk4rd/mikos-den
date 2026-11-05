@@ -73,6 +73,9 @@ end, {
 
 -- LSP
 vim.lsp.config('nixd', {
+  cmd = { 'nixd' },
+  filetypes = { 'nix' },
+  root_markers = { 'flake.nix', '.git' },
   settings = {
     nixd = {
       formatting = {
@@ -83,6 +86,14 @@ vim.lsp.config('nixd', {
 })
 
 vim.lsp.config('lua_ls', {
+  cmd = { 'lua-language-server' },
+  filetypes = { 'lua' },
+  -- Nested lists are priority tiers: a project config beats a formatter config beats .git.
+  root_markers = {
+    { '.emmyrc.json', '.luarc.json', '.luarc.jsonc' },
+    { '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml' },
+    { '.git' },
+  },
   settings = {
     Lua = {
       runtime = {
@@ -113,7 +124,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(event)
     vim.lsp.completion.enable(true, event.data.client_id, event.buf, {
-      autotrigger = true,
+      autotrigger = false,
     })
   end,
 })
@@ -229,10 +240,10 @@ require('diffview').setup({
   },
 })
 
-local function history_file()
+local function file_path()
   local path = vim.api.nvim_buf_get_name(0)
   if vim.bo.buftype ~= '' or path == '' then
-    vim.notify('File history requires a file buffer', vim.log.levels.WARN)
+    vim.notify('This needs a file buffer', vim.log.levels.WARN)
     return
   end
   return path
@@ -242,22 +253,16 @@ vim.keymap.set('n', '<leader>gdd', '<cmd>DiffviewOpen<CR>', { desc = 'Review wor
 vim.keymap.set('n', '<leader>gds', '<cmd>DiffviewOpen --cached<CR>', { desc = 'Review staged changes' })
 vim.keymap.set('n', '<leader>gdh', '<cmd>DiffviewFileHistory<CR>', { desc = 'Review repository history' })
 vim.keymap.set('n', '<leader>gdf', function()
-  local path = history_file()
+  local path = file_path()
   if path then
     require('diffview').file_history(nil, { path, '--follow' })
   end
 end, { desc = 'Review file history' })
 vim.keymap.set('x', '<leader>gdf', function()
-  return history_file() and ':DiffviewFileHistory<CR>' or '<Esc>'
+  return file_path() and ':DiffviewFileHistory<CR>' or '<Esc>'
 end, { expr = true, desc = 'Review selected lines history' })
 vim.keymap.set('n', '<leader>gdr', ':DiffviewOpen ', { desc = 'Review revision or range' })
 vim.keymap.set('n', '<leader>gdq', '<cmd>DiffviewClose<CR>', { desc = 'Close diff review' })
-
--- Markdown rendering
-require('render-markdown').setup({})
-
--- Mermaid
-require('mermaid').setup()
 
 -- Neogit
 require('neogit').setup({
