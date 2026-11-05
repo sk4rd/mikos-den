@@ -298,21 +298,6 @@ local groups = {
   WhichKeySeparator = { fg = c.muted },
   WhichKeyNormal = { link = 'NormalFloat' },
   WhichKeyBorder = { link = 'FloatBorder' },
-
-  -- render-markdown
-  RenderMarkdownCode = { bg = c.surface },
-  RenderMarkdownCodeInline = { bg = c.surface },
-  RenderMarkdownH1Bg = { bg = c.surface },
-  RenderMarkdownH2Bg = { bg = c.surface },
-  RenderMarkdownH3Bg = { bg = c.surface },
-  RenderMarkdownH4Bg = { bg = c.surface },
-  RenderMarkdownH5Bg = { bg = c.surface },
-  RenderMarkdownH6Bg = { bg = c.surface },
-  RenderMarkdownBullet = { fg = c.cyan },
-  RenderMarkdownChecked = { fg = c.success },
-  RenderMarkdownUnchecked = { fg = c.muted },
-  RenderMarkdownTableHead = { fg = c.overlay },
-  RenderMarkdownTableRow = { fg = c.overlay },
 }
 
 for group, opts in pairs(groups) do
