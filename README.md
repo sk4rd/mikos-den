@@ -77,28 +77,22 @@ nixos-rebuild build-vm --flake .#<host>
 ./result/bin/run-<host>-vm
 ```
 
-## Notes vault and backup
+## Notes vault
 
-Obsidian vault `~/Notes` on the workstation and thinkpad, synced by Syncthing
-through the NAS (`/tank/data/documents/notes`, covered by ZFS snapshots). Every
-night the NAS backs the vault up with restic to `/tank/backups/restic` and copies
-that repository to Proton Drive (`/my-files/Backups/nas`). Gatus on the NAS
-alerts via ntfy when a backup, upload or the weekly integrity check fails or
-doesn't run (group **Backups**).
+Obsidian vault `~/Notes` on the workstation, thinkpad and phone, synced by the
+Self-hosted LiveSync plugin through CouchDB on the NAS (`notes-db.sk4rd.com`,
+LAN and VPN only). The notes are end-to-end encrypted, so the database on the NAS
+is unreadable without the passphrase; keep it in your password manager.
 
-The restic password is in `secrets/restic-password.age`; keep a copy in your
-password manager, since the backups can't be restored without it.
+The database lives in `tank/services/couchdb`, covered by ZFS snapshots. That is
+its only history: there is no off-site backup for now, because the
+`proton-backup` aspect is not included on the NAS. Its `notes` source path is the
+old Syncthing folder, so point it at a plain copy of the vault before re-enabling.
 
-Restore from Proton Drive: download `/my-files/Backups/nas` to a folder, then
-```sh
-restic -r <folder> unlock   # if it complains about a lock
-restic -r <folder> snapshots
-restic -r <folder> restore latest --target <dest>
-```
-On the NAS the local copy is restored with `sudo restic -r /tank/backups/restic
---password-file /run/agenix/restic-password restore latest --target <dest>`.
-
-If the Proton sign-in expires, run `sudo proton-backup-login` on the NAS again.
+Earlier backups stay in `/tank/backups/restic` and Proton Drive
+(`/my-files/Backups/nas`). To restore: `sudo restic -r /tank/backups/restic
+--password-file /run/agenix/restic-password restore latest --target <dest>`. The
+restic password is in `secrets/restic-password.age`.
 
 An old Logseq database from the vault folder was moved to
 `/tank/data/documents/logseq-notes-old` (2026-11-03); delete it when sure.
