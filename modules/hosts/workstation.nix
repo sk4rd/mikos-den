@@ -22,10 +22,8 @@
       den.aspects.obsidian
     ];
 
-    # It stays reachable over SSH, so Plasma must not put the machine to sleep when
-    # idle. Sleeping by hand still works; the JetKVM wakes it. Sets only this one
-    # key (0 = do nothing; Plasma's default on AC is to sleep when idle) and
-    # leaves the other power settings alone.
+    # No idle suspend, so it stays reachable over SSH; manual sleep still works.
+    # Sets one key so Plasma keeps its other power settings.
     provides.miko.hjem =
       { pkgs, ... }:
       {
