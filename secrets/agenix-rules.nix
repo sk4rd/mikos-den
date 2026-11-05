@@ -56,4 +56,9 @@ in
     yubikey-5c
     nas
   ];
+  "couchdb-admin.age".publicKeys = [
+    yubikey-nfc
+    yubikey-5c
+    nas
+  ];
 }
