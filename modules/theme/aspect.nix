@@ -21,5 +21,7 @@ in
         monospace = [ theme.fonts.mono.name ];
       };
 
+      # The default background is colour 0, which ansi keeps lighter for terminals.
+      console.colors = map theme.lib.bare ([ theme.colors.bg ] ++ lib.tail theme.ansi);
     };
 }
