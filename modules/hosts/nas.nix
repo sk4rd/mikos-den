@@ -15,6 +15,11 @@
           publicKey = "rajGvU9NK6lHJm3ncM2PGZB22xbuw2cnmc66oOstcE4=";
           allowedIPs = [ "10.100.0.4/32" ];
         }
+        {
+          # iPhone
+          publicKey = "ZL9PsG2Rmm6e3ncYdRL4jem0bu2aZzJPEz/wGq/nMms=";
+          allowedIPs = [ "10.100.0.5/32" ];
+        }
       ];
     };
 
