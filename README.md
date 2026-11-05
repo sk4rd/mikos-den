@@ -79,7 +79,7 @@ nixos-rebuild build-vm --flake .#<host>
 
 ## Notes vault
 
-Obsidian vault `~/Notes` on the workstation, thinkpad and phone, synced by the
+Obsidian vault `~/Documents/Notes` on the workstation, thinkpad and phone, synced by the
 Self-hosted LiveSync plugin through CouchDB on the NAS (`notes-db.sk4rd.com`,
 LAN and VPN only). The notes are end-to-end encrypted, so the database on the NAS
 is unreadable without the passphrase; keep it in your password manager.
