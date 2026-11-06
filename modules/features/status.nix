@@ -10,6 +10,9 @@ let
     minimum-reminder-interval = "1h";
   };
 
+  # Endpoint groups shown as one suite: only services that depend on each other.
+  suiteGroups.Media = "Media stack";
+
   heartbeatTokenFile = "/var/lib/status-heartbeat/env";
   # Gatus keys an endpoint as <group>_<name>, with these characters replaced by '-'.
   keyChars = [
@@ -58,6 +61,23 @@ in
         }
         // endpoint
       ) status-endpoints;
+
+      # always-run, because a suite otherwise skips every step after a failure and hides them.
+      partitioned = lib.partition (endpoint: suiteGroups ? ${endpoint.group}) healthEndpoints;
+      groupSuites = lib.mapAttrsToList (group: name: {
+        inherit name group;
+        interval = "60s";
+        endpoints = map (
+          endpoint:
+          removeAttrs endpoint [
+            "group"
+            "interval"
+          ]
+          // {
+            always-run = true;
+          }
+        ) (lib.filter (endpoint: endpoint.group == group) partitioned.right);
+      }) suiteGroups;
 
       ddnsEndpoints = map (name: {
         name = "DDNS ${name}";
@@ -150,7 +170,7 @@ in
             };
           };
 
-          endpoints = healthEndpoints;
+          endpoints = partitioned.wrong;
 
           external-endpoints = lib.mkIf hasHeartbeats (
             lib.mapAttrsToList (_: c: {
@@ -187,7 +207,8 @@ in
               ]
               ++ ddnsEndpoints;
             }
-          ];
+          ]
+          ++ groupSuites;
         };
       };
 
