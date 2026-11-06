@@ -9,6 +9,20 @@ let
     send-on-resolved = true;
     minimum-reminder-interval = "1h";
   };
+
+  heartbeatTokenFile = "/var/lib/status-heartbeat/env";
+  # Gatus keys an endpoint as <group>_<name>, with these characters replaced by '-'.
+  keyChars = [
+    " "
+    "/"
+    "_"
+    ","
+    "."
+    "#"
+    "+"
+    "&"
+  ];
+  slug = text: lib.replaceStrings keyChars (map (_: "-") keyChars) (lib.toLower text);
 in
 {
   den.aspects.status.includes = [
@@ -26,8 +40,10 @@ in
     {
       config,
       host,
+      pkgs,
       service-routes,
       status-endpoints,
+      status-heartbeats,
       ...
     }:
     let
@@ -56,6 +72,35 @@ in
         ];
         alerts = [ ntfyAlert ];
       }) ddnsNames;
+
+      # A unit reports through OnSuccess/OnFailure = status-heartbeat@<id>.<ok|fail>.service.
+      # A push missing for longer than the interval alerts too.
+      heartbeats = lib.foldl' (acc: entry: acc // entry) { } status-heartbeats;
+      hasHeartbeats = heartbeats != { };
+
+      heartbeat = pkgs.writeShellApplication {
+        name = "status-heartbeat";
+        runtimeInputs = [ pkgs.curl ];
+        text = ''
+          check=''${1%.*} result=''${1##*.}
+          case $check in
+            ${
+              lib.concatStrings (
+                lib.mapAttrsToList (id: c: ''
+                  ${id}) key=${slug c.group}_${slug c.name} unit=${c.unit} ;;
+                '') heartbeats
+              )
+            }  *) echo "unknown check $check" >&2; exit 2 ;;
+          esac
+          # shellcheck source=/dev/null
+          source ${heartbeatTokenFile}
+          args=(--data-urlencode "success=$([[ $result == ok ]] && echo true || echo false)")
+          [[ $result == ok ]] || args+=(--data-urlencode "error=$unit failed, see journalctl -u $unit")
+          curl -fsS --retry 3 -X POST -G "''${args[@]}" \
+            -H "Authorization: Bearer $STATUS_HEARTBEAT_TOKEN" \
+            "http://127.0.0.1:8081/api/v1/endpoints/$key/external"
+        '';
+      };
     in
     {
       age.secrets.gatus-env = {
@@ -107,6 +152,23 @@ in
 
           endpoints = healthEndpoints;
 
+          external-endpoints = lib.mkIf hasHeartbeats (
+            lib.mapAttrsToList (_: c: {
+              inherit (c) name group;
+              token = "\${STATUS_HEARTBEAT_TOKEN}";
+              heartbeat.interval = c.interval;
+              alerts = [
+                {
+                  type = "ntfy";
+                  failure-threshold = 1;
+                  success-threshold = 1;
+                  send-on-resolved = true;
+                  minimum-reminder-interval = "12h";
+                }
+              ];
+            }) heartbeats
+          );
+
           suites = [
             {
               name = "DDNS records";
@@ -129,11 +191,43 @@ in
         };
       };
 
-      systemd.services.gatus.serviceConfig = {
-        # A fixed user, so it can own the agenix secret.
-        DynamicUser = lib.mkForce false;
-        User = "gatus";
-        Group = "gatus";
+      systemd.services.gatus = {
+        requires = lib.mkIf hasHeartbeats [ "status-heartbeat-token.service" ];
+        serviceConfig = {
+          # A fixed user, so it can own the agenix secret.
+          DynamicUser = lib.mkForce false;
+          User = "gatus";
+          Group = "gatus";
+          EnvironmentFile = lib.mkIf hasHeartbeats [ heartbeatTokenFile ];
+        };
+      };
+
+      systemd.services."status-heartbeat@" = lib.mkIf hasHeartbeats {
+        description = "Report result %i to Gatus";
+        after = [ "gatus.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = "${lib.getExe heartbeat} %i";
+        };
+      };
+
+      # Random push token, created once; readable by root and gatus only.
+      systemd.services.status-heartbeat-token = lib.mkIf hasHeartbeats {
+        description = "Create the Gatus heartbeat token";
+        wantedBy = [ "gatus.service" ];
+        before = [ "gatus.service" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          install -d -m 0750 -o root -g gatus ${dirOf heartbeatTokenFile}
+          if [ ! -s ${heartbeatTokenFile} ]; then
+            umask 0137
+            printf 'STATUS_HEARTBEAT_TOKEN=%s\n' "$(${pkgs.openssl}/bin/openssl rand -hex 32)" > ${heartbeatTokenFile}
+            chgrp gatus ${heartbeatTokenFile}
+          fi
+        '';
       };
     };
 }

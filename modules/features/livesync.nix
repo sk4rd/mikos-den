@@ -10,7 +10,7 @@ let
   port = 5984;
 in
 {
-  # Holds the Obsidian vault for LiveSync. Hourly snapshots are its only history.
+  # Holds the Obsidian vault for LiveSync. Hourly snapshots, plus the proton-backup copy.
   den.aspects.livesync.storage-datasets = lib.optionalAttrs enabled {
     "services/couchdb" = {
       mountpoint = dataDir;
