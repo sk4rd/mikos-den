@@ -1,4 +1,4 @@
-# Oxocarbon dark: raw palette data. The only file in the repo with hex colour literals;
+# Oxocarbon dark: raw palette data. The only Nix file with hex colour literals;
 # everything else reads the semantic roles built from it in ./default.nix.
 #
 # base00..base15 and blend come from nyoom-engineering/oxocarbon.nvim. Oxocarbon has no

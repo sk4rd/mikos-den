@@ -6,6 +6,6 @@
     type = import ../../lib/theme/types.nix { inherit lib; };
     default = import ../../lib/theme { inherit lib; };
     readOnly = true;
-    description = "Canonical system theme. Hex literals live only in lib/theme/oxocarbon.nix.";
+    description = "Canonical system theme. In Nix, hex literals live only in lib/theme/oxocarbon.nix.";
   };
 }
