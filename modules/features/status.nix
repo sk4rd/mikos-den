@@ -130,6 +130,7 @@ in
       };
 
       systemd.services.gatus.serviceConfig = {
+        # A fixed user, so it can own the agenix secret.
         DynamicUser = lib.mkForce false;
         User = "gatus";
         Group = "gatus";

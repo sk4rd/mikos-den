@@ -10,6 +10,7 @@
   den.default.includes = [ den.batteries.hostname ];
   den.default.nixos.system.stateVersion = "26.11";
 
+  # Structural, so den doesn't read an aspect's typed settings as a child aspect.
   den.reservedKeys = [ "settings" ];
 
   den.quirks.service-routes.description = "Reverse-proxy routes contributed by services";

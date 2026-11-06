@@ -70,9 +70,11 @@
           "/tank/data/media"
         ];
         serviceConfig = {
+          # Fixed users, because state on the dataset and files in the library outlive the service.
           DynamicUser = lib.mkForce false;
           User = app;
           Group = app;
+          # Group-writable, so these apps and qBittorrent can share the library through the media group.
           UMask = lib.mkForce "0002";
           BindPaths = [ "/var/lib/media-stack/${app}:/var/lib/${app}" ];
         }
