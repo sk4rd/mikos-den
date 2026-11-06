@@ -1,98 +1,48 @@
+![A bar of Oxocarbon theme colours](docs/banner.svg)
+
 # mikos-den
 
-Switch to the config using flakes:
+My NixOS configuration for all of my machines: a desktop, a laptop and a NAS. It's
+a [dendritic](https://github.com/mightyiam/dendritic) flake built on
+[den](https://github.com/denful/den), where each feature is one aspect, with
+[hjem](https://github.com/feel-co/hjem) managing my user files.
+
+Worth a look:
+
+- **Aspects:** a host is a short list of the features it includes.
+  [Why it's built this way](docs/architecture.md).
+- **One theme:** a single palette drives my apps, terminal and editor from
+  `lib/theme`. The bar above is rendered from it too.
+
+## How it's organised
+
+- `modules/features/`: one feature per file, loaded automatically.
+- `modules/hosts/`: what each machine includes, plus host-only settings.
+- `dots/`: plain config files the modules install.
+- `lib/`: helpers and the theme.
+- `secrets/`: encrypted with agenix, safe to publish.
+
+## Common tasks
 
 ```sh
+# Deploy to a host
 sudo nixos-rebuild switch --flake .#<host>
-```
 
-## Explore aspects
-
-Generate a static overview of the repository's aspects and their relationships:
-
-```sh
-nix eval --raw .#diagrams.overview > /tmp/mikos-den-overview.mmd
-```
-
-The overview includes authored `includes` and schema-level root relationships.
-
-## Formatting
-
-Format the whole repository (Nix, Lua, shell, Python, TOML) with
-[treefmt-nix](https://github.com/numtide/treefmt-nix), configured in
-`modules/formatter.nix`:
-
-```sh
-nix fmt
-```
-
-`nix flake check` fails if any file is not formatted.
-
-## Install from a NixOS live ISO
-
-Partition disk using disko:
-```sh
-sudo nix --extra-experimental-features "nix-command flakes" run \
-  github:nix-community/disko -- \
-  --mode destroy,format,mount --flake .#<host-using-disko>
-```
-
-Before installing, place your host's age key at `/mnt/etc/age/host.key`.
-```sh
-sudo install -d -m 0700 /mnt/etc/age
-sudo install -m 0600 /path/to/host.key /mnt/etc/age/host.key
-```
-
-The key decrypts the agenix secrets at boot, so back it up separately. Then
-install:
-```sh
-sudo nixos-install --flake .#<host>
-```
-
-## Secrets
-
-Before adding a secret make sure to declare its recipients in
-=agenix-rules.nix=.
-
-Adding and editing a secret:
-```sh
-cd secrets
-agenix -e very-secret-secret.age -i ~/.config/age/keys.txt  # opens $EDITOR
-```
-
-The identities are the YubiKey age plugin keys (PIV slot 2), provisioned by
-`modules/features/yubikey.nix` as `~/.config/age/keys-<serial>.txt` on every
-host, one per YubiKey. `agenix` only auto-detects `~/.ssh/id_*`, so the fish
-wrapper passes the file matching the connected YubiKey; give `-i` yourself to
-override it. Without the wrapper, `~/.config/age/keys.txt` holds both
-identities — but `age-plugin-yubikey` will then ask for the YubiKey you are
-not using, on every decryption.
-
-## Test VM
-
-Every host includes the `nixos-testing-vm` aspect, which sets up
-`virtualisation.vmVariant`. Build and run it with:
-```sh
+# Try a host in a VM first
 nixos-rebuild build-vm --flake .#<host>
 ./result/bin/run-<host>-vm
+
+# Map every aspect and how they relate, as a Mermaid diagram
+nix eval --raw .#diagrams.overview > /tmp/mikos-den-overview.mmd
+
+# Regenerate the colour bar after a palette change
+nix eval --raw .#banner > docs/banner.svg
 ```
 
-## Notes vault
+## Docs
 
-Obsidian vault `~/Documents/Notes` on the workstation, thinkpad and phone, synced by the
-Self-hosted LiveSync plugin through CouchDB on the NAS (`notes-db.sk4rd.com`,
-LAN and VPN only). The notes are end-to-end encrypted, so the database on the NAS
-is unreadable without the passphrase; keep it in your password manager.
+- [Installing a host](docs/install.md)
+- [Secrets](docs/secrets.md)
+- [Architecture](docs/architecture.md)
 
-The database lives in `tank/services/couchdb`, covered by ZFS snapshots. That is
-its only history: there is no off-site backup for now, because the
-`proton-backup` aspect is not included on the NAS. Its `notes` source path is the
-old Syncthing folder, so point it at a plain copy of the vault before re-enabling.
-
-Earlier backups stay in `/tank/backups/restic` and Proton Drive
-(`/my-files/Backups/nas`). To restore: `sudo restic -r /tank/backups/restic
---password-file /run/agenix/restic-password restore latest --target <dest>`. The
-restic password is in `secrets/restic-password.age`.
-
-An old Logseq database from the vault folder was moved to
-`/tank/data/documents/logseq-notes-old` (2026-11-03); delete it when sure.
+MIT licensed: see [LICENSE](LICENSE).
