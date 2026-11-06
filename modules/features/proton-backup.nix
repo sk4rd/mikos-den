@@ -6,56 +6,31 @@ let
   # (Proton paths start at /my-files; created by the upload if missing).
   remoteParent = "/my-files/Backups/nas";
   stateDir = "/var/lib/proton-backup";
-
-  # Gatus external endpoints (group "Backups"): each job pushes ok/fail, and a
-  # missing push within the heartbeat interval alerts too (ntfy, like status.nix).
-  heartbeatTokenFile = "/var/lib/backup-heartbeat/env";
-  checks = {
-    notes-backup = {
-      name = "Notes restic backup";
-      unit = "restic-backups-notes.service";
-      interval = "25h";
-    };
-    notes-upload = {
-      name = "Notes Proton Drive copy";
-      unit = "proton-backup-upload.service";
-      interval = "25h";
-    };
-    notes-check = {
-      name = "Notes repository integrity";
-      unit = "restic-check-notes.service";
-      interval = "169h";
-    };
-  };
-  # <group>_<name> with ' ', '/', '_', ',', '.', '#', '+', '&' replaced by '-'.
-  gatusKey =
-    name:
-    "backups_"
-    +
-      lib.replaceStrings
-        [
-          " "
-          "/"
-          "_"
-          ","
-          "."
-          "#"
-          "+"
-          "&"
-        ]
-        [
-          "-"
-          "-"
-          "-"
-          "-"
-          "-"
-          "-"
-          "-"
-          "-"
-        ]
-        (lib.toLower name);
 in
 {
+  den.aspects.proton-backup.status-heartbeats =
+    lib.optionalAttrs (builtins.pathExists passwordSecret)
+      {
+        notes-backup = {
+          name = "Notes restic backup";
+          group = "Backups";
+          unit = "restic-backups-notes.service";
+          interval = "25h";
+        };
+        notes-upload = {
+          name = "Notes Proton Drive copy";
+          group = "Backups";
+          unit = "proton-backup-upload.service";
+          interval = "25h";
+        };
+        notes-check = {
+          name = "Notes repository integrity";
+          group = "Backups";
+          unit = "restic-check-notes.service";
+          interval = "169h";
+        };
+      };
+
   den.aspects.proton-backup.storage-datasets = {
     "backups/restic" = {
       mountpoint = repo;
@@ -129,34 +104,9 @@ in
         '';
       };
 
-      # backup-heartbeat <check>.<ok|fail>: push one result to Gatus.
-      heartbeat = pkgs.writeShellApplication {
-        name = "backup-heartbeat";
-        runtimeInputs = [ pkgs.curl ];
-        text = ''
-          check=''${1%.*} result=''${1##*.}
-          case $check in
-            ${
-              lib.concatStrings (
-                lib.mapAttrsToList (id: c: ''
-                  ${id}) key=${gatusKey c.name} unit=${c.unit} ;;
-                '') checks
-              )
-            }  *) echo "unknown check $check" >&2; exit 2 ;;
-          esac
-          # shellcheck source=/dev/null
-          source ${heartbeatTokenFile}
-          args=(--data-urlencode "success=$([[ $result == ok ]] && echo true || echo false)")
-          [[ $result == ok ]] || args+=(--data-urlencode "error=$unit failed, see journalctl -u $unit")
-          curl -fsS --retry 3 -X POST -G "''${args[@]}" \
-            -H "Authorization: Bearer $BACKUP_HEARTBEAT_TOKEN" \
-            "http://127.0.0.1:8081/api/v1/endpoints/$key/external"
-        '';
-      };
-
       onResult = id: {
-        OnSuccess = [ "backup-heartbeat@${id}.ok.service" ];
-        OnFailure = [ "backup-heartbeat@${id}.fail.service" ];
+        OnSuccess = [ "status-heartbeat@${id}.ok.service" ];
+        OnFailure = [ "status-heartbeat@${id}.fail.service" ];
       };
     in
     lib.mkMerge [
@@ -179,8 +129,9 @@ in
           repository = repo;
           passwordFile = config.age.secrets.restic-password.path;
           initialize = true;
-          paths = [ "/tank/data/documents/notes" ];
-          exclude = [ ".stversions" ]; # Syncthing's own file versions
+          # LiveSync's CouchDB: the vault stays end-to-end encrypted in here, and its files are
+          # append-only, so copying them while it runs is safe.
+          paths = [ "/var/lib/couchdb" ];
           timerConfig = {
             OnCalendar = "03:00";
             Persistent = true;
@@ -220,55 +171,6 @@ in
             Persistent = true;
           };
         };
-
-        systemd.services."backup-heartbeat@" = {
-          description = "Report backup result %i to Gatus";
-          after = [ "gatus.service" ];
-          serviceConfig = {
-            Type = "oneshot";
-            ExecStart = "${lib.getExe heartbeat} %i";
-          };
-        };
-
-        # Random push token, created once; readable by root and gatus only.
-        systemd.services.backup-heartbeat-token = {
-          description = "Create the Gatus backup heartbeat token";
-          wantedBy = [ "gatus.service" ];
-          before = [ "gatus.service" ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-          };
-          script = ''
-            install -d -m 0750 -o root -g gatus ${dirOf heartbeatTokenFile}
-            if [ ! -s ${heartbeatTokenFile} ]; then
-              umask 0137
-              printf 'BACKUP_HEARTBEAT_TOKEN=%s\n' "$(${pkgs.openssl}/bin/openssl rand -hex 32)" > ${heartbeatTokenFile}
-              chgrp gatus ${heartbeatTokenFile}
-            fi
-          '';
-        };
-
-        systemd.services.gatus = {
-          requires = [ "backup-heartbeat-token.service" ];
-          serviceConfig.EnvironmentFile = [ heartbeatTokenFile ];
-        };
-
-        services.gatus.settings.external-endpoints = lib.mapAttrsToList (_: c: {
-          inherit (c) name;
-          group = "Backups";
-          token = "\${BACKUP_HEARTBEAT_TOKEN}";
-          heartbeat.interval = c.interval;
-          alerts = [
-            {
-              type = "ntfy";
-              failure-threshold = 1;
-              success-threshold = 1;
-              send-on-resolved = true;
-              minimum-reminder-interval = "12h";
-            }
-          ];
-        }) checks;
 
         systemd.services.proton-backup-upload = {
           description = "Mirror the restic repository to Proton Drive";

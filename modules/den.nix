@@ -15,6 +15,7 @@
 
   den.quirks.service-routes.description = "Reverse-proxy routes contributed by services";
   den.quirks.status-endpoints.description = "Health endpoints contributed by services";
+  den.quirks.status-heartbeats.description = "Results pushed to Gatus by services";
   den.quirks.storage-datasets.description = "Dataset definitions contributed by services";
 
   den.schema.host.imports = [
