@@ -40,6 +40,8 @@
         RemainAfterExit = true;
         LoadCredential = "private-key:${config.age.secrets.proton-nas-key.path}";
       };
+      # Default-drop firewall, so nothing leaves outside the tunnel. The WebUI is closed on the
+      # tunnel side and answers only the host namespace.
       script = ''
         set -eu
         ip netns add media-vpn
@@ -126,6 +128,8 @@
         "/var/lib/media-stack"
         "/tank/data/media"
       ];
+      # Refuses to start with nscd visible, since lookups through it would leave the tunnel.
+      # qBittorrent rewrites its own config, so the settings that matter are reapplied on each start.
       preStart = ''
         set -eu
         if [ -S /run/nscd/socket ]; then
