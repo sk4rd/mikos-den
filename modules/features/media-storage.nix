@@ -18,6 +18,7 @@
   den.aspects.media-storage.nixos = { pkgs, ... }: {
     users.groups.media = { };
 
+    # noauto on both: zfs-datasets creates these at multi-user, so a boot mount would hit emergency mode.
     fileSystems."/var/lib/media-stack" = {
       device = "tank/services/media-stack";
       fsType = "zfs";

@@ -45,6 +45,7 @@
       requires = [ "seerr-storage.service" ];
       unitConfig.AssertPathIsMountPoint = "/var/lib/media-stack";
       serviceConfig = {
+        # A fixed user, because its state on the dataset outlives the service.
         DynamicUser = lib.mkForce false;
         User = "seerr";
         Group = "seerr";
