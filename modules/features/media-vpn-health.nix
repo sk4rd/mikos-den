@@ -18,6 +18,8 @@
   den.aspects.media-vpn-health.nixos =
     { pkgs, lib, ... }:
     let
+      # Proves torrent traffic is behind the tunnel, not just that the units run: the namespace's public IP
+      # must differ from the host's, and DNS and the listener are checked from inside qBittorrent.
       healthScript = pkgs.writeShellScript "media-vpn-health" ''
         export PATH="${
           lib.makeBinPath (
@@ -72,6 +74,7 @@
         };
       };
 
+      # Results older than 180s count as failed, so a stopped timer reads as down rather than stale.
       systemd.services.media-vpn-health-http = {
         description = "Serve media VPN health status";
         wantedBy = [ "multi-user.target" ];

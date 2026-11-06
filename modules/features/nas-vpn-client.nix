@@ -49,6 +49,7 @@ in
               persistent-keepalive = 25;
             };
 
+            # Split tunnel: only the LAN and VPN ranges use it, and they are IPv4 only.
             ipv4 = {
               method = "manual";
               addresses = cfg.address;

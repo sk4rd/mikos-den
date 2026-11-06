@@ -39,6 +39,7 @@
               id = "proton-vpn";
               type = "wireguard";
               interface-name = "wg-proton";
+              # Routes all traffic, so it's switched on by hand.
               autoconnect = false;
             };
 
@@ -50,6 +51,7 @@
               persistent-keepalive = 25;
             };
 
+            # A negative priority makes NetworkManager drop other DNS while connected, so lookups can't leak.
             ipv4 = {
               method = "manual";
               address1 = "10.2.0.2/32";
