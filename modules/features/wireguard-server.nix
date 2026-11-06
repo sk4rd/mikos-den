@@ -51,13 +51,16 @@
 
         networking.firewall = {
           allowedUDPPorts = [ cfg.port ];
+          # Peers are my own devices, so the tunnel skips the host firewall.
           trustedInterfaces = [ "wg0" ];
         };
 
+        # The key file's path never changes, so a rotated key wouldn't restart the tunnel otherwise.
         systemd.services.wireguard-wg0.restartTriggers = [
           (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
         ];
 
+        # Lets peers reach the LAN through the NAS.
         networking.nat = {
           enable = true;
           internalInterfaces = [ "wg0" ];
