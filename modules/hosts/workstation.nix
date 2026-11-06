@@ -19,6 +19,8 @@
     provides.miko.includes = [
       den.aspects.gh
       den.aspects.obsidian
+      den.aspects.learnharness
+      den.aspects.voxtype
     ];
 
     # No idle suspend, so it stays reachable over SSH; manual sleep still works.
