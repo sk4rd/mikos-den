@@ -24,6 +24,8 @@
     provides.miko.includes = [
       den.aspects.gh
       den.aspects.obsidian
+      den.aspects.learnharness
+      den.aspects.voxtype
     ];
 
     nixos = {
