@@ -6,7 +6,7 @@
   den.aspects.media-vpn-health.status-endpoints = [
     {
       name = "Proton VPN";
-      group = "VPN";
+      group = "Media";
       url = "http://127.0.0.1:9188/health";
       conditions = [
         "[STATUS] == 200"
