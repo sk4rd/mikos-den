@@ -30,6 +30,7 @@ in
               neogit
               diffview-nvim
               nvim-web-devicons
+              nvim-tree-lua
               nvim-highlight-colors
               which-key-nvim
             ];

@@ -154,6 +154,10 @@ require('telescope').setup({
   defaults = {
     file_ignore_patterns = { '^%.git/' },
   },
+  pickers = {
+    find_files = { hidden = true },
+    live_grep = { additional_args = { '--hidden' } },
+  },
   extensions = {
     fzf = {
       fuzzy = true,
@@ -172,12 +176,23 @@ require('telescope').load_extension('ui-select')
 
 local builtin = require('telescope.builtin')
 
+vim.keymap.set('n', '<leader><leader>', builtin.find_files, { desc = 'Find files' })
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Find help' })
 vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = 'Find diagnostics' })
 vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = 'Resume search' })
+vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Recent files' })
+vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Symbols in file' })
+vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = 'Search in file' })
+
+-- File tree
+require('nvim-tree').setup()
+
+vim.keymap.set('n', '<leader>e', function()
+  require('nvim-tree.api').tree.toggle({ find_file = true })
+end, { desc = 'Toggle file tree' })
 
 -- Telescope: git
 vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = 'Git status' })
