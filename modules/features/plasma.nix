@@ -1,6 +1,8 @@
-{ den, ... }:
+{ config, den, ... }:
 
 let
+  inherit (config) theme;
+
   kcminputrc = ''
     [Libinput][Defaults][Pointer]
     NaturalScroll=false
@@ -84,7 +86,33 @@ in
       };
 
     hjem =
-      { pkgs, ... }:
+      { pkgs, lib, ... }:
+      let
+        wallpaper = import ../../lib/theme/render/wallpaper.nix { inherit pkgs lib theme; };
+
+        # Plasma keeps these in files it rewrites itself, so they are set at login.
+        applyLook = pkgs.writeShellScript "apply-plasma-look" ''
+          PATH=${
+            lib.makeBinPath [
+              pkgs.coreutils
+              pkgs.kdePackages.kconfig
+              pkgs.kdePackages.plasma-workspace
+            ]
+          }:$PATH
+
+          [ "$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage)" = org.kde.breezedark.desktop ] \
+            || plasma-apply-lookandfeel --apply org.kde.breezedark.desktop
+
+          kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper \
+            --group org.kde.image --group General --key Image "file://${wallpaper}"
+
+          # plasmashell may still be starting.
+          for _ in $(seq 20); do
+            plasma-apply-wallpaperimage ${wallpaper} && break
+            sleep 1
+          done
+        '';
+      in
       {
         packages = [
           pkgs.kdePackages.gwenview
@@ -96,6 +124,14 @@ in
           text = kcminputrc;
           clobber = true;
         };
+
+        files.".config/autostart/plasma-look.desktop".text = ''
+          [Desktop Entry]
+          Type=Application
+          Name=Apply Plasma look
+          Exec=${applyLook}
+          OnlyShowIn=KDE;
+        '';
 
         files.".config/ksmserverrc" = {
           text = ''
