@@ -7,7 +7,7 @@
 
 {
   # HUD firmware for the Charybdis. Flash both halves in bootloader mode (double-tap reset) by
-  # copying the .uf2 onto the RPI-RP2 drive, then re-import keyboard-argos-layout.json in Argos:
+  # copying the .uf2 onto the RPI-RP2 drive, then re-import your layout in Argos:
   # VIA resets its keymap the first time the build changes.
   flake.packages.x86_64-linux.charybdis-hud-firmware =
     inputs.keyboard-hud.packages.x86_64-linux.charybdis-firmware;
@@ -16,9 +16,10 @@
     nixos = {
       imports = [ inputs.keyboard-hud.nixosModules.default ];
 
+      # EurKEY: US typing, with German letters on AltGr+A/O/U/S.
       services.xserver.xkb = {
-        layout = "us";
-        variant = "altgr-intl";
+        layout = "eu";
+        variant = "";
       };
 
       # Lets Argos (WebHID) and keyboard-hud open the Charybdis' hidraw nodes.
@@ -27,10 +28,9 @@
       '';
 
       # Live overlay of the Argos layout; toggle with Meta+Alt+K or from the tray.
-      # Replace keyboard-argos-layout.json with a fresh Argos export when the layout changes.
+      # The layout lives outside this repo, in ~/.config/keyboard-hud/layout.json.
       programs.keyboard-hud = {
         enable = true;
-        layout = ./keyboard-argos-layout.json;
         theme = {
           background = config.theme.colors.bg;
           foreground = config.theme.colors.fg;
@@ -38,9 +38,6 @@
         };
         hidrawAccess = false; # granted above
       };
-
-      # GTK 4.20 swallows dead keys without an input method; drop this once i18n.inputMethod is set.
-      environment.sessionVariables.GTK_IM_MODULE = "simple";
     };
   };
 }
