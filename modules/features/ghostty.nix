@@ -42,7 +42,7 @@ in
         Icon=com.mitchellh.ghostty
         Terminal=false
         StartupNotify=false
-        X-KDE-Shortcuts=Ctrl+Alt+T
+        X-KDE-Shortcuts=Meta+T
       '';
     };
   };

@@ -133,6 +133,8 @@ in
             set_shortcut kwin 'Window Quick Tile Bottom' 'Meta+Shift+J,Meta+Down,Quick Tile Window to the Bottom'
             set_shortcut kwin 'Window Quick Tile Top' 'Meta+Shift+K,Meta+Up,Quick Tile Window to the Top'
             set_shortcut kwin 'Window Quick Tile Right' 'Meta+Shift+L,Meta+Right,Quick Tile Window to the Right'
+            # Meta+T opens Ghostty, see ghostty.nix.
+            set_shortcut kwin 'Edit Tiles' 'none,Meta+T,Toggle Tiles Editor'
           '';
         };
 
