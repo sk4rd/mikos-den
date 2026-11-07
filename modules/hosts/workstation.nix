@@ -21,6 +21,7 @@
       den.aspects.obsidian
       den.aspects.learnharness
       den.aspects.voxtype
+      den.aspects.ai
     ];
 
     # No idle suspend, so it stays reachable over SSH; manual sleep still works.

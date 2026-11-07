@@ -26,6 +26,7 @@
       den.aspects.obsidian
       den.aspects.learnharness
       den.aspects.voxtype
+      den.aspects.ai
     ];
 
     nixos = {
