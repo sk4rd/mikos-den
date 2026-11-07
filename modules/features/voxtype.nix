@@ -27,7 +27,10 @@
             initial_prompt = "Nix, NixOS, nixpkgs, flake, Plasma, Jellyfin, agenix, Vulkan.";
           };
           # The nixpkgs build ships no working OSD, so these are the only recording signals.
-          audio.feedback.enabled = true;
+          audio = {
+            feedback.enabled = true;
+            max_duration_secs = 600;
+          };
           output = {
             notification.on_recording_start = true;
             mode = "type";
