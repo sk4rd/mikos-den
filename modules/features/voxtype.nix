@@ -26,7 +26,7 @@
             # A hint rather than a guarantee: it steers Whisper towards these spellings.
             initial_prompt = "Nix, NixOS, nixpkgs, flake, Plasma, Jellyfin, agenix, Vulkan.";
           };
-          # The nixpkgs build ships no working OSD, so these are the only recording signals.
+          osd.frontend = "quickshell";
           audio = {
             feedback.enabled = true;
             max_duration_secs = 600;
@@ -66,6 +66,13 @@
             "pipewire-pulse.service"
           ];
           wantedBy = [ "graphical-session.target" ];
+          # The daemon launches the overlay as a child, and nixpkgs leaves out its QML
+          # files and runtime tools.
+          environment.VOXTYPE_OSD_QML_PATH = "${voxtype.src}/quickshell";
+          path = [
+            pkgs.quickshell
+            voxtype
+          ];
           serviceConfig = {
             ExecStart = "${voxtype}/bin/voxtype -q daemon";
             Restart = "on-failure";
