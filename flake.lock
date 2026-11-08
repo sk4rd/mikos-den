@@ -117,11 +117,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794061126,
-        "narHash": "sha256-6wuIJbs/+NpuptFJyH9mu3OND9HDQdRPlyfSIgaUCNk=",
+        "lastModified": 1794168541,
+        "narHash": "sha256-QI5YH7Q41c1w2djwRg+TnrpYtGEwnQ8c75cz99tpzgI=",
         "owner": "sk4rd",
         "repo": "keyboard-hud",
-        "rev": "d560e882dd95743833335a7ba24378cd0b9a9787",
+        "rev": "3805df2a15bf1cffa3fd1e15c0818b93a1195349",
         "type": "github"
       },
       "original": {
