@@ -1,8 +1,14 @@
-{ config, ... }:
+{ config, inputs, ... }:
 
 {
   den.aspects.brave.nixos = { pkgs, ... }: {
-    environment.systemPackages = [ pkgs.brave ];
+    # nixpkgs-unstable's chromium module no longer writes /etc/brave policies.
+    disabledModules = [ "programs/chromium.nix" ];
+    imports = [ "${inputs.nixpkgs-brave}/nixos/modules/programs/chromium.nix" ];
+
+    environment.systemPackages = [
+      inputs.nixpkgs-brave.legacyPackages.${pkgs.stdenv.hostPlatform.system}.brave
+    ];
 
     programs.chromium = {
       enable = true;

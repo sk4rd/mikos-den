@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Brave was re-added on master on 2026-11-07. Drop this once it reaches nixpkgs-unstable.
+    nixpkgs-brave.url = "github:NixOS/nixpkgs/master";
     den.url = "github:denful/den";
     den-diagram = {
       url = "github:denful/den-diagram";

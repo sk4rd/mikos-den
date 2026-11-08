@@ -22,11 +22,11 @@
     },
     "den": {
       "locked": {
-        "lastModified": 1792618207,
-        "narHash": "sha256-iBpvVBVBnynNWW9sLX5oKVigXU28oO2oiMPXgcLO1HI=",
+        "lastModified": 1793993828,
+        "narHash": "sha256-jLoWzLEGOBMxg2z0x2hKgPOtcFwQ/S1weV6WRnj4Bpw=",
         "owner": "denful",
         "repo": "den",
-        "rev": "0f7675b0b789eabe1a62f8a31b5323a7ad3ca5c4",
+        "rev": "bf2504f9f2e8621fee091335132ab3ae698cf808",
         "type": "github"
       },
       "original": {
@@ -137,11 +137,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793355509,
-        "narHash": "sha256-/Zs18x+IW4LuVH0rKxra0WPRgsk0DQsi0Bwkf8sOC5c=",
+        "lastModified": 1794051415,
+        "narHash": "sha256-mJok3uMK0awq2MPKdSnvTxm3UD89KD3LclQzASgtY1s=",
         "owner": "nixos",
         "repo": "nixos-hardware",
-        "rev": "04c6b94fa104bc23650983a4513aea196794d321",
+        "rev": "1a8ff4f57ffe1f732beaa1db842247a381ea471d",
         "type": "github"
       },
       "original": {
@@ -152,16 +152,32 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1793582901,
-        "narHash": "sha256-WDValiY9se78X2Wh7aWWaq/c7HN29U555+OKbHEzYrw=",
+        "lastModified": 1793977579,
+        "narHash": "sha256-WrSODdZFVIs/Hh2NzC0bY+ROByi0bATg8WfePX8dPj8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5c9de89ec55bff981cb8da1a4ee92b10f1438ffc",
+        "rev": "4fe25e12eb9f4c744966dd3de5a05246cf098601",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
         "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-brave": {
+      "locked": {
+        "lastModified": 1794124053,
+        "narHash": "sha256-4hNdJvQShRX0fx7yKPuMoTyDf89Zd+ipCpJCPx/t67w=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "24ca9cdf87deab06ecadcc6c4361cf326dd6ff7d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "master",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -177,6 +193,7 @@
         "keyboard-hud": "keyboard-hud",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-brave": "nixpkgs-brave",
         "treefmt-nix": "treefmt-nix"
       }
     },
