@@ -5,7 +5,6 @@
     den.aspects.theme
     den.aspects.plasma
     den.aspects.brave
-    den.aspects.orca-slicer
     den.aspects.kicad
     den.aspects.gaming
     den.aspects.audio
