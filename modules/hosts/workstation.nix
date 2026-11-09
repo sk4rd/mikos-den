@@ -51,7 +51,35 @@
 
       services.xserver.videoDrivers = [ "amdgpu" ];
 
+      programs.keyboard-hud = {
+        shortcut = "F10";
+        moveShortcut = "Shift+F10";
+      };
+
       boot.kernelParams = [ "amd_pstate=active" ];
+
+      boot.loader.timeout = null;
+
+      services.udev.extraRules = ''
+        SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:03:00.0", SYMLINK+="dri/rx7900"
+        SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:13:00.0", SYMLINK+="dri/igpu"
+      '';
+      environment.sessionVariables = {
+        KWIN_DRM_DEVICES = "/dev/dri/rx7900:/dev/dri/igpu";
+        DRI_PRIME = "pci-0000_03_00_0";
+      };
+
+      # A boot menu entry where the JetKVM on the motherboard's HDMI-A-2 is the only
+      # display, from the disk unlock prompt onwards. Every other connector is switched off.
+      specialisation.jetkvm.configuration.boot.kernelParams = map (connector: "video=${connector}:d") [
+        "DP-1"
+        "DP-2"
+        "DP-3"
+        "DP-4"
+        "DP-5"
+        "DP-6"
+        "HDMI-A-1"
+      ];
 
       disko.devices.disk.main = (
         import ../../lib/disks/encrypted-ext4.nix "/dev/disk/by-id/nvme-CT4000P3PSSD8_2339E879EA19"
