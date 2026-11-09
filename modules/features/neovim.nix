@@ -29,8 +29,6 @@ in
               telescope-ui-select-nvim
               plenary-nvim
               gitsigns-nvim
-              neogit
-              diffview-nvim
               nvim-web-devicons
               fyler-nvim
               (nvim-treesitter.withPlugins (p: [

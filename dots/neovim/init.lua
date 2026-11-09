@@ -42,6 +42,20 @@ vim.opt.diffopt = vim.tbl_filter(function(option)
 end, vim.opt.diffopt:get())
 vim.opt.diffopt:append({ 'algorithm:histogram', 'indent-heuristic', 'linematch:60' })
 
+-- In a diff, drop the temporary side and keep the real file.
+vim.keymap.set('n', '<leader>q', function()
+  if not vim.wo.diff then
+    vim.cmd('silent! close')
+    return
+  end
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.wo[win].diff and vim.bo[vim.api.nvim_win_get_buf(win)].buftype ~= '' then
+      vim.api.nvim_win_close(win, false)
+    end
+  end
+  vim.cmd('diffoff!')
+end, { desc = 'Close pane' })
+
 -- Responsiveness
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 500
@@ -154,10 +168,38 @@ require('which-key').setup({
 require('which-key').add({
   { '<leader>f', group = 'find' },
   { '<leader>g', group = 'git' },
-  { '<leader>gd', group = 'diff review' },
 })
 
 -- Telescope
+local telescope_actions = require('telescope.actions')
+
+-- Run git in a terminal split so editors and SSH prompts work.
+local function git_term(...)
+  local root = vim.fs.root(0, '.git')
+  vim.cmd('botright new')
+  vim.fn.jobstart({ 'git', ... }, { term = true, cwd = root })
+  vim.cmd.startinsert()
+end
+
+-- The default <CR> detaches HEAD on the selected commit, so show it instead.
+local function log_show_on_enter()
+  telescope_actions.select_default:replace(function(prompt_bufnr)
+    local commit = require('telescope.actions.state').get_selected_entry().value
+    telescope_actions.close(prompt_bufnr)
+    git_term('show', commit)
+  end)
+  return true
+end
+
+-- The default <CR> runs `git checkout <commit> -- <file>` and discards local
+-- edits, so open the read-only comparison that <C-v> gives instead.
+local function bcommits_diff_on_enter()
+  telescope_actions.select_default:replace(function(prompt_bufnr)
+    return telescope_actions.select_vertical(prompt_bufnr)
+  end)
+  return true
+end
+
 require('telescope').setup({
   defaults = {
     file_ignore_patterns = { '^%.git/' },
@@ -165,6 +207,9 @@ require('telescope').setup({
   pickers = {
     find_files = { hidden = true },
     live_grep = { additional_args = { '--hidden' } },
+    git_commits = { attach_mappings = log_show_on_enter },
+    git_bcommits = { attach_mappings = bcommits_diff_on_enter },
+    git_bcommits_range = { attach_mappings = bcommits_diff_on_enter },
   },
   extensions = {
     fzf = {
@@ -219,94 +264,56 @@ vim.keymap.set('n', '<leader>e', function()
 end, { desc = 'Toggle file tree' })
 
 -- Telescope: git
-vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = 'Git status' })
-vim.keymap.set('n', '<leader>gc', builtin.git_commits, { desc = 'Git commits' })
+vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = 'Changed files' })
+vim.keymap.set('n', '<leader>gl', builtin.git_commits, { desc = 'Git log' })
+vim.keymap.set('n', '<leader>gw', builtin.git_branches, { desc = 'Git branches' })
+vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = 'Git stashes' })
 vim.keymap.set('n', '<leader>gB', builtin.git_bcommits, { desc = 'Git buffer commits' })
-vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = 'Git stash' })
+vim.keymap.set('x', '<leader>gB', builtin.git_bcommits_range, { desc = 'Git selected lines commits' })
 
 -- Gitsigns
 local gitsigns = require('gitsigns')
 
 gitsigns.setup()
 
+vim.keymap.set('n', '<leader>gb', gitsigns.blame_line, { desc = 'Blame line' })
 vim.keymap.set('n', '<leader>gp', gitsigns.preview_hunk_inline, { desc = 'Preview hunk inline' })
-vim.keymap.set('n', '<leader>gP', gitsigns.toggle_deleted, { desc = 'Toggle deleted lines' })
-vim.keymap.set('n', '<leader>gn', function()
-  if vim.wo.diff then
-    vim.cmd.normal({ ']c', bang = true })
-  else
-    gitsigns.next_hunk()
-  end
+vim.keymap.set('n', '<leader>gv', function()
+  local enabled = gitsigns.toggle_deleted()
+  gitsigns.toggle_linehl(enabled)
+  gitsigns.toggle_word_diff(enabled)
+end, { desc = 'Toggle inline diff view' })
+vim.keymap.set('n', '<leader>gh', gitsigns.stage_hunk, { desc = 'Stage or unstage hunk' })
+vim.keymap.set('n', '<leader>gH', gitsigns.stage_buffer, { desc = 'Stage file' })
+vim.keymap.set('n', '<leader>gU', gitsigns.reset_buffer_index, { desc = 'Unstage file' })
+vim.keymap.set('n', '<leader>gd', gitsigns.diffthis, { desc = 'Diff file against index' })
+vim.keymap.set('n', '<leader>gr', gitsigns.reset_hunk, { desc = 'Discard hunk' })
+vim.keymap.set('x', '<leader>gr', function()
+  gitsigns.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+  vim.cmd('normal! ' .. vim.keycode('<Esc>'))
+end, { desc = 'Discard selected lines' })
+vim.keymap.set('n', '<leader>gR', gitsigns.reset_buffer, { desc = 'Discard file changes' })
+vim.keymap.set('x', '<leader>gh', function()
+  gitsigns.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+  vim.cmd('normal! ' .. vim.keycode('<Esc>'))
+end, { desc = 'Stage selected lines' })
+vim.keymap.set('n', ']h', function()
+  gitsigns.nav_hunk('next')
 end, { desc = 'Next hunk' })
-vim.keymap.set('n', '<leader>gN', function()
-  if vim.wo.diff then
-    vim.cmd.normal({ '[c', bang = true })
-  else
-    gitsigns.prev_hunk()
-  end
+vim.keymap.set('n', '[h', function()
+  gitsigns.nav_hunk('prev')
 end, { desc = 'Previous hunk' })
 
-local diff_actions = require('diffview.actions')
-
-local function goto_working_file()
-  local tab = require('diffview.lib').get_prev_non_view_tabpage()
-  if tab and vim.bo[vim.api.nvim_win_get_buf(vim.api.nvim_tabpage_get_win(tab))].buftype == 'terminal' then
-    diff_actions.goto_file_tab()
-  else
-    diff_actions.goto_file_edit()
-  end
+-- Git commands
+for _, map in ipairs({
+  { '<leader>gc', 'Commit staged', 'commit' },
+  { '<leader>gC', 'Amend last commit', 'commit', '--amend' },
+  { '<leader>gP', 'Push', 'push' },
+  { '<leader>gL', 'Pull', 'pull' },
+  { '<leader>gf', 'Fetch', 'fetch' },
+  { '<leader>gz', 'Stash changes', 'stash' },
+}) do
+  vim.keymap.set('n', map[1], function()
+    git_term(unpack(map, 3))
+  end, { desc = map[2] })
 end
-
-require('diffview').setup({
-  view = {
-    default = { layout = 'diff2_horizontal' },
-    file_history = { layout = 'diff2_horizontal' },
-  },
-  keymaps = {
-    view = {
-      { 'n', ']r', diff_actions.select_next_commit, { desc = 'Next commit' } },
-      { 'n', '[r', diff_actions.select_prev_commit, { desc = 'Previous commit' } },
-      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
-    },
-    file_panel = {
-      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
-    },
-    file_history_panel = {
-      { 'n', ']r', diff_actions.select_next_commit, { desc = 'Next commit' } },
-      { 'n', '[r', diff_actions.select_prev_commit, { desc = 'Previous commit' } },
-      { 'n', 'gf', goto_working_file, { desc = 'Open working file without replacing terminal' } },
-    },
-  },
-})
-
-local function file_path()
-  local path = vim.api.nvim_buf_get_name(0)
-  if vim.bo.buftype ~= '' or path == '' then
-    vim.notify('This needs a file buffer', vim.log.levels.WARN)
-    return
-  end
-  return path
-end
-
-vim.keymap.set('n', '<leader>gdd', '<cmd>DiffviewOpen<CR>', { desc = 'Review working tree' })
-vim.keymap.set('n', '<leader>gds', '<cmd>DiffviewOpen --cached<CR>', { desc = 'Review staged changes' })
-vim.keymap.set('n', '<leader>gdh', '<cmd>DiffviewFileHistory<CR>', { desc = 'Review repository history' })
-vim.keymap.set('n', '<leader>gdf', function()
-  local path = file_path()
-  if path then
-    require('diffview').file_history(nil, { path, '--follow' })
-  end
-end, { desc = 'Review file history' })
-vim.keymap.set('x', '<leader>gdf', function()
-  return file_path() and ':DiffviewFileHistory<CR>' or '<Esc>'
-end, { expr = true, desc = 'Review selected lines history' })
-vim.keymap.set('n', '<leader>gdr', ':DiffviewOpen ', { desc = 'Review revision or range' })
-vim.keymap.set('n', '<leader>gdq', '<cmd>DiffviewClose<CR>', { desc = 'Close diff review' })
-
--- Neogit
-require('neogit').setup({
-  integrations = { diffview = true },
-  diff_viewer = 'diffview',
-})
-
-vim.keymap.set('n', '<leader>gg', '<cmd>Neogit<CR>', { desc = 'Neogit status' })

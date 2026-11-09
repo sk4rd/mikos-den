@@ -264,32 +264,18 @@ local groups = {
   TelescopePreviewLine = { bg = c.surface },
 
   -- gitsigns
-  GitSignsAdd = { fg = c.success },
-  GitSignsChange = { fg = c.info },
+  GitSignsAdd = { fg = c.warning },
+  GitSignsChange = { fg = c.warning },
   GitSignsDelete = { fg = c.error },
-  GitSignsCurrentLineBlame = { link = 'Comment' },
-
-  -- Neogit
-  NeogitBranch = { fg = c.magenta, bold = true },
-  NeogitRemote = { fg = c.accent, bold = true },
-  NeogitSectionHeader = { fg = c.purple, bold = true },
-  NeogitHunkHeader = { fg = c.subtle, bg = c.overlay },
-  NeogitHunkHeaderHighlight = { fg = c.fg, bg = c.muted, bold = true },
-  NeogitDiffContext = { bg = c.bg },
-  NeogitDiffContextHighlight = { bg = c.surface },
-  NeogitDiffAdd = { fg = c.success, bg = d.add },
-  NeogitDiffAddHighlight = { fg = c.success, bg = d.add },
-  NeogitDiffDelete = { fg = c.error, bg = d.delete },
-  NeogitDiffDeleteHighlight = { fg = c.error, bg = d.delete },
-
-  -- diffview
-  DiffviewFilePanelTitle = { fg = c.accent, bold = true },
-  DiffviewFilePanelCounter = { fg = c.purple },
-  DiffviewFolderName = { fg = c.cyan },
-  DiffviewStatusAdded = { fg = c.success },
-  DiffviewStatusModified = { fg = c.info },
-  DiffviewStatusDeleted = { fg = c.error },
-  DiffviewStatusRenamed = { fg = c.warning },
+  GitSignsStagedAdd = { fg = c.success },
+  GitSignsStagedChange = { fg = c.success },
+  GitSignsStagedChangedelete = { fg = c.success },
+  GitSignsStagedDelete = { fg = c.success },
+  GitSignsStagedTopdelete = { fg = c.success },
+  GitSignsDeleteVirtLn = { fg = c.error, bg = d.delete },
+  GitSignsAddLnInline = { link = 'DiffText' },
+  GitSignsChangeLnInline = { link = 'DiffText' },
+  GitSignsDeleteVirtLnInline = { link = 'DiffText' },
 
   -- which-key
   WhichKey = { fg = c.cyan },
