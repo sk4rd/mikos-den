@@ -1,18 +1,7 @@
-{ config, den, ... }:
+{ config, ... }:
 
 let
   inherit (config) theme;
-
-  kcminputrc = ''
-    [Libinput][Defaults][Pointer]
-    NaturalScroll=false
-    PointerAccelerationProfile=1
-
-    [Libinput][Defaults][Touchpad]
-    NaturalScroll=true
-    PointerAccelerationProfile=2
-    ScrollFactor=0.5
-  '';
 in
 {
   den.aspects.plasma = {
@@ -20,6 +9,8 @@ in
       { pkgs, ... }:
       {
         environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+        environment.etc."xdg/kcminputrc".source = ../../dots/plasma/kcminputrc;
 
         environment.etc."xdg/kdeglobals".text = ''
           [General]
@@ -49,15 +40,11 @@ in
 
         services = {
           displayManager.sddm.enable = true;
-          displayManager.sddm.wayland.enable = true;
           desktopManager.plasma6.enable = true;
 
           orca.enable = false;
           geoclue2.enable = false;
         };
-
-        # SDDM's PAM stack includes the login service
-        security.pam.services.login.fprintAuth = false;
 
         programs.kde-pim.enable = false;
 
@@ -79,9 +66,9 @@ in
           union
         ];
 
+        # Drop the old per-greeter override; the system-wide default applies.
         systemd.tmpfiles.rules = [
-          "d /var/lib/sddm/.config 0755 sddm sddm -"
-          "L+ /var/lib/sddm/.config/kcminputrc - - - - ${pkgs.writeText "sddm-kcminputrc" kcminputrc}"
+          "r /var/lib/sddm/.config/kcminputrc"
         ];
       };
 
@@ -90,28 +77,26 @@ in
       let
         wallpaper = import ../../lib/theme/render/wallpaper.nix { inherit pkgs lib theme; };
 
-        # Plasma keeps these in files it rewrites itself, so they are set at login.
-        applyLook = pkgs.writeShellScript "apply-plasma-look" ''
-          PATH=${
-            lib.makeBinPath [
-              pkgs.coreutils
-              pkgs.kdePackages.kconfig
-              pkgs.kdePackages.plasma-workspace
-            ]
-          }:$PATH
+        # Plasma rewrites these files, so apply the look at login.
+        applyLook = pkgs.writeShellApplication {
+          name = "apply-plasma-look";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.kdePackages.kconfig
+            pkgs.kdePackages.plasma-workspace
+          ];
+          text = builtins.readFile ./plasma-apply-look.sh + ''
 
-          [ "$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage)" = org.kde.breezedark.desktop ] \
-            || plasma-apply-lookandfeel --apply org.kde.breezedark.desktop
+            kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper \
+              --group org.kde.image --group General --key Image "file://${wallpaper}"
 
-          kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper \
-            --group org.kde.image --group General --key Image "file://${wallpaper}"
-
-          # plasmashell may still be starting.
-          for _ in $(seq 20); do
-            plasma-apply-wallpaperimage ${wallpaper} && break
-            sleep 1
-          done
-        '';
+            # plasmashell may still be starting.
+            for _ in $(seq 20); do
+              plasma-apply-wallpaperimage ${wallpaper} && break
+              sleep 1
+            done
+          '';
+        };
       in
       {
         packages = [
@@ -121,7 +106,7 @@ in
         ];
 
         files.".config/kcminputrc" = {
-          text = kcminputrc;
+          source = ../../dots/plasma/kcminputrc;
           clobber = true;
         };
 
@@ -129,51 +114,24 @@ in
           [Desktop Entry]
           Type=Application
           Name=Apply Plasma look
-          Exec=${applyLook}
+          Exec=${applyLook}/bin/apply-plasma-look
           OnlyShowIn=KDE;
         '';
 
         files.".config/ksmserverrc" = {
-          text = ''
-            [General]
-            loginMode=emptySession
-          '';
+          source = ../../dots/plasma/ksmserverrc;
           clobber = true;
         };
 
         # Vim-style window motions.
         systemd.services.plasma-vim-shortcuts = {
           description = "Configure Plasma Vim window shortcuts";
-          wantedBy = [
-            "plasma-kwin_wayland.service"
-            "plasma-kwin_x11.service"
-            "plasma-kglobalaccel.service"
-          ];
-          before = [
-            "plasma-kwin_wayland.service"
-            "plasma-kwin_x11.service"
-            "plasma-kglobalaccel.service"
-          ];
+          wantedBy = [ "plasma-kwin_wayland.service" ];
+          before = [ "plasma-kwin_wayland.service" ];
+          path = [ pkgs.kdePackages.kconfig ];
           serviceConfig.Type = "oneshot";
-          script = ''
-            set_shortcut() {
-              ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file kglobalshortcutsrc --group "$1" --key "$2" "$3"
-            }
-
-            set_shortcut ksmserver 'Lock Session' $'Screensaver\tMeta+Ctrl+L,Screensaver\tMeta+L,Lock Session'
-            set_shortcut kwin 'Switch Window Left' 'Meta+H,Meta+Alt+Left,Switch to Window to the Left'
-            set_shortcut kwin 'Switch Window Down' 'Meta+J,Meta+Alt+Down,Switch to Window Below'
-            set_shortcut kwin 'Switch Window Up' 'Meta+K,Meta+Alt+Up,Switch to Window Above'
-            set_shortcut kwin 'Switch Window Right' 'Meta+L,Meta+Alt+Right,Switch to Window to the Right'
-            set_shortcut kwin 'Window Quick Tile Left' 'Meta+Shift+H,Meta+Left,Quick Tile Window to the Left'
-            set_shortcut kwin 'Window Quick Tile Bottom' 'Meta+Shift+J,Meta+Down,Quick Tile Window to the Bottom'
-            set_shortcut kwin 'Window Quick Tile Top' 'Meta+Shift+K,Meta+Up,Quick Tile Window to the Top'
-            set_shortcut kwin 'Window Quick Tile Right' 'Meta+Shift+L,Meta+Right,Quick Tile Window to the Right'
-            # Meta+T opens Ghostty, see ghostty.nix.
-            set_shortcut kwin 'Edit Tiles' 'none,Meta+T,Toggle Tiles Editor'
-          '';
+          script = builtins.readFile ./plasma-vim-shortcuts.sh;
         };
-
       };
   };
 }
