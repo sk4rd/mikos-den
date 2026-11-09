@@ -196,10 +196,26 @@ vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Symbol
 vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = 'Search in file' })
 
 -- File tree
-require('nvim-tree').setup()
+local fyler = require('fyler')
+
+fyler.setup({
+  kind = 'split_left_most',
+  extensions = {
+    git = { enabled = true },
+    trash = { enabled = true },
+    watcher = { enabled = true },
+  },
+  integrations = { icon = 'nvim_web_devicons' },
+  ui = {
+    hidden_items = {
+      switches = {},
+      always_hidden = { '/%.git$' },
+    },
+  },
+})
 
 vim.keymap.set('n', '<leader>e', function()
-  require('nvim-tree.api').tree.toggle({ find_file = true })
+  fyler.toggle()
 end, { desc = 'Toggle file tree' })
 
 -- Telescope: git

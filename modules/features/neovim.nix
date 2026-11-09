@@ -32,7 +32,7 @@ in
               neogit
               diffview-nvim
               nvim-web-devicons
-              nvim-tree-lua
+              fyler-nvim
               (nvim-treesitter.withPlugins (p: [
                 p.bash
                 p.nix
