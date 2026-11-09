@@ -33,6 +33,10 @@ in
               diffview-nvim
               nvim-web-devicons
               nvim-tree-lua
+              (nvim-treesitter.withPlugins (p: [
+                p.bash
+                p.nix
+              ]))
               nvim-highlight-colors
               which-key-nvim
             ];

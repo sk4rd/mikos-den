@@ -20,6 +20,14 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = -1
 
+-- Treesitter
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'bash', 'nix', 'sh' },
+  callback = function()
+    vim.treesitter.start()
+  end,
+})
+
 -- Text editing and search
 vim.opt.textwidth = 80
 vim.opt.ignorecase = true
