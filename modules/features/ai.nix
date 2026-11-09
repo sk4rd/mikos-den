@@ -5,7 +5,6 @@
   den.aspects.ai.hjem = { pkgs, ... }: {
     packages = with pkgs; [
       claude-code
-      pi-coding-agent
     ];
   };
 }
