@@ -5,6 +5,8 @@ let
 in
 {
   den.aspects.neovim = {
+    provides.to-hosts.nixos.environment.variables.EDITOR = "nvim";
+
     hjem =
       {
         pkgs,
