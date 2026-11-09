@@ -1,6 +1,7 @@
+vim.loader.enable()
+
 -- Leaders
 vim.g.mapleader = ' ' -- space
-vim.g.maplocalleader = ','
 
 -- Colors
 vim.cmd.colorscheme('oxocarbon')
@@ -20,6 +21,18 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = -1
 
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'lua', 'nix' },
+  callback = function(event)
+    vim.bo.shiftwidth = 2
+    if event.match == 'nix' then
+      -- Wrap comments at 80 columns, but never code.
+      vim.bo.textwidth = 80
+      vim.opt_local.formatoptions:remove('t')
+    end
+  end,
+})
+
 -- Treesitter
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'bash', 'nix', 'sh' },
@@ -29,7 +42,6 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- Text editing and search
-vim.opt.textwidth = 80
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
@@ -37,10 +49,7 @@ vim.opt.smartcase = true
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.scrolloff = 10
-vim.opt.diffopt = vim.tbl_filter(function(option)
-  return not option:match('^algorithm:') and not option:match('^linematch:')
-end, vim.opt.diffopt:get())
-vim.opt.diffopt:append({ 'algorithm:histogram', 'indent-heuristic', 'linematch:60' })
+vim.opt.diffopt:append('algorithm:histogram')
 
 -- In a diff, drop the temporary side and keep the real file.
 vim.keymap.set('n', '<leader>q', function()
@@ -62,10 +71,12 @@ vim.opt.timeoutlen = 500
 
 -- Persistence and system integration
 vim.opt.undofile = true
+vim.cmd.packadd('nvim.undotree')
+vim.keymap.set('n', '<leader>u', '<cmd>Undotree<CR>', { desc = 'Toggle undo tree' })
 vim.opt.clipboard = 'unnamedplus'
 
 -- Completion
-vim.opt.completeopt = { 'menu', 'menuone', 'noselect', 'fuzzy' }
+vim.opt.completeopt = { 'menu', 'menuone', 'noselect', 'fuzzy', 'popup' }
 vim.opt.wildoptions:append('fuzzy')
 
 vim.keymap.set('i', '<Tab>', function()
@@ -110,10 +121,10 @@ vim.lsp.config('nixd', {
 vim.lsp.config('lua_ls', {
   cmd = { 'lua-language-server' },
   filetypes = { 'lua' },
-  -- Nested lists are priority tiers: a project config beats a formatter config beats .git.
+  -- Nested lists are priority tiers: a project config beats a linter config beats .git.
   root_markers = {
-    { '.emmyrc.json', '.luarc.json', '.luarc.jsonc' },
-    { '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml' },
+    { '.luarc.json', '.luarc.jsonc' },
+    { '.luacheckrc' },
     { '.git' },
   },
   settings = {
@@ -132,6 +143,8 @@ vim.lsp.config('lua_ls', {
 
 vim.lsp.enable({ 'nixd', 'lua_ls' })
 
+vim.diagnostic.config({ virtual_lines = { current_line = true } })
+
 vim.keymap.set('n', '<leader>cf', function()
   vim.lsp.buf.format()
 end, { desc = 'Format buffer' })
@@ -148,6 +161,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.lsp.completion.enable(true, event.data.client_id, event.buf, {
       autotrigger = false,
     })
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { buffer = event.buf, desc = 'Go to definition' })
   end,
 })
 
@@ -155,7 +169,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 require('lualine').setup({
   options = { theme = 'oxocarbon' },
   sections = {
-    lualine_x = { 'lsp_status', 'encoding', 'fileformat', 'filetype' },
+    lualine_x = { 'lsp_status', 'filetype' },
   },
 })
 
@@ -212,12 +226,6 @@ require('telescope').setup({
     git_bcommits_range = { attach_mappings = bcommits_diff_on_enter },
   },
   extensions = {
-    fzf = {
-      fuzzy = true,
-      override_generic_sorter = true,
-      override_file_sorter = true,
-      case_mode = 'smart_case',
-    },
     ['ui-select'] = {
       require('telescope.themes').get_dropdown(),
     },
@@ -230,7 +238,6 @@ require('telescope').load_extension('ui-select')
 local builtin = require('telescope.builtin')
 
 vim.keymap.set('n', '<leader><leader>', builtin.find_files, { desc = 'Find files' })
-vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Find help' })
