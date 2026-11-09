@@ -24,7 +24,8 @@
             model = "${model}";
             language = "en";
             # A hint rather than a guarantee: it steers Whisper towards these spellings.
-            initial_prompt = "Nix, NixOS, nixpkgs, flake, Plasma, Jellyfin, agenix, Vulkan.";
+            initial_prompt = "Nix, NixOS, nixpkgs, flake, Plasma, Jellyfin,
+            agenix, Vulkan, mikos-den.";
           };
           osd.frontend = "quickshell";
           audio = {
