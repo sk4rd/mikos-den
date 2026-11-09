@@ -51,6 +51,7 @@
 
       services.xserver.videoDrivers = [ "amdgpu" ];
 
+      # F10 toggles the HUD; Shift+F10 toggles move mode.
       programs.keyboard-hud = {
         shortcut = "F10";
         moveShortcut = "Shift+F10";
@@ -58,8 +59,13 @@
 
       boot.kernelParams = [ "amd_pstate=active" ];
 
+      # Wait at the menu: the JetKVM can take until the disk unlock prompt to get a
+      # picture. The unlock prompt stops an unattended boot anyway.
       boot.loader.timeout = null;
 
+      # The firmware starts on the integrated GPU so the JetKVM gets its picture, which
+      # would also make that GPU Plasma's main one. KWin splits this list on ":", which
+      # rules out the by-path names, so the GPUs get names of their own.
       services.udev.extraRules = ''
         SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:03:00.0", SYMLINK+="dri/rx7900"
         SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:13:00.0", SYMLINK+="dri/igpu"
