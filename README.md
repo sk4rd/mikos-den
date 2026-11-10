@@ -18,6 +18,7 @@ Worth a look:
 
 - `modules/features/`: one feature per file, loaded automatically.
 - `modules/hosts/`: what each machine includes, plus host-only settings.
+- `pkgs/`: packages not in nixpkgs, one per `<name>.nix`, exposed as flake packages. Update one with `nix run nixpkgs#nix-update -- --flake <name>`.
 - `dots/`: plain config files the modules install.
 - `lib/`: helpers and the theme.
 - `secrets/`: encrypted with agenix, safe to publish.

@@ -1,0 +1,85 @@
+diff --git b/internal/model/openai/content_parts.go b/internal/model/openai/content_parts.go
+new file mode 100644
+index 0000000..149386b
+--- /dev/null
++++ b/internal/model/openai/content_parts.go
+@@ -0,0 +1,46 @@
++package openai
++
++import (
++	"bytes"
++	"encoding/json"
++	"strings"
++)
++
++// deltaContent is a streamed delta.content, which is a string on most endpoints
++// and an array of typed parts on Mistral.
++type deltaContent struct {
++	text      string
++	reasoning string
++}
++
++func (c *deltaContent) UnmarshalJSON(data []byte) error {
++	if !bytes.HasPrefix(bytes.TrimSpace(data), []byte("[")) {
++		return json.Unmarshal(data, &c.text)
++	}
++	var parts []struct {
++		Type     string          `json:"type"`
++		Text     string          `json:"text"`
++		Thinking json.RawMessage `json:"thinking"`
++	}
++	if err := json.Unmarshal(data, &parts); err != nil {
++		return err
++	}
++	var text, reasoning strings.Builder
++	for _, part := range parts {
++		if part.Type == "thinking" {
++			var inner deltaContent
++			if len(part.Thinking) > 0 {
++				if err := json.Unmarshal(part.Thinking, &inner); err != nil {
++					return err
++				}
++			}
++			reasoning.WriteString(inner.text)
++			continue
++		}
++		if part.Type == "text" {
++			text.WriteString(part.Text)
++		}
++	}
++	c.text, c.reasoning = text.String(), reasoning.String()
++	return nil
++}
+diff --git a/internal/model/openai/openai.go b/internal/model/openai/openai.go
+index fdf9a9e..b83a827 100644
+--- a/internal/model/openai/openai.go
++++ b/internal/model/openai/openai.go
+@@ -876,14 +876,17 @@ func (c *client) readStream(ctx context.Context, resp *http.Response, out chan<-
+ 		if reasoningDelta == "" {
+ 			reasoningDelta = delta.Reasoning
+ 		}
++		if reasoningDelta == "" {
++			reasoningDelta = delta.Content.reasoning
++		}
+ 		if reasoningDelta != "" {
+ 			emitted = true
+ 			if !sendChunk(ctx, out, provider.Chunk{Type: provider.ChunkReasoning, Text: reasoningDelta}) {
+ 				return emitted, ctx.Err()
+ 			}
+ 		}
+-		if delta.Content != "" {
+-			r, txt := think.push(delta.Content)
++		if delta.Content.text != "" {
++			r, txt := think.push(delta.Content.text)
+ 			if r != "" {
+ 				emitted = true
+ 				if !sendChunk(ctx, out, provider.Chunk{Type: provider.ChunkReasoning, Text: r}) {
+@@ -1193,7 +1196,7 @@ type chatToolCallExtraContent struct {
+ type streamResponse struct {
+ 	Choices []struct {
+ 		Delta struct {
+-			Content          string         `json:"content"`
++			Content          deltaContent   `json:"content"`
+ 			ReasoningContent string         `json:"reasoning_content"`
+ 			Reasoning        string         `json:"reasoning"`
+ 			ToolCalls        []chatToolCall `json:"tool_calls"`
