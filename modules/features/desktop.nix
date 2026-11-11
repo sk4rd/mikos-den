@@ -6,6 +6,7 @@
     den.aspects.plasma
     den.aspects.brave
     den.aspects.kicad
+    den.aspects.freecad
     den.aspects.gaming
     den.aspects.audio
     den.aspects.bluetooth
