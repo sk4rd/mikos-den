@@ -26,23 +26,18 @@ in
 
       files.".config/ghostty/themes/${theme.name}".text = ghosttyTheme;
 
+      files.".config/ghostty/keybinds".source = ../../dots/ghostty/keybinds;
+
       files.".config/ghostty/config.ghostty".text = ''
         theme = ${theme.name}
         font-family = ${theme.fonts.mono.name}
         font-size = ${toString theme.fonts.mono.size}
         shell-integration = fish
-      '';
 
-      # Register default plasma shortcut
-      files.".local/share/kglobalaccel/com.mitchellh.ghostty-shortcut.desktop".text = ''
-        [Desktop Entry]
-        Type=Application
-        Name=Ghostty
-        Exec=${pkgs.ghostty}/bin/ghostty
-        Icon=com.mitchellh.ghostty
-        Terminal=false
-        StartupNotify=false
-        X-KDE-Shortcuts=Meta+T
+        # Vim-style pane control. A config-file path resolves relative to the
+        # file holding the directive, which here is a store path, so name it
+        # with ~ instead.
+        config-file = ~/.config/ghostty/keybinds
       '';
     };
   };

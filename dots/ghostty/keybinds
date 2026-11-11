@@ -1,0 +1,37 @@
+# Vim-style pane control. The motions use physical key codes (key_h … key_l) so
+# they stay on the hjkl keys under EurKEY, where AltGr puts ù/ĳ/ø on that row.
+
+# Split.
+keybind = ctrl+shift+key_h=new_split:left
+keybind = ctrl+shift+key_j=new_split:down
+keybind = ctrl+shift+key_k=new_split:up
+keybind = ctrl+shift+key_l=new_split:right
+
+# Move focus.
+keybind = ctrl+alt+key_h=goto_split:left
+keybind = ctrl+alt+key_j=goto_split:down
+keybind = ctrl+alt+key_k=goto_split:up
+keybind = ctrl+alt+key_l=goto_split:right
+
+# Resize.
+keybind = ctrl+alt+shift+key_h=resize_split:left,10
+keybind = ctrl+alt+shift+key_j=resize_split:down,10
+keybind = ctrl+alt+shift+key_k=resize_split:up,10
+keybind = ctrl+alt+shift+key_l=resize_split:right,10
+
+# Equalize, close. Zoom stays on Ghostty's own ctrl+shift+enter.
+keybind = ctrl+shift+key_e=equalize_splits
+keybind = ctrl+shift+key_x=close_surface
+
+# The hjkl motions replace these two default split keys.
+keybind = ctrl+shift+o=unbind
+keybind = ctrl+shift+e=unbind
+
+# Ghostty's screen-file trio defaults to ctrl+shift+j, ctrl+alt+shift+j and
+# super+ctrl+shift+j, which the motions above take over. Move it aside.
+keybind = ctrl+shift+j=unbind
+keybind = ctrl+alt+shift+j=unbind
+keybind = super+ctrl+shift+j=unbind
+keybind = ctrl+alt+shift+key_c=write_screen_file:copy,plain
+keybind = ctrl+alt+shift+key_v=write_screen_file:paste,plain
+keybind = ctrl+alt+shift+key_o=write_screen_file:open,plain
