@@ -74,6 +74,14 @@ in
       tree
       usbutils
       wget
+
+      # Network diagnostics: DNS, routes, packets.
+      bind.dnsutils
+      ethtool
+      mtr
+      netcat-openbsd
+      tcpdump
+      traceroute
     ];
 
     # The ANSI theme follows the terminal palette.
