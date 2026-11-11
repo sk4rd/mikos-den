@@ -6,6 +6,7 @@
   makeWrapper,
   bubblewrap,
   ripgrep,
+  wl-clipboard,
 }:
 
 buildGoModule rec {
@@ -39,6 +40,8 @@ buildGoModule rec {
   ];
 
   # bwrap is what confines its bash tool, and it is looked up on PATH at run time.
+  # wl-copy/wl-paste are the clipboard it shells out to on Wayland, also looked up
+  # on PATH at startup, so /copy and Ctrl+V fail without them.
   postInstall = ''
     installShellCompletion --cmd reasonix \
       --bash <($out/bin/reasonix completion bash) \
@@ -50,6 +53,7 @@ buildGoModule rec {
         lib.makeBinPath [
           bubblewrap
           ripgrep
+          wl-clipboard
         ]
       }
   '';
