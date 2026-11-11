@@ -1,7 +1,11 @@
 { den, inputs, ... }:
 
 {
-  den.aspects.ai.includes = [ (den.batteries.unfree [ "claude-code" ]) ];
+  den.aspects.ai.includes = [
+    (den.batteries.unfree [ "claude-code" ])
+    den.aspects.orchestrator
+  ];
+
   den.aspects.ai.hjem =
     { pkgs, ... }:
     {
