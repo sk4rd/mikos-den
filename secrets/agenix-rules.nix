@@ -61,4 +61,19 @@ in
     yubikey-5c
     nas
   ];
+  "syncthing-nas-key.age".publicKeys = [
+    yubikey-nfc
+    yubikey-5c
+    nas
+  ];
+  "syncthing-workstation-key.age".publicKeys = [
+    yubikey-nfc
+    yubikey-5c
+    workstation
+  ];
+  "syncthing-thinkpad-z13-key.age".publicKeys = [
+    yubikey-nfc
+    yubikey-5c
+    thinkpad-z13
+  ];
 }
