@@ -1,13 +1,14 @@
-{ lib, den, ... }:
+{ lib, ... }:
 
 let
+  network = import ../../lib/network.nix;
   domain = "sk4rd.com";
 
   # Services that are not explicitly public stay reachable from the LAN and the VPN only.
   internalRanges = [
     "127.0.0.1/32"
     "::1/128"
-    "192.168.178.0/24"
+    network.lanPrefix
     "10.100.0.0/24"
   ];
 in

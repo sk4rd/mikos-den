@@ -1,5 +1,8 @@
 { den, ... }:
 
+let
+  network = import ../../lib/network.nix;
+in
 {
   den.hosts.x86_64-linux.nas = {
     users.miko = { };
@@ -142,9 +145,9 @@
             };
             ipv4 = {
               method = "manual";
-              addresses = "192.168.178.3/24";
-              gateway = "192.168.178.1";
-              dns = "192.168.178.1";
+              addresses = "${network.nasLanAddress}/${network.lanPrefixLength}";
+              gateway = network.routerAddress;
+              dns = network.routerAddress;
             };
           };
         };
