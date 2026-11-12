@@ -2,10 +2,10 @@
 
 let
   pname = "learnharness";
-  version = "0.5.0";
+  version = "0.6.1";
   src = fetchurl {
     url = "https://github.com/amosblomqvist/learnharness/releases/download/v${version}/LearnHarness-${version}-x86_64.AppImage";
-    hash = "sha256-tb2EmK1TyiqOtwgHNK8OxaquwbtqxV8kboUCnMumncM=";
+    hash = "sha256-uKAz63QhZ3iT2W5JiLMBU/3+T8bw3EVveUcWG7oEG5g=";
   };
   contents = appimageTools.extract { inherit pname version src; };
 in
