@@ -3,7 +3,6 @@
 {
   den.aspects.ai.includes = [
     (den.batteries.unfree [ "claude-code" ])
-    den.aspects.orchestrator
   ];
 
   # Agents install tools on the fly (uv wheels, npm packages with prebuilt
