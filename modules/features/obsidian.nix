@@ -1,8 +1,16 @@
-{ den, ... }:
+{
+  config,
+  den,
+  lib,
+  ...
+}:
+let
+  inherit (config) theme;
+  themeDir = "Notes/.obsidian/themes/${theme.name}";
+in
 {
   den.aspects.obsidian = {
     includes = [ (den.batteries.unfree [ "obsidian" ]) ];
-    # The vault is ~/Documents/Notes, synced through the NAS by the LiveSync plugin (livesync aspect).
     hjem =
       { pkgs, ... }:
       {
@@ -10,6 +18,15 @@
           pkgs.obsidian
         ];
 
+        files."${themeDir}/theme.css".text = import ../../lib/theme/render/obsidian.nix {
+          inherit lib theme;
+        };
+        files."${themeDir}/manifest.json".text = builtins.toJSON {
+          name = theme.name;
+          version = "1.0.0";
+          minAppVersion = "1.0.0";
+          author = "miko";
+        };
       };
   };
 }
