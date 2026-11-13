@@ -1,4 +1,4 @@
-{ den, ... }:
+{ den, inputs, ... }:
 
 {
   den.aspects.ai.includes = [
@@ -38,6 +38,14 @@
         uv
         nodejs
       ];
+
+      # The /walkthrough skill, its scripts and hook, from the same input as the
+      # Neovim plugin (modules/features/neovim.nix), so both stay in step.
+      # clobber replaces the hand-made symlink this used to be.
+      files.".claude/skills/walkthrough" = {
+        source = "${inputs.walkthrough-nvim}/claude/skills/walkthrough";
+        clobber = true;
+      };
 
       # uv would otherwise download its own Python builds, which only run through nix-ld.
       environment.sessionVariables = {

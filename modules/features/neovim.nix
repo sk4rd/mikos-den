@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, inputs, ... }:
 
 let
   inherit (config) theme;
@@ -50,6 +50,8 @@ in
               telescope-ui-select-nvim
               plenary-nvim
               gitsigns-nvim
+              neogit
+              diffview-nvim
               nvim-web-devicons
               fyler-nvim
               (nvim-treesitter.withPlugins (p: [
@@ -58,6 +60,12 @@ in
               ]))
               nvim-highlight-colors
               which-key-nvim
+              claudecode-nvim
+              (pkgs.vimUtils.buildVimPlugin {
+                pname = "walkthrough-nvim";
+                version = "unstable-${inputs.walkthrough-nvim.shortRev}";
+                src = inputs.walkthrough-nvim;
+              })
             ];
           })
         ];
