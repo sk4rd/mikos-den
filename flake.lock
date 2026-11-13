@@ -194,7 +194,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-brave": "nixpkgs-brave",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "walkthrough-nvim": "walkthrough-nvim"
       }
     },
     "treefmt-nix": {
@@ -214,6 +215,22 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "walkthrough-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794599539,
+        "narHash": "sha256-He14xYPrhZ9axiuGtsheuKH+MOx3umRpo8WQMH+5Utk=",
+        "owner": "sk4rd",
+        "repo": "walkthrough.nvim",
+        "rev": "93ac3aff7b8fa5cf239b0a287ba2dc78522986a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sk4rd",
+        "repo": "walkthrough.nvim",
         "type": "github"
       }
     }

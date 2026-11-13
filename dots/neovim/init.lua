@@ -181,39 +181,11 @@ require('which-key').setup({
 
 require('which-key').add({
   { '<leader>f', group = 'find' },
+  { '<leader>a', group = 'claude' },
   { '<leader>g', group = 'git' },
 })
 
 -- Telescope
-local telescope_actions = require('telescope.actions')
-
--- Run git in a terminal split so editors and SSH prompts work.
-local function git_term(...)
-  local root = vim.fs.root(0, '.git')
-  vim.cmd('botright new')
-  vim.fn.jobstart({ 'git', ... }, { term = true, cwd = root })
-  vim.cmd.startinsert()
-end
-
--- The default <CR> detaches HEAD on the selected commit, so show it instead.
-local function log_show_on_enter()
-  telescope_actions.select_default:replace(function(prompt_bufnr)
-    local commit = require('telescope.actions.state').get_selected_entry().value
-    telescope_actions.close(prompt_bufnr)
-    git_term('show', commit)
-  end)
-  return true
-end
-
--- The default <CR> runs `git checkout <commit> -- <file>` and discards local
--- edits, so open the read-only comparison that <C-v> gives instead.
-local function bcommits_diff_on_enter()
-  telescope_actions.select_default:replace(function(prompt_bufnr)
-    return telescope_actions.select_vertical(prompt_bufnr)
-  end)
-  return true
-end
-
 require('telescope').setup({
   defaults = {
     file_ignore_patterns = { '^%.git/' },
@@ -221,9 +193,6 @@ require('telescope').setup({
   pickers = {
     find_files = { hidden = true },
     live_grep = { additional_args = { '--hidden' } },
-    git_commits = { attach_mappings = log_show_on_enter },
-    git_bcommits = { attach_mappings = bcommits_diff_on_enter },
-    git_bcommits_range = { attach_mappings = bcommits_diff_on_enter },
   },
   extensions = {
     ['ui-select'] = {
@@ -270,57 +239,221 @@ vim.keymap.set('n', '<leader>e', function()
   fyler.toggle()
 end, { desc = 'Toggle file tree' })
 
--- Telescope: git
-vim.keymap.set('n', '<leader>gs', builtin.git_status, { desc = 'Changed files' })
-vim.keymap.set('n', '<leader>gl', builtin.git_commits, { desc = 'Git log' })
-vim.keymap.set('n', '<leader>gw', builtin.git_branches, { desc = 'Git branches' })
-vim.keymap.set('n', '<leader>gS', builtin.git_stash, { desc = 'Git stashes' })
-vim.keymap.set('n', '<leader>gB', builtin.git_bcommits, { desc = 'Git buffer commits' })
-vim.keymap.set('x', '<leader>gB', builtin.git_bcommits_range, { desc = 'Git selected lines commits' })
-
--- Gitsigns
+-- Git: lowercase keys act on a hunk, capitals on the whole file or repo.
+-- Repo-wide work (status, commit, push, rebase, stash...) lives in Neogit.
 local gitsigns = require('gitsigns')
-
 gitsigns.setup()
 
-vim.keymap.set('n', '<leader>gb', gitsigns.blame_line, { desc = 'Blame line' })
-vim.keymap.set('n', '<leader>gp', gitsigns.preview_hunk_inline, { desc = 'Preview hunk inline' })
-vim.keymap.set('n', '<leader>gv', function()
+local function map(mode, lhs, rhs, desc)
+  vim.keymap.set(mode, lhs, rhs, { desc = desc })
+end
+
+-- Staging needs git to know the file. New files (also ones an "unstage all"
+-- turned back into untracked) are first registered with `git add -N`,
+-- which stages no content. See with_tracked in
+-- lua/walkthrough/stage.lua of the walkthrough.nvim plugin.
+local function staging(fn)
+  return function()
+    require('walkthrough').with_tracked(0, fn)
+  end
+end
+
+-- Run a gitsigns hunk action on the selected lines, then leave visual mode.
+local function on_selection(action)
+  return function()
+    local range = { vim.fn.line('.'), vim.fn.line('v') }
+    vim.cmd('normal! ' .. vim.keycode('<Esc>'))
+    local run = function()
+      gitsigns[action](range)
+    end
+    if action == 'stage_hunk' then
+      staging(run)()
+    else
+      run()
+    end
+  end
+end
+
+-- Neogit and diffview
+map('n', '<leader>gg', '<cmd>Neogit<CR>', 'Neogit status')
+map('n', '<leader>gc', '<cmd>Neogit commit<CR>', 'Commit')
+map('n', '<leader>gl', '<cmd>Neogit log<CR>', 'Log')
+map('n', '<leader>gB', '<cmd>Neogit branch<CR>', 'Branches')
+map('n', '<leader>gD', function()
+  if require('diffview.lib').get_current_view() then
+    vim.cmd('DiffviewClose')
+  else
+    vim.cmd('DiffviewOpen')
+  end
+end, 'Toggle changeset diff')
+map({ 'n', 'x' }, '<leader>gF', ':DiffviewFileHistory %<CR>', 'File or selection history')
+
+-- Check what is staged before committing: lists staged vs unstaged files and
+-- builds every host from exactly the index (commit-check.sh in the
+-- walkthrough skill). Runs in a terminal split so the build progress shows;
+-- <leader>ab there sends the result to Claude, q closes it.
+map('n', '<leader>gk', function()
+  local script = vim.fn.expand('~/.claude/skills/walkthrough/commit-check.sh')
+  if vim.fn.executable(script) == 0 then
+    vim.notify('commit check: ' .. script .. ' not found', vim.log.levels.WARN)
+    return
+  end
+  local file = vim.api.nvim_buf_get_name(0)
+  local dir = (file ~= '' and vim.bo.buftype == '') and vim.fs.dirname(file) or vim.fn.getcwd()
+  vim.cmd('botright 15new')
+  vim.fn.jobstart({ script }, { term = true, cwd = dir })
+  vim.keymap.set('n', 'q', '<cmd>bdelete!<CR>', { buffer = true, desc = 'Close commit check' })
+end, 'Check staged commit (build the index)')
+
+-- Hunks (lowercase) and files (capital)
+map('n', '<leader>gh', staging(function()
+  gitsigns.stage_hunk()
+end), 'Stage or unstage hunk')
+map('x', '<leader>gh', on_selection('stage_hunk'), 'Stage selected lines')
+map('n', '<leader>gH', gitsigns.stage_buffer, 'Stage file')
+map('n', '<leader>gU', gitsigns.reset_buffer_index, 'Unstage file')
+map('n', '<leader>gr', gitsigns.reset_hunk, 'Discard hunk')
+map('x', '<leader>gr', on_selection('reset_hunk'), 'Discard selected lines')
+map('n', '<leader>gR', gitsigns.reset_buffer, 'Discard file changes')
+
+-- Looking at changes
+map('n', '<leader>gp', gitsigns.preview_hunk_inline, 'Preview hunk inline')
+map('n', '<leader>gd', gitsigns.diffthis, 'Diff file against index')
+map('n', '<leader>gb', gitsigns.blame_line, 'Blame line')
+map('n', '<leader>gv', function()
   local enabled = gitsigns.toggle_deleted()
   gitsigns.toggle_linehl(enabled)
   gitsigns.toggle_word_diff(enabled)
-end, { desc = 'Toggle inline diff view' })
-vim.keymap.set('n', '<leader>gh', gitsigns.stage_hunk, { desc = 'Stage or unstage hunk' })
-vim.keymap.set('n', '<leader>gH', gitsigns.stage_buffer, { desc = 'Stage file' })
-vim.keymap.set('n', '<leader>gU', gitsigns.reset_buffer_index, { desc = 'Unstage file' })
-vim.keymap.set('n', '<leader>gd', gitsigns.diffthis, { desc = 'Diff file against index' })
-vim.keymap.set('n', '<leader>gr', gitsigns.reset_hunk, { desc = 'Discard hunk' })
-vim.keymap.set('x', '<leader>gr', function()
-  gitsigns.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-  vim.cmd('normal! ' .. vim.keycode('<Esc>'))
-end, { desc = 'Discard selected lines' })
-vim.keymap.set('n', '<leader>gR', gitsigns.reset_buffer, { desc = 'Discard file changes' })
-vim.keymap.set('x', '<leader>gh', function()
-  gitsigns.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-  vim.cmd('normal! ' .. vim.keycode('<Esc>'))
-end, { desc = 'Stage selected lines' })
-vim.keymap.set('n', ']h', function()
+end, 'Toggle inline diff view')
+map('n', ']h', function()
   gitsigns.nav_hunk('next')
-end, { desc = 'Next hunk' })
-vim.keymap.set('n', '[h', function()
+end, 'Next hunk')
+map('n', '[h', function()
   gitsigns.nav_hunk('prev')
-end, { desc = 'Previous hunk' })
+end, 'Previous hunk')
 
--- Git commands
-for _, map in ipairs({
-  { '<leader>gc', 'Commit staged', 'commit' },
-  { '<leader>gC', 'Amend last commit', 'commit', '--amend' },
-  { '<leader>gP', 'Push', 'push' },
-  { '<leader>gL', 'Pull', 'pull' },
-  { '<leader>gf', 'Fetch', 'fetch' },
-  { '<leader>gz', 'Stash changes', 'stash' },
-}) do
-  vim.keymap.set('n', map[1], function()
-    git_term(unpack(map, 3))
-  end, { desc = map[2] })
+-- Neogit setup
+require('neogit').setup({
+  integrations = { telescope = true, diffview = true },
+})
+
+-- Claude Code
+-- Runs `claude` in a terminal split and connects over the IDE protocol, so
+-- selections go to it as @file#L1-10 references.
+-- Which side Claude's terminal opens on. The walkthrough panel goes on the
+-- same side of the code, so a tour always reads Claude | notes | code with
+-- the explanation in the middle: 'left' gives [ Claude | notes | code ],
+-- 'right' gives [ code | notes | Claude ].
+local claude_side = 'left'
+
+require('claudecode').setup({
+  terminal = { provider = 'native', split_side = claude_side },
+  -- Don't attach every visual selection to the next message ("⧉ 3 lines
+  -- selected"): selecting is often for staging, not for asking. Lines go to
+  -- Claude only on purpose, with <leader>as below.
+  track_selection = false,
+})
+-- Code tours that an agent drives over the server socket. `keys = true` maps
+-- ]w [w (steps), ]n [n (notes) and every other action under <leader>w;
+-- <leader>w? lists them.
+require('walkthrough').setup({ panel_side = claude_side, keys = true })
+
+-- Claude's terminal is always in Terminal mode when its window is entered,
+-- so what is typed goes to Claude. claudecode.nvim only does that when the
+-- window is opened or focused with its own commands; entering it with a
+-- window command (or coming back from another tab) lands in Normal mode,
+-- where Claude seems not to react. <C-\><C-n> still leaves Terminal mode on
+-- purpose, to scroll or copy Claude's output: that lasts until the window is
+-- entered the next time. See :help terminal-input.
+local function is_claude_terminal(buf)
+  local ok, term = pcall(require, 'claudecode.terminal')
+  return ok and vim.bo[buf].buftype == 'terminal' and term.get_active_terminal_bufnr() == buf
 end
+
+-- <C-w> is the window prefix inside Claude's terminal too, as everywhere
+-- else: <C-w>l goes to the window on the right. Claude Code no longer gets
+-- <C-w> (delete the word before the cursor); <M-BS> does the same there.
+-- One key follows the prefix, <Esc> cancels. When the command leaves the
+-- cursor in Claude's window (no window on that side), typing goes on.
+local function claude_window_command()
+  local key = vim.fn.getcharstr()
+  if key == vim.keycode('<Esc>') then
+    return
+  end
+  local win = vim.api.nvim_get_current_win()
+  if #key == 1 then
+    pcall(vim.cmd.wincmd, key)
+  else
+    -- A special key (an arrow): typed as in Normal mode.
+    vim.api.nvim_feedkeys(vim.keycode('<C-\\><C-n><C-w>') .. key, 'n', false)
+  end
+  vim.schedule(function()
+    local here = vim.api.nvim_get_current_win() == win
+    if here and vim.fn.mode() ~= 't' then
+      vim.cmd.startinsert()
+    elseif not here and vim.fn.mode() == 't' then
+      -- The other window is a terminal too: it is entered in Normal mode,
+      -- as with a window command from anywhere else.
+      vim.cmd.stopinsert()
+    end
+  end)
+end
+
+vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter', 'WinEnter' }, {
+  group = vim.api.nvim_create_augroup('claude_terminal_mode', { clear = true }),
+  callback = function()
+    -- After the event: the window being entered is the current one, and
+    -- claudecode.nvim knows the terminal it has just opened.
+    vim.schedule(function()
+      local buf = vim.api.nvim_get_current_buf()
+      if not is_claude_terminal(buf) then
+        return
+      end
+      if not vim.b[buf].claude_window_prefix then
+        vim.keymap.set('t', '<C-w>', claude_window_command, { buffer = buf, desc = 'Window command' })
+        vim.b[buf].claude_window_prefix = true
+      end
+      if vim.fn.mode() ~= 't' then
+        vim.cmd.startinsert()
+      end
+    end)
+  end,
+})
+
+-- Buffers without a file (Neogit, help, :messages...) cannot be referenced by
+-- path, so their text is dumped to a temp file and added as context instead.
+local function claude_add_text(lines, name)
+  local tmp = vim.fn.tempname() .. '-' .. name .. '.txt'
+  vim.fn.writefile(lines, tmp)
+  vim.cmd('ClaudeCodeAdd ' .. vim.fn.fnameescape(tmp))
+end
+
+local function is_file_buffer()
+  return vim.bo.buftype == '' and vim.api.nvim_buf_get_name(0) ~= ''
+end
+
+map('n', '<leader>ac', '<cmd>ClaudeCode<CR>', 'Toggle Claude')
+map('n', '<leader>aC', '<cmd>ClaudeCode --continue<CR>', 'Continue last conversation')
+map('n', '<leader>af', '<cmd>ClaudeCodeFocus<CR>', 'Focus Claude')
+map('n', '<leader>ab', function()
+  if is_file_buffer() then
+    vim.cmd('ClaudeCodeAdd %')
+  else
+    claude_add_text(vim.api.nvim_buf_get_lines(0, 0, -1, false), vim.bo.filetype)
+  end
+end, 'Add buffer to Claude')
+map('x', '<leader>as', function()
+  if is_file_buffer() then
+    -- ClaudeCodeSend needs selection tracking (off above); ClaudeCodeAdd
+    -- with a line range sends the same @file#L reference without it.
+    local from, to = vim.fn.line('v'), vim.fn.line('.')
+    vim.cmd('normal! ' .. vim.keycode('<Esc>'))
+    vim.cmd(('ClaudeCodeAdd %s %d %d'):format(vim.fn.expand('%:p'), math.min(from, to), math.max(from, to)))
+  else
+    local lines = vim.fn.getregion(vim.fn.getpos('v'), vim.fn.getpos('.'), { type = vim.fn.mode() })
+    vim.cmd('normal! ' .. vim.keycode('<Esc>'))
+    claude_add_text(lines, vim.bo.filetype)
+  end
+end, 'Send selection to Claude')
+map('n', '<leader>aa', '<cmd>ClaudeCodeDiffAccept<CR>', 'Accept Claude diff')
+map('n', '<leader>ad', '<cmd>ClaudeCodeDiffDeny<CR>', 'Deny Claude diff')
