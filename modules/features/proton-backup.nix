@@ -6,27 +6,46 @@ let
   # (Proton paths start at /my-files; created by the upload if missing).
   remoteParent = "/my-files/Backups/nas";
   stateDir = "/var/lib/proton-backup";
+
+  # Backed up from a ZFS snapshot taken just before restic runs, so a sync or
+  # a CouchDB write landing mid-backup can't leave a mix of old and new files.
+  snapshotName = "restic";
+  sources = {
+    "services/syncthing" = {
+      mountpoint = "/var/lib/syncthing";
+      # The device key is in agenix and the index rebuilds itself on restore.
+      exclude = [
+        "config"
+        "index-*"
+      ];
+    };
+    "services/couchdb" = {
+      mountpoint = "/var/lib/couchdb";
+      exclude = [ ];
+    };
+  };
+  snapshotDir = src: "${src.mountpoint}/.zfs/snapshot/${snapshotName}";
 in
 {
   den.aspects.proton-backup.status-heartbeats =
     lib.optionalAttrs (builtins.pathExists passwordSecret)
       {
-        notes-backup = {
-          name = "Notes restic backup";
+        nas-backup = {
+          name = "NAS restic backup";
           group = "Backups";
-          unit = "restic-backups-notes.service";
+          unit = "restic-backups-nas.service";
           interval = "25h";
         };
-        notes-upload = {
-          name = "Notes Proton Drive copy";
+        nas-upload = {
+          name = "NAS Proton Drive copy";
           group = "Backups";
           unit = "proton-backup-upload.service";
           interval = "25h";
         };
-        notes-check = {
-          name = "Notes repository integrity";
+        nas-check = {
+          name = "NAS repository integrity";
           group = "Backups";
-          unit = "restic-check-notes.service";
+          unit = "restic-check-nas.service";
           interval = "169h";
         };
       };
@@ -45,6 +64,12 @@ in
     { config, pkgs, ... }:
     let
       proton-drive = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.proton-drive-cli;
+      zfs = lib.getExe' config.boot.zfs.package "zfs";
+      snapshots = lib.mapAttrsToList (ds: _: "tank/${ds}@${snapshotName}") sources;
+      dropSnapshots = lib.concatMapStringsSep "\n" (
+        s: "${zfs} destroy ${s} 2>/dev/null || true"
+      ) snapshots;
+
       protonEnv = {
         # Headless: session kept in a 0600 file under stateDir instead of a keyring.
         PROTON_DRIVE_CREDENTIALS_STORE = "unsafe_file";
@@ -108,6 +133,15 @@ in
         OnSuccess = [ "status-heartbeat@${id}.ok.service" ];
         OnFailure = [ "status-heartbeat@${id}.fail.service" ];
       };
+
+      # Without these, an unmounted repo would get a fresh `restic init` on the
+      # parent dataset, and an unmounted source would back up an empty directory.
+      mountGuards = paths: {
+        after = [ "zfs-datasets.service" ];
+        requires = [ "zfs-datasets.service" ];
+        unitConfig.AssertPathIsMountPoint = paths;
+      };
+      sourceMounts = lib.mapAttrsToList (_: src: src.mountpoint) sources;
     in
     lib.mkMerge [
       # Always available: the Proton sign-in doesn't need the restic password.
@@ -118,20 +152,27 @@ in
         ];
         warnings = lib.optional (!builtins.pathExists passwordSecret) ''
           proton-backup: secrets/restic-password.age is missing (or not git-added),
-          so the notes backup, Proton upload and their Gatus checks are disabled.
+          so the NAS backup, Proton upload and their Gatus checks are disabled.
           Create it with `agenix -e restic-password.age` in secrets/.
         '';
       }
       (lib.mkIf (builtins.pathExists passwordSecret) {
         age.secrets.restic-password.file = passwordSecret;
 
-        services.restic.backups.notes = {
+        services.restic.backups.nas = {
           repository = repo;
           passwordFile = config.age.secrets.restic-password.path;
           initialize = true;
-          # LiveSync's CouchDB: the vault stays end-to-end encrypted in here, and its files are
-          # append-only, so copying them while it runs is safe.
-          paths = [ "/var/lib/couchdb" ];
+          paths = lib.mapAttrsToList (_: snapshotDir) sources;
+          exclude = lib.concatLists (
+            lib.mapAttrsToList (_: src: map (p: "${snapshotDir src}/${p}") src.exclude) sources
+          );
+          # A failed run can leave the snapshots behind, so clear them first.
+          backupPrepareCommand = ''
+            ${dropSnapshots}
+            ${zfs} snapshot ${lib.concatStringsSep " " snapshots}
+          '';
+          backupCleanupCommand = dropSnapshots;
           timerConfig = {
             OnCalendar = "03:00";
             Persistent = true;
@@ -144,27 +185,35 @@ in
           ];
         };
 
-        systemd.services.restic-backups-notes.unitConfig = lib.mkMerge [
-          (onResult "notes-backup")
-          { OnSuccess = [ "proton-backup-upload.service" ]; }
+        systemd.services.restic-backups-nas = lib.mkMerge [
+          (mountGuards ([ repo ] ++ sourceMounts))
+          {
+            unitConfig = lib.mkMerge [
+              (onResult "nas-backup")
+              { OnSuccess = [ "proton-backup-upload.service" ]; }
+            ];
+          }
         ];
 
         # Weekly: verify the repository structure and read back 10% of the data.
-        systemd.services.restic-check-notes = {
-          description = "Check the notes restic repository";
-          environment = {
-            RESTIC_REPOSITORY = repo;
-            RESTIC_PASSWORD_FILE = config.age.secrets.restic-password.path;
-            RESTIC_CACHE_DIR = "/var/cache/restic-check-notes";
-          };
-          unitConfig = onResult "notes-check";
-          serviceConfig = {
-            Type = "oneshot";
-            ExecStart = "${lib.getExe pkgs.restic} check --read-data-subset=10%";
-            CacheDirectory = "restic-check-notes";
-          };
-        };
-        systemd.timers.restic-check-notes = {
+        systemd.services.restic-check-nas = lib.mkMerge [
+          (mountGuards [ repo ])
+          {
+            description = "Check the NAS restic repository";
+            environment = {
+              RESTIC_REPOSITORY = repo;
+              RESTIC_PASSWORD_FILE = config.age.secrets.restic-password.path;
+              RESTIC_CACHE_DIR = "/var/cache/restic-check-nas";
+            };
+            unitConfig = onResult "nas-check";
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = "${lib.getExe pkgs.restic} check --read-data-subset=10%";
+              CacheDirectory = "restic-check-nas";
+            };
+          }
+        ];
+        systemd.timers.restic-check-nas = {
           wantedBy = [ "timers.target" ];
           timerConfig = {
             OnCalendar = "Sun 05:00";
@@ -172,17 +221,20 @@ in
           };
         };
 
-        systemd.services.proton-backup-upload = {
-          description = "Mirror the restic repository to Proton Drive";
-          unitConfig = onResult "notes-upload";
-          environment = protonEnv;
-          serviceConfig = {
-            Type = "oneshot";
-            ExecStart = lib.getExe upload;
-            StateDirectory = "proton-backup";
-            StateDirectoryMode = "0700";
-          };
-        };
+        systemd.services.proton-backup-upload = lib.mkMerge [
+          (mountGuards [ repo ])
+          {
+            description = "Mirror the restic repository to Proton Drive";
+            unitConfig = onResult "nas-upload";
+            environment = protonEnv;
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = lib.getExe upload;
+              StateDirectory = "proton-backup";
+              StateDirectoryMode = "0700";
+            };
+          }
+        ];
       })
     ];
 }
