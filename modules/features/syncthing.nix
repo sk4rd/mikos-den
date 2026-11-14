@@ -38,7 +38,6 @@ let
       name,
       devices,
       folders,
-      services ? { },
     }:
     {
       age.secrets."syncthing-${name}-key".file = ../../secrets/syncthing-${name}-key.age;
@@ -64,8 +63,7 @@ let
             urAccepted = -1;
           };
         };
-      }
-      // services;
+      };
     };
 in
 {
@@ -107,26 +105,33 @@ in
       }:
       let
         home = config.users.users.miko.home;
+        network = import ../../lib/network.nix;
       in
-      common {
-        inherit config;
-        inherit (host) name;
-        folders = lib.mapAttrs (_: path: {
-          path = "${home}/${path}";
-          devices = [ hubHost ];
-        }) host.settings.syncthing.folders;
-        # Clients only talk to the always-on NAS, since they are rarely online together.
-        devices.${hubHost} = {
-          id = deviceIds.${hubHost};
-          addresses = [ "tcp://${hubHost}:${toString port}" ];
-        };
-        # Runs as miko so the synced files stay owned by miko.
-        services = {
-          user = "miko";
-          group = "users";
-          dataDir = home;
-        };
-      };
+      lib.mkMerge [
+        (common {
+          inherit config;
+          inherit (host) name;
+          folders = lib.mapAttrs (_: path: {
+            path = "${home}/${path}";
+            devices = [ hubHost ];
+          }) host.settings.syncthing.folders;
+          # Clients only talk to the always-on NAS.
+          devices.${hubHost} = {
+            id = deviceIds.${hubHost};
+            addresses = [ "tcp://${hubHost}:${toString port}" ];
+          };
+        })
+        {
+          # Runs as miko so synced files stay owned by miko.
+          services.syncthing = {
+            user = "miko";
+            group = "users";
+            dataDir = home;
+          };
+          # Proton's exclusive DNS drops the LAN resolver; pin the reachable hub.
+          networking.hosts.${network.nasLanAddress} = [ hubHost ];
+        }
+      ];
   };
 
   # Hourly snapshots are the undo for a sync that overwrites the wrong copy.

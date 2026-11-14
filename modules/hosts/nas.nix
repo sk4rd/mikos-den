@@ -43,6 +43,7 @@ in
       den.aspects.media-vpn-health
       den.aspects.status
       den.aspects.livesync
+      den.aspects.syncthing-hub
       den.aspects.proton-backup
     ];
 

@@ -19,6 +19,7 @@
       den.aspects.disko
       den.aspects.desktop
       den.aspects.nas-vpn-client
+      den.aspects.syncthing
     ];
 
     provides.miko.includes = [
