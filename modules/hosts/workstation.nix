@@ -36,6 +36,13 @@
     '';
 
     nixos = {
+      # LAN IP allowlist: includes masqueraded VPN peers and everything the NAS itself sends.
+      networking.firewall.extraCommands =
+        let
+          network = import ../../lib/network.nix;
+        in
+        "iptables -w -I nixos-fw 1 -s ${network.nasLanAddress}/32 -j nixos-fw-accept";
+
       hardware = {
         enableRedistributableFirmware = true;
         cpu.amd.updateMicrocode = true;
