@@ -1,6 +1,8 @@
 { lib, den, ... }:
 
 let
+  network = import ../../lib/network.nix;
+
   nasPublicKey = "gEhN/FkLUEKlbjfu2Vixc4iTM3d6abuQWAMGdxORRSo=";
 in
 {
@@ -45,7 +47,7 @@ in
 
             "wireguard-peer.${nasPublicKey}" = {
               endpoint = "vpn.sk4rd.com:51820";
-              allowed-ips = "10.100.0.0/24;192.168.178.0/24;";
+              allowed-ips = "10.100.0.0/24;${network.lanPrefix};";
               persistent-keepalive = 25;
             };
 
@@ -54,7 +56,7 @@ in
               method = "manual";
               addresses = cfg.address;
               never-default = true;
-              dns = "192.168.178.1";
+              dns = network.routerAddress;
             };
 
             ipv6.method = "disabled";
