@@ -13,11 +13,6 @@ in
     includes = [ den.aspects.secrets ];
 
     settings = {
-      address = lib.mkOption {
-        type = lib.types.str;
-        description = "WireGuard address of this client";
-      };
-
       secret = lib.mkOption {
         type = lib.types.str;
         description = "Name of the agenix environment file containing WG_PRIVATE_KEY";
@@ -34,6 +29,9 @@ in
       let
         cfg = host.settings.nas-vpn-client;
 
+        nasPeers = den.hosts.x86_64-linux.nas.settings.wireguard-server.peers;
+        peer = lib.findFirst (peer: peer.hostname == host.name) null nasPeers;
+        incomingPeers = lib.filter (peer: lib.elem host.name peer.reachPeers) nasPeers;
 
         # NetworkManager resolves the endpoint only on activation; refresh a changed IP.
         endpointUpdater = pkgs.writeShellApplication {
@@ -60,12 +58,22 @@ in
         };
       in
       {
+        assertions = [
+          {
+            assertion = peer != null;
+            message = "settings.nas-vpn-client requires a NAS WireGuard peer with hostname ${host.name}";
+          }
+        ];
+
         age.secrets.${cfg.secret}.file = ../../secrets/${cfg.secret}.age;
 
+        # The hub preserves tunnel sources for directed reachPeers grants.
+        networking.firewall.extraCommands = lib.concatMapStringsSep "\n" (
+          peer: "iptables -w -I nixos-fw 1 -i wg-nas -s ${peer.address}/32 -j nixos-fw-accept"
+        ) incomingPeers;
+
         networking.networkmanager.ensureProfiles = {
-          environmentFiles = [
-            config.age.secrets.${cfg.secret}.path
-          ];
+          environmentFiles = [ config.age.secrets.${cfg.secret}.path ];
 
           profiles.nas-vpn = {
             connection = {
@@ -89,7 +97,7 @@ in
             # Split tunnel: only the LAN and VPN ranges use it, and they are IPv4 only.
             ipv4 = {
               method = "manual";
-              addresses = cfg.address;
+              addresses = if peer == null then "" else "${peer.address}/32";
               never-default = true;
               dns = network.routerAddress;
               # Above ethernet (100) and Wi-Fi (600), so the direct LAN route wins at home.

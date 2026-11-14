@@ -4,7 +4,6 @@
   den.hosts.x86_64-linux.thinkpad-z13 = {
     users.miko = { };
     settings.nas-vpn-client = {
-      address = "10.100.0.3/32";
       secret = "wg-thinkpad-env";
     };
     settings.proton-vpn-client = {
