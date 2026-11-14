@@ -139,9 +139,9 @@ in
       ];
     };
     ui = {
-      name = "Inter";
+      name = "IBM Plex Sans";
       size = 10;
-      package = [ "inter" ];
+      package = [ "ibm-plex" ];
     };
   };
 
