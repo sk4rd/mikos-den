@@ -1,5 +1,9 @@
-{ lib, den, ... }:
+{ lib, ... }:
 
+let
+  octet = "(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])";
+  ipv4 = lib.types.strMatching "${octet}\\.${octet}\\.${octet}\\.${octet}";
+in
 {
   den.aspects.wireguard-server = {
     settings = {
@@ -25,7 +29,17 @@
           lib.types.submodule {
             options = {
               publicKey = lib.mkOption { type = lib.types.str; };
-              allowedIPs = lib.mkOption { type = lib.types.listOf lib.types.str; };
+              address = lib.mkOption { type = ipv4; };
+              # Lets peers reach the server by name; the hub's Syncthing address uses it.
+              hostname = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+              };
+              reachPeers = lib.mkOption {
+                type = lib.types.listOf lib.types.str;
+                default = [ ];
+                description = "Other peer hostnames this peer may open connections to over the tunnel, on all ports";
+              };
             };
           }
         );
@@ -38,20 +52,70 @@
       { config, host, ... }:
       let
         cfg = host.settings.wireguard-server;
+
+        serverAddress = lib.head (lib.splitString "/" cfg.address);
+
+        # Inserted at the head of the chain (`-I ... 1`), above the drops appended after it.
+        peerRule =
+          chain: peer: rule:
+          "iptables -w -I ${chain} 1 -i wg0 -s ${peer.address}/32 ${rule}";
+
+        # Every peer may forward out to the LAN; reachPeers adds wg0 -> wg0 grants. Replies
+        # pass through the NAT module's ESTABLISHED,RELATED rule. FORWARD defaults to ACCEPT,
+        # so the drops at the end close everything else.
+        forwardRules =
+          map (peer: peerRule "nixos-filter-forward" peer "-o ${cfg.wanInterface} -j ACCEPT") cfg.peers
+          ++ lib.concatMap (
+            peer:
+            map (target: peerRule "nixos-filter-forward" peer "-o wg0 -d ${target.address}/32 -j ACCEPT") (
+              lib.filter (target: lib.elem target.hostname peer.reachPeers) cfg.peers
+            )
+          ) cfg.peers
+          ++ [
+            "iptables -w -A nixos-filter-forward -i wg0 -j DROP"
+            "iptables -w -A nixos-filter-forward -o wg0 -j DROP"
+          ];
+
+        # Masquerade only the peers' traffic. The NAT module's own rule marks and
+        # NATs everything on wg0, so it is disabled below and this replaces it.
+        natRules = map (
+          peer:
+          "iptables -w -t nat -A nixos-nat-post -s ${peer.address}/32 -o ${cfg.wanInterface} -j MASQUERADE"
+        ) cfg.peers;
       in
       {
-        age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
-
         networking.wireguard.interfaces.wg0 = {
           ips = [ cfg.address ];
           listenPort = cfg.port;
           privateKeyFile = config.age.secrets.wg-server-key.path;
-          peers = map (peer: { inherit (peer) publicKey allowedIPs; }) cfg.peers;
+          peers = map (peer: {
+            inherit (peer) publicKey;
+            allowedIPs = [ "${peer.address}/32" ];
+          }) cfg.peers;
         };
+
+        age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
+
+        # The server's own name comes from the hostname module; peers add theirs so the
+        # hub can be dialled by name over the tunnel.
+        networking.hosts = lib.mkMerge [
+          (lib.listToAttrs (
+            lib.concatMap (
+              peer:
+              lib.optional (peer.hostname != null) {
+                name = peer.hostname;
+                value = [ peer.address ];
+              }
+            ) cfg.peers
+          ))
+          # The tunnel address is in no DNS zone, so the NAS's own name needs pinning too.
+          { ${host.name} = [ serverAddress ]; }
+        ];
 
         networking.firewall = {
           allowedUDPPorts = [ cfg.port ];
-          # Peers are my own devices, so the tunnel skips the host firewall.
+          # Peers are my own devices, and WireGuard only accepts their allowedIPs, so the
+          # tunnel skips the host firewall. Forwarding is still limited per peer below.
           trustedInterfaces = [ "wg0" ];
         };
 
@@ -60,14 +124,18 @@
           (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
         ];
 
-        # Lets peers reach the LAN through the NAS.
+        # The NAT module's own rules would let every wg0 peer reach the LAN, so it gets no
+        # internal interfaces; the rules below forward and masquerade per peer instead.
         networking.nat = {
           enable = true;
-          internalInterfaces = [ "wg0" ];
+          internalInterfaces = [ ];
           externalInterface = cfg.wanInterface;
+          extraCommands = ''
+            # Every peer reaches the home LAN; reachPeers grants directed tunnel access.
+            ${lib.concatStringsSep "\n" forwardRules}
+            ${lib.concatStringsSep "\n" natRules}
+          '';
         };
-
-        boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
       };
   };
 }

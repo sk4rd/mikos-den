@@ -12,16 +12,14 @@ in
       peers = [
         {
           publicKey = "QUiRCvPcetsdkeRGM3NIxD5amJdDqxM6CZdMQY4RTzU=";
-          allowedIPs = [ "10.100.0.3/32" ];
+          address = "10.100.0.3";
+          hostname = "thinkpad-z13";
         }
         {
-          publicKey = "rajGvU9NK6lHJm3ncM2PGZB22xbuw2cnmc66oOstcE4=";
-          allowedIPs = [ "10.100.0.4/32" ];
-        }
-        {
-          # iPhone
+          # Allow the iPhone to connect to the laptop.
           publicKey = "ZL9PsG2Rmm6e3ncYdRL4jem0bu2aZzJPEz/wGq/nMms=";
-          allowedIPs = [ "10.100.0.5/32" ];
+          address = "10.100.0.5";
+          reachPeers = [ "thinkpad-z13" ];
         }
       ];
     };
