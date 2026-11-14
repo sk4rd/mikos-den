@@ -13,6 +13,13 @@
     inputs.keyboard-hud.packages.x86_64-linux.charybdis-firmware;
 
   den.aspects.keyboard = {
+    # A second launch closes the running HUD, so the same bind toggles it.
+    hjem.files.".config/umbriel/conf.d/keyboard-hud.toml".text = ''
+      [keybinds]
+      "Mod+B" = { action = "spawn keyboard-hud", repeat = false }
+      "Mod+Shift+B" = { action = "spawn keyboard-hud --move", repeat = false }
+    '';
+
     nixos = {
       imports = [ inputs.keyboard-hud.nixosModules.default ];
 
@@ -27,7 +34,7 @@
         KERNEL=="hidraw*", ATTRS{idVendor}=="a8f8", MODE="0660", GROUP="users", TAG+="uaccess"
       '';
 
-      # Live overlay of the Argos layout; toggle with Meta+Alt+K or from the tray.
+      # Live overlay of the Argos layout; toggle with Mod+B or from the tray.
       # The layout lives outside this repo, in ~/.config/keyboard-hud/layout.json.
       programs.keyboard-hud = {
         enable = true;
@@ -37,6 +44,7 @@
           palette = config.theme.ansiNamed;
         };
         hidrawAccess = false; # granted above
+        shortcut = null; # bound in Umbriel above
       };
     };
   };

@@ -2,7 +2,7 @@
 
 {
   den.aspects.voxtype = {
-    # Types through a virtual keyboard: Plasma has no wtype protocol, and uinput
+    # Types through a virtual keyboard: uinput works under any compositor and
     # avoids the input group, which could read every keystroke.
     provides.to-hosts.nixos.hardware.uinput.enable = true;
     user.extraGroups = [ "uinput" ];
@@ -18,13 +18,13 @@
         };
 
         config = (pkgs.formats.toml { }).generate "voxtype-config.toml" {
-          # Plasma owns the shortcut, because reading keys here needs the input group.
+          # Umbriel owns the shortcut, because reading keys here needs the input group.
           hotkey.enabled = false;
           whisper = {
             model = "${model}";
             language = "en";
             # A hint rather than a guarantee: it steers Whisper towards these spellings.
-            initial_prompt = "Nix, NixOS, nixpkgs, flake, Plasma, Jellyfin,
+            initial_prompt = "Nix, NixOS, nixpkgs, flake, Noctalia, Umbriel, Jellyfin,
             agenix, Vulkan, mikos-den.";
           };
           osd.frontend = "quickshell";
@@ -33,6 +33,8 @@
             max_duration_secs = 600;
           };
           output = {
+            # Give Mod time to be released before virtual keystrokes can trigger shortcuts.
+            pre_type_delay_ms = 500;
             notification.on_recording_start = true;
             mode = "type";
             driver_order = [
@@ -47,15 +49,9 @@
 
         files.".config/voxtype/config.toml".source = config;
 
-        # No modifiers: Plasma reads typed text as shortcuts while one is still held.
-        files.".local/share/kglobalaccel/voxtype-toggle.desktop".text = ''
-          [Desktop Entry]
-          Type=Application
-          Name=Toggle Dictation
-          Exec=${voxtype}/bin/voxtype record toggle
-          Terminal=false
-          StartupNotify=false
-          X-KDE-Shortcuts=F9
+        files.".config/umbriel/conf.d/voxtype.toml".text = ''
+          [keybinds]
+          "Mod+D" = { action = "spawn ${voxtype}/bin/voxtype record toggle", repeat = false }
         '';
 
         systemd.services.voxtype = {
@@ -71,6 +67,7 @@
           # files and runtime tools.
           environment.VOXTYPE_OSD_QML_PATH = "${voxtype.src}/quickshell";
           path = [
+            pkgs.dotool
             pkgs.quickshell
             voxtype
           ];

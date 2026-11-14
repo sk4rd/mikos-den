@@ -3,7 +3,8 @@
 {
   den.aspects.desktop.includes = [
     den.aspects.theme
-    den.aspects.plasma
+    den.aspects.noctalia
+    den.aspects.viewers
     den.aspects.brave
     den.aspects.kicad
     den.aspects.freecad

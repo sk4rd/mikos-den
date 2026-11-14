@@ -1,0 +1,155 @@
+# Paths use ~ because this file is a symlink into the Nix store, where a relative include
+# would resolve. nix.toml holds the values generated from Nix and includes every fragment
+# that aspects and hosts install under conf.d/; noctalia.toml has the colours Noctalia renders.
+[include.optional]
+files = ["~/.config/umbriel/nix.toml", "~/.config/umbriel/noctalia.toml"]
+
+[general]
+autostart = ["noctalia"]
+show_cheatsheet = false
+
+[appearance]
+prefer_no_csd = true
+border_width = 2
+corner_radius = 10
+
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 2
+radius = 3
+noise = 0.02
+brightness = 0.9
+contrast = 0.9
+saturation = 1.1
+
+[input.keyboard]
+numlock_toggle = true
+
+[input.mouse]
+accel_profile = "flat"
+
+[input.touchpad]
+tap = true
+natural_scroll = true
+accel_profile = "adaptive"
+scroll_factor = 0.5
+disable_while_typing = true
+
+# Defining this table replaces Umbriel's built-in binds, so everything wanted is listed.
+[keybinds]
+"Mod" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
+"Mod+T" = { action = "spawn ghostty", repeat = false }
+"Mod+Return" = { action = "spawn ghostty", repeat = false }
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+Escape" = "session-quit"
+"Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
+
+# Noctalia panels and tools.
+"Mod+S" = { action = "spawn noctalia msg panel-toggle control-center", repeat = false }
+"Mod+V" = { action = "spawn noctalia msg panel-toggle clipboard", repeat = false }
+"Mod+Shift+Comma" = { action = "spawn noctalia msg settings-toggle", repeat = false }
+"Mod+Ctrl+L" = { action = "spawn noctalia msg session lock", repeat = false }
+"Alt+Tab" = "spawn noctalia msg window-switcher hold"
+"Alt+Shift+Tab" = "spawn noctalia msg window-switcher hold reverse"
+"Print" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
+"Mod+Shift+A" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
+
+# Routed through Noctalia so its OSDs show. Safe while locked.
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true, repeat = false }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+"XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down", allow_when_locked = true }
+
+# Vim-style focus and movement, plus the arrows.
+"Mod+H" = "window-focus-left"
+"Mod+J" = "window-focus-down"
+"Mod+K" = "window-focus-up"
+"Mod+L" = "window-focus-right"
+"Mod+Left" = "window-focus-left"
+"Mod+Down" = "window-focus-down"
+"Mod+Up" = "window-focus-up"
+"Mod+Right" = "window-focus-right"
+"Mod+Shift+H" = "column-move-left"
+"Mod+Shift+J" = "window-move-down"
+"Mod+Shift+K" = "window-move-up"
+"Mod+Shift+L" = "column-move-right"
+"Mod+Shift+Left" = "column-move-left"
+"Mod+Shift+Down" = "window-move-down"
+"Mod+Shift+Up" = "window-move-up"
+"Mod+Shift+Right" = "column-move-right"
+"Mod+WheelUp" = "window-focus-left"
+"Mod+WheelDown" = "window-focus-right"
+
+# Window state and layout.
+"Mod+Space" = { action = "window-toggle-floating", repeat = false }
+"Mod+P" = { action = "window-toggle-pinned", repeat = false }
+"Mod+M" = { action = "window-toggle-maximize-to-edges", repeat = false }
+"Mod+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Shift+R" = "window-cycle-primary-extent-back"
+"Mod+Minus" = "window-modify-primary-extent -0.02"
+"Mod+Equal" = "window-modify-primary-extent +0.02"
+"Mod+BracketLeft" = "column-focus-tab-previous"
+"Mod+BracketRight" = "column-focus-tab-next"
+"Mod+Comma" = "window-consume-or-expel-left"
+"Mod+Period" = "window-consume-or-expel-right"
+"Mod+W" = { action = "column-toggle-tabbed", repeat = false }
+"Mod+O" = { action = "overview-toggle", repeat = false }
+
+# Workspaces.
+"Mod+1" = "workspace-switch 1"
+"Mod+2" = "workspace-switch 2"
+"Mod+3" = "workspace-switch 3"
+"Mod+4" = "workspace-switch 4"
+"Mod+5" = "workspace-switch 5"
+"Mod+6" = "workspace-switch 6"
+"Mod+7" = "workspace-switch 7"
+"Mod+8" = "workspace-switch 8"
+"Mod+9" = "workspace-switch 9"
+"Mod+Shift+1" = "window-move-to-workspace 1"
+"Mod+Shift+2" = "window-move-to-workspace 2"
+"Mod+Shift+3" = "window-move-to-workspace 3"
+"Mod+Shift+4" = "window-move-to-workspace 4"
+"Mod+Shift+5" = "window-move-to-workspace 5"
+"Mod+Shift+6" = "window-move-to-workspace 6"
+"Mod+Shift+7" = "window-move-to-workspace 7"
+"Mod+Shift+8" = "window-move-to-workspace 8"
+"Mod+Shift+9" = "window-move-to-workspace 9"
+
+[layout]
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5
+
+[[window_rule]]
+match.app_id = "^dev.noctalia.Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+[[window_rule]]
+match.app_id = "^dev.noctalia.UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+[[window_rule]]
+match.title = "^(Picture-in-Picture|Picture in picture)$"
+default_floating = true
+default_maximize = false
+default_position = { x = 20, y = 20, anchor = "bottom_right" }
+
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+
+# These open over windows, so they blur the live content behind them.
+[[layer_rule]]
+match.namespace = "^noctalia-(notification|dock|panel|attached-panel|osd)$"
+blur_optimized = false

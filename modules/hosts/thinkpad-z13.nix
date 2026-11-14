@@ -12,6 +12,7 @@
       endpoint = "89.222.96.187:51820";
       secret = "proton-thinkpad-env";
     };
+    settings.noctalia.idleSuspendSeconds = 900;
   };
 
   den.aspects.thinkpad-z13 = {
@@ -29,11 +30,16 @@
       den.aspects.ai
     ];
 
+    provides.miko.hjem.files.".config/umbriel/conf.d/host.toml".text = ''
+      [output.eDP-1]
+      scale = 1.65
+    '';
+
     nixos = {
       imports = [ inputs.nixos-hardware.nixosModules.lenovo-thinkpad-z13-gen1 ];
 
       services.fwupd.enable = true;
-      services.power-profiles-daemon.enable = true;
+
 
       # Needed to stop laptop from shutting down after opening lid
       boot.blacklistedKernelModules = [ "tiny_power_button" ];

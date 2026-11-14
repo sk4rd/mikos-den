@@ -8,6 +8,8 @@
       endpoint = "89.222.96.187:51820";
       secret = "proton-workstation-env";
     };
+    # No idle suspend, so it stays reachable over SSH; manual sleep still works.
+    settings.noctalia.idleSuspendSeconds = null;
   };
 
   den.aspects.workstation = {
@@ -24,22 +26,14 @@
       den.aspects.ai
     ];
 
-    # No idle suspend, so it stays reachable over SSH; manual sleep still works.
-    # Sets one key so Plasma keeps its other power settings.
-    provides.miko.hjem =
-      { pkgs, ... }:
-      {
-        systemd.services.plasma-no-idle-sleep = {
-          description = "Keep Plasma from sleeping when idle";
-          wantedBy = [ "plasma-powerdevil.service" ];
-          before = [ "plasma-powerdevil.service" ];
-          serviceConfig.Type = "oneshot";
-          script = ''
-            ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file powerdevilrc \
-              --group AC --group SuspendAndShutdown --key AutoSuspendAction 0
-          '';
-        };
-      };
+    provides.miko.hjem.files.".config/umbriel/conf.d/host.toml".text = ''
+      [output.DP-1]
+      mode = "3440x1440@175"
+
+      [output.DP-2]
+      mode = "2560x1440@165"
+
+    '';
 
     nixos = {
       hardware = {
@@ -51,12 +45,6 @@
 
       services.xserver.videoDrivers = [ "amdgpu" ];
 
-      # F10 toggles the HUD; Shift+F10 toggles move mode.
-      programs.keyboard-hud = {
-        shortcut = "F10";
-        moveShortcut = "Shift+F10";
-      };
-
       boot.kernelParams = [ "amd_pstate=active" ];
 
       # Wait at the menu: the JetKVM can take until the disk unlock prompt to get a
@@ -64,14 +52,14 @@
       boot.loader.timeout = null;
 
       # The firmware starts on the integrated GPU so the JetKVM gets its picture, which
-      # would also make that GPU Plasma's main one. KWin splits this list on ":", which
-      # rules out the by-path names, so the GPUs get names of their own.
+      # would also make that GPU the compositor's main one. wlroots splits this list on
+      # ":", which rules out the by-path names, so the GPUs get names of their own.
       services.udev.extraRules = ''
         SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:03:00.0", SYMLINK+="dri/rx7900"
         SUBSYSTEM=="drm", KERNEL=="card[0-9]", KERNELS=="0000:13:00.0", SYMLINK+="dri/igpu"
       '';
       environment.sessionVariables = {
-        KWIN_DRM_DEVICES = "/dev/dri/rx7900:/dev/dri/igpu";
+        WLR_DRM_DEVICES = "/dev/dri/rx7900:/dev/dri/igpu";
         DRI_PRIME = "pci-0000_03_00_0";
       };
 
