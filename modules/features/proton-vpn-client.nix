@@ -132,6 +132,7 @@
             };
           };
         };
+
         # Not wanted by any target: the tunnel coming up (or the toggle) starts it, and
         # it does not return after a reboot.
         systemd.services.proton-killswitch = {
