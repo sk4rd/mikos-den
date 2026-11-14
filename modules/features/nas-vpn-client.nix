@@ -57,6 +57,8 @@ in
               addresses = cfg.address;
               never-default = true;
               dns = network.routerAddress;
+              # Above ethernet (100) and Wi-Fi (600), so the direct LAN route wins at home.
+              route-metric = 700;
             };
 
             ipv6.method = "disabled";
