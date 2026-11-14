@@ -4,6 +4,9 @@ let
   network = import ../../lib/network.nix;
 
   nasPublicKey = "gEhN/FkLUEKlbjfu2Vixc4iTM3d6abuQWAMGdxORRSo=";
+  endpointHost = "vpn.sk4rd.com";
+  endpointPort = "51820";
+  endpoint = "${endpointHost}:${endpointPort}";
 in
 {
   den.aspects.nas-vpn-client = {
@@ -22,15 +25,47 @@ in
     };
 
     nixos =
-      { config, host, ... }:
+      {
+        config,
+        host,
+        pkgs,
+        ...
+      }:
       let
         cfg = host.settings.nas-vpn-client;
+
+
+        # NetworkManager resolves the endpoint only on activation; refresh a changed IP.
+        endpointUpdater = pkgs.writeShellApplication {
+          name = "nas-vpn-endpoint";
+          inheritPath = false;
+          runtimeInputs = [
+            pkgs.wireguard-tools
+            pkgs.gawk
+            pkgs.getent
+          ];
+          text = ''
+            [ -d /sys/class/net/wg-nas ] || exit 0
+
+            # Offline lookups are expected and leave the current endpoint alone.
+            resolved=$(getent ahostsv4 ${lib.escapeShellArg endpointHost} 2>/dev/null) || exit 0
+            addr=$(awk 'NR == 1 { print $1 }' <<< "$resolved")
+            [ -n "$addr" ] || exit 0
+
+            current=$(wg show wg-nas endpoints | awk -v key=${lib.escapeShellArg nasPublicKey} '$1 == key { print $2 }')
+            [ "$current" = "$addr:${endpointPort}" ] && exit 0
+
+            wg set wg-nas peer ${lib.escapeShellArg nasPublicKey} endpoint "$addr:${endpointPort}"
+          '';
+        };
       in
       {
         age.secrets.${cfg.secret}.file = ../../secrets/${cfg.secret}.age;
 
         networking.networkmanager.ensureProfiles = {
-          environmentFiles = [ config.age.secrets.${cfg.secret}.path ];
+          environmentFiles = [
+            config.age.secrets.${cfg.secret}.path
+          ];
 
           profiles.nas-vpn = {
             connection = {
@@ -46,7 +81,7 @@ in
             };
 
             "wireguard-peer.${nasPublicKey}" = {
-              endpoint = "vpn.sk4rd.com:51820";
+              inherit endpoint;
               allowed-ips = "10.100.0.0/24;${network.lanPrefix};";
               persistent-keepalive = 25;
             };
@@ -62,6 +97,23 @@ in
             };
 
             ipv6.method = "disabled";
+          };
+        };
+
+        systemd.services.nas-vpn-endpoint = {
+          description = "Point the nas WireGuard tunnel at the current address of ${endpointHost}";
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = lib.getExe endpointUpdater;
+          };
+        };
+
+        systemd.timers.nas-vpn-endpoint = {
+          wantedBy = [ "timers.target" ];
+          timerConfig = {
+            OnBootSec = "1min";
+            OnUnitActiveSec = "2min";
+            Unit = "nas-vpn-endpoint.service";
           };
         };
       };
