@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ inputs, lib, ... }:
 let
   repo = "/tank/backups/restic";
   passwordSecret = ../../secrets/restic-password.age;
@@ -44,7 +44,7 @@ in
   den.aspects.proton-backup.nixos =
     { config, pkgs, ... }:
     let
-      proton-drive = pkgs.proton-drive-cli;
+      proton-drive = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.proton-drive-cli;
       protonEnv = {
         # Headless: session kept in a 0600 file under stateDir instead of a keyring.
         PROTON_DRIVE_CREDENTIALS_STORE = "unsafe_file";
