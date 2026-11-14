@@ -40,6 +40,8 @@
 
       services.fwupd.enable = true;
 
+      # Password only at login (and greetd), so gnome-keyring gets it to unlock.
+      security.pam.services.login.fprintAuth = false;
 
       # Needed to stop laptop from shutting down after opening lid
       boot.blacklistedKernelModules = [ "tiny_power_button" ];
