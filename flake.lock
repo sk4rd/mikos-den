@@ -221,11 +221,11 @@
     "walkthrough-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1794599539,
-        "narHash": "sha256-He14xYPrhZ9axiuGtsheuKH+MOx3umRpo8WQMH+5Utk=",
+        "lastModified": 1794663601,
+        "narHash": "sha256-9CCQZ3sxj1Eu1WoUM9+fpHP8OC6v+uXqEE97haq17W4=",
         "owner": "sk4rd",
         "repo": "walkthrough.nvim",
-        "rev": "93ac3aff7b8fa5cf239b0a287ba2dc78522986a0",
+        "rev": "336d52e1aa11dfcfa60bf480bdd71f6f5b1b17b5",
         "type": "github"
       },
       "original": {
