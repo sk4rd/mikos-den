@@ -44,6 +44,7 @@ nix eval --raw .#banner > docs/banner.svg
 
 - [Installing a host](docs/install.md)
 - [Secrets](docs/secrets.md)
+- [Syncthing](docs/syncthing.md)
 - [Architecture](docs/architecture.md)
 
 MIT licensed: see [LICENSE](LICENSE).
