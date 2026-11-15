@@ -1,0 +1,10 @@
+id = "miko/claude"
+name = "Claude Code usage"
+version = "1.0.0"
+plugin_api = 24
+author = "miko"
+description = "Bar widget for the Claude Code subscription limits."
+
+[[widget]]
+id = "usage"
+entry = "usage.luau"

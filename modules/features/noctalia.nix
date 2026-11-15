@@ -90,6 +90,14 @@ let
     pkgs:
     pkgs.linkFarm "noctalia-plugins" [
       {
+        name = "claude/plugin.toml";
+        path = ../../dots/noctalia/claude/plugin.toml;
+      }
+      {
+        name = "claude/usage.luau";
+        path = ../../dots/noctalia/claude/usage.luau;
+      }
+      {
         name = "vpn/plugin.toml";
         path = ../../dots/noctalia/vpn/plugin.toml;
       }
@@ -282,6 +290,7 @@ in
                 "vpn-killswitch"
               ];
               levels = [
+                "claude-usage"
                 "volume"
                 "brightness"
                 "battery"
@@ -303,6 +312,8 @@ in
             # proton-killswitch.service.
             proton-vpn.type = "miko/vpn:vpn";
             vpn-killswitch.type = "miko/vpn:killswitch";
+            # Fed by the status line command of the ai aspect; hidden until that has run.
+            claude-usage.type = "miko/claude:usage";
             clock.format = "{:%a %d %b  %H:%M}";
             media = {
               hide_when_no_media = true;
@@ -313,7 +324,10 @@ in
           wallpaper.default.path = "${wallpaperFor pkgs}";
 
           plugins = {
-            enabled = [ "miko/vpn" ];
+            enabled = [
+              "miko/claude"
+              "miko/vpn"
+            ];
             source = [
               {
                 name = "miko";
