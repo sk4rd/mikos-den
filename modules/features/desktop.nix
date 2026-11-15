@@ -5,6 +5,7 @@
     den.aspects.theme
     den.aspects.noctalia
     den.aspects.viewers
+    den.aspects.dolphin
     den.aspects.brave
     den.aspects.kicad
     den.aspects.freecad
