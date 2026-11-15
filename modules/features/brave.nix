@@ -13,6 +13,9 @@
     programs.chromium = {
       enable = true;
       extraOpts.BrowserThemeColor = config.theme.colors.bg;
+      # Chromium expands ${user_name} itself on Linux; it has no home-directory variable.
+      extraOpts.DownloadDirectory = "/home/\${user_name}/Downloads";
+      extraOpts.PromptForDownloadLocation = false;
       extraOpts.ExtensionSettings = {
         # Dark Reader
         "eimadpbcbfnmbkopoojfekhnkhdbieeh" = {
