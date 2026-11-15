@@ -21,6 +21,14 @@
       hooks = "${inputs.walkthrough-nvim}/skills/walkthrough/hooks";
     in
     builtins.toJSON {
+      # Saves the subscription limits for the Noctalia usage widget, then runs the status
+      # line from ~/.claude/settings.json. A managed statusLine replaces the user's one,
+      # and the status line command is the only place Claude Code reports the limits.
+      # See https://code.claude.com/docs/en/statusline.
+      statusLine = {
+        type = "command";
+        command = "bash ${./claude-statusline.sh}";
+      };
       hooks = {
         # Leaving plan mode: the plan opens in Neovim and Claude waits for
         # approve or feedback. Without a reachable Neovim the script exits
