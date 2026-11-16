@@ -39,6 +39,9 @@ disable_while_typing = true
 # Defining this table replaces Umbriel's built-in binds, so everything wanted is listed.
 [keybinds]
 "Mod" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
+# The Charybdis has Super only as the Space key held, so a quick tap of Super and
+# Super+Space are out of reach there. Mod+A and Mod+G do the same jobs.
+"Mod+A" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
 "Mod+T" = { action = "spawn ghostty", repeat = false }
 "Mod+Return" = { action = "spawn ghostty", repeat = false }
 "Mod+Q" = { action = "window-close", repeat = false }
@@ -87,6 +90,7 @@ disable_while_typing = true
 
 # Window state and layout.
 "Mod+Space" = { action = "window-toggle-floating", repeat = false }
+"Mod+G" = { action = "window-toggle-floating", repeat = false }
 "Mod+P" = { action = "window-toggle-pinned", repeat = false }
 "Mod+M" = { action = "window-toggle-maximize-to-edges", repeat = false }
 "Mod+F" = { action = "window-toggle-fullscreen", repeat = false }
