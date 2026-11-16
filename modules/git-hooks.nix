@@ -11,12 +11,7 @@ let
         enable = true;
         package = config.flake.formatter.${system};
       };
-      statix = {
-        enable = true;
-        # statix lints the whole directory, not the staged files, and skips only .gitignore'd
-        # paths. The worktrees are excluded in .git/info/exclude, which it doesn't read.
-        settings.ignore = [ ".claude/worktrees" ];
-      };
+      statix.enable = true;
       deadnix.enable = true;
     };
   };

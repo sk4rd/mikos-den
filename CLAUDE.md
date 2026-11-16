@@ -18,8 +18,9 @@ There are no tests. A change is done when the affected hosts evaluate and the fo
 ## Gotchas
 
 - Every `.nix` file under `modules/` is loaded automatically, but a flake only sees files git knows
-  about. Run `git add -N <file>` (intent to add) on a new file: Nix then sees it, with its current
-  content, and nothing is staged.
+  about. A hook in `.claude/settings.json` runs `git add -N <file>` (intent to add) after the Write
+  tool creates a file: Nix then sees it, with its current content, and nothing is staged. Run it
+  yourself for a file created any other way, such as from the shell.
 - An aspect every host needs adds itself with `den.schema.host.includes` in its own file. Don't
   add it to a host's include list.
 - `config.theme` is the flake-level config. Read it from a file's top-level arguments, not from inside
@@ -31,7 +32,19 @@ There are no tests. A change is done when the affected hosts evaluate and the fo
   committed file.
 - `REVIEW.md` is a review from 2026-11-09. Check a finding against the current code before acting on it.
 
+## Working in a worktree
+
+- One task per worktree, started from a committed `main`.
+- Run `nix develop -c true` once in a new worktree. It links `.pre-commit-config.yaml`, which is
+  not tracked, and `git commit` fails without it.
+- Finish by running the checks and making one commit on the worktree's branch. Do not merge it and
+  do not push. The user reviews the branch first, with the fish functions `inbox` and
+  `review <branch>` from `dots/review-inbox/`.
+- Commit messages follow Conventional Commits, on one line, without a `Co-authored-by` trailer.
+
 ## Left to the user
+
+- Merging a reviewed branch into `main`, and pushing.
 
 - Deploying: the user runs `sudo nixos-rebuild switch --flake .#<host>`.
 - Secrets need a YubiKey. Add the recipients to `secrets/agenix-rules.nix`, then the user runs
