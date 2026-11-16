@@ -56,6 +56,11 @@
           nodejs
         ];
 
+        files.".claude/CLAUDE.md" = {
+          source = ../../dots/claude/CLAUDE.md;
+          clobber = true;
+        };
+
         # uv would otherwise download its own Python builds, which only run through nix-ld.
         environment.sessionVariables = {
           UV_PYTHON = "${pkgs.python3}/bin/python3";
