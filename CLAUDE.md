@@ -10,7 +10,8 @@ for user files and agenix for secrets. Read `docs/architecture.md` before restru
 There are no tests. A change is done when the affected hosts evaluate and the formatting check passes.
 
 - `nix fmt`: formats everything (nixfmt, stylua, shfmt, ruff, taplo). Run it after editing.
-- `nix flake check`: the formatting check plus evaluation of every host.
+- `nix flake check`: the formatting, statix and deadnix checks plus evaluation of every host. No
+  git hook runs them, so run this before committing.
 - One host: `nix build .#nixosConfigurations.<host>.config.system.build.toplevel`
 - One option: `nix eval .#nixosConfigurations.<host>.config.<option.path>`
 - In a VM: `nixos-rebuild build-vm --flake .#<host> && ./result/bin/run-<host>-vm` (login password `test`)
@@ -35,8 +36,6 @@ There are no tests. A change is done when the affected hosts evaluate and the fo
 ## Working in a worktree
 
 - One task per worktree, started from a committed `main`.
-- Run `nix develop -c true` once in a new worktree. It links `.pre-commit-config.yaml`, which is
-  not tracked, and `git commit` fails without it.
 - Finish by running the checks and making one commit on the worktree's branch. Do not merge it and
   do not push. The user reviews the branch first, with the fish functions `inbox` and
   `review <branch>` from `dots/review-inbox/`.
