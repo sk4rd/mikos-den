@@ -1,4 +1,4 @@
-{ inputs, lib, ... }:
+{ lib, ... }:
 let
   repo = "/tank/backups/restic";
   passwordSecret = ../../secrets/restic-password.age;
@@ -62,7 +62,7 @@ in
     nixos =
       { config, pkgs, ... }:
       let
-        proton-drive = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.proton-drive-cli;
+        proton-drive = pkgs.proton-drive-cli;
         zfs = lib.getExe' config.boot.zfs.package "zfs";
         snapshots = lib.mapAttrsToList (ds: _: "tank/${ds}@${snapshotName}") sources;
         dropSnapshots = lib.concatMapStringsSep "\n" (
