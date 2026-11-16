@@ -25,7 +25,12 @@ _:
             language = "en";
             # A hint rather than a guarantee: it steers Whisper towards these spellings.
             initial_prompt = "Nix, NixOS, nixpkgs, flake, Noctalia, Umbriel, Jellyfin,
-            agenix, Vulkan, mikos-den.";
+            agenix, Vulkan, mikos-den, Claude, Claude Code, CLAUDE.md.";
+          };
+          text.replacements = {
+            "cloud code" = "Claude Code";
+            "cloud.md" = "CLAUDE.md";
+            "cloud md" = "CLAUDE.md";
           };
           osd.frontend = "quickshell";
           audio = {
