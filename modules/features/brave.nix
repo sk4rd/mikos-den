@@ -12,22 +12,24 @@
 
     programs.chromium = {
       enable = true;
-      extraOpts.BrowserThemeColor = config.theme.colors.bg;
-      # Chromium expands ${user_name} itself on Linux; it has no home-directory variable.
-      extraOpts.DownloadDirectory = "/home/\${user_name}/Downloads";
-      extraOpts.PromptForDownloadLocation = false;
-      extraOpts.ExtensionSettings = {
-        # Dark Reader
-        "eimadpbcbfnmbkopoojfekhnkhdbieeh" = {
-          installation_mode = "force_installed";
-          update_url = "https://clients2.google.com/service/update2/crx";
-          toolbar_pin = "force_pinned";
-        };
-        # Proton Pass
-        "ghmbeldphafepmbegfdlkpapadhbakde" = {
-          installation_mode = "force_installed";
-          update_url = "https://clients2.google.com/service/update2/crx";
-          toolbar_pin = "force_pinned";
+      extraOpts = {
+        BrowserThemeColor = config.theme.colors.bg;
+        # Chromium expands ${user_name} itself on Linux; it has no home-directory variable.
+        DownloadDirectory = "/home/\${user_name}/Downloads";
+        PromptForDownloadLocation = false;
+        ExtensionSettings = {
+          # Dark Reader
+          "eimadpbcbfnmbkopoojfekhnkhdbieeh" = {
+            installation_mode = "force_installed";
+            update_url = "https://clients2.google.com/service/update2/crx";
+            toolbar_pin = "force_pinned";
+          };
+          # Proton Pass
+          "ghmbeldphafepmbegfdlkpapadhbakde" = {
+            installation_mode = "force_installed";
+            update_url = "https://clients2.google.com/service/update2/crx";
+            toolbar_pin = "force_pinned";
+          };
         };
       };
 

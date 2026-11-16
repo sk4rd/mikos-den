@@ -24,21 +24,23 @@ in
     hjem = { pkgs, ... }: {
       packages = with pkgs; [ ghostty ];
 
-      files.".config/ghostty/themes/${theme.name}".text = ghosttyTheme;
+      files = {
+        ".config/ghostty/themes/${theme.name}".text = ghosttyTheme;
 
-      files.".config/ghostty/keybinds".source = ../../dots/ghostty/keybinds;
+        ".config/ghostty/keybinds".source = ../../dots/ghostty/keybinds;
 
-      files.".config/ghostty/config.ghostty".text = ''
-        theme = ${theme.name}
-        font-family = ${theme.fonts.mono.name}
-        font-size = ${toString theme.fonts.mono.size}
-        shell-integration = fish
+        ".config/ghostty/config.ghostty".text = ''
+          theme = ${theme.name}
+          font-family = ${theme.fonts.mono.name}
+          font-size = ${toString theme.fonts.mono.size}
+          shell-integration = fish
 
-        # Vim-style pane control. A config-file path resolves relative to the
-        # file holding the directive, which here is a store path, so name it
-        # with ~ instead.
-        config-file = ~/.config/ghostty/keybinds
-      '';
+          # Vim-style pane control. A config-file path resolves relative to the
+          # file holding the directive, which here is a store path, so name it
+          # with ~ instead.
+          config-file = ~/.config/ghostty/keybinds
+        '';
+      };
     };
   };
 }

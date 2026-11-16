@@ -1,116 +1,124 @@
 { lib, den, ... }:
 
 {
-  den.aspects.servarr.includes = [
-    den.aspects.media-storage
-    den.aspects.flaresolverr
-  ];
+  den.aspects.servarr = {
+    includes = [
+      den.aspects.media-storage
+      den.aspects.flaresolverr
+    ];
 
-  den.aspects.servarr.service-routes = {
-    "sonarr.sk4rd.com" = {
-      proxy = "reverse_proxy 127.0.0.1:8989";
-    };
-    "radarr.sk4rd.com" = {
-      proxy = "reverse_proxy 127.0.0.1:7878";
-    };
-    "prowlarr.sk4rd.com" = {
-      proxy = "reverse_proxy 127.0.0.1:9696";
-    };
-  };
-
-  den.aspects.servarr.status-endpoints = [
-    {
-      name = "Sonarr";
-      group = "Media";
-      url = "http://127.0.0.1:8989/";
-      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
-    }
-    {
-      name = "Radarr";
-      group = "Media";
-      url = "http://127.0.0.1:7878/";
-      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
-    }
-    {
-      name = "Prowlarr";
-      group = "Media";
-      url = "http://127.0.0.1:9696/";
-      conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
-    }
-  ];
-
-  den.aspects.servarr.nixos = { pkgs, ... }: {
-    services.sonarr = {
-      enable = true;
-      settings.server.bindaddress = "127.0.0.1";
-    };
-    services.radarr = {
-      enable = true;
-      settings.server.bindaddress = "127.0.0.1";
-    };
-    services.prowlarr = {
-      enable = true;
-      settings.server.bindaddress = "127.0.0.1";
+    service-routes = {
+      "sonarr.sk4rd.com" = {
+        proxy = "reverse_proxy 127.0.0.1:8989";
+      };
+      "radarr.sk4rd.com" = {
+        proxy = "reverse_proxy 127.0.0.1:7878";
+      };
+      "prowlarr.sk4rd.com" = {
+        proxy = "reverse_proxy 127.0.0.1:9696";
+      };
     };
 
-    users.users.prowlarr = {
-      isSystemUser = true;
-      group = "prowlarr";
-    };
-    users.groups.prowlarr = { };
-    users.users.sonarr.extraGroups = [ "media" ];
-    users.users.radarr.extraGroups = [ "media" ];
+    status-endpoints = [
+      {
+        name = "Sonarr";
+        group = "Media";
+        url = "http://127.0.0.1:8989/";
+        conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+      }
+      {
+        name = "Radarr";
+        group = "Media";
+        url = "http://127.0.0.1:7878/";
+        conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+      }
+      {
+        name = "Prowlarr";
+        group = "Media";
+        url = "http://127.0.0.1:9696/";
+        conditions = [ "[STATUS] == any(200, 302, 307, 401)" ];
+      }
+    ];
 
-    systemd.services =
-      lib.genAttrs [ "sonarr" "radarr" "prowlarr" ] (app: {
-        after = [ "${app}-storage.service" ];
-        requires = [ "${app}-storage.service" ];
-        unitConfig.AssertPathIsMountPoint = [
-          "/var/lib/media-stack"
-          "/tank/data/media"
-        ];
-        serviceConfig = {
-          # Fixed users, because state on the dataset and files in the library outlive the service.
-          DynamicUser = lib.mkForce false;
-          User = app;
-          Group = app;
-          # Group-writable, so these apps and qBittorrent can share the library through the media group.
-          UMask = lib.mkForce "0002";
-          BindPaths = [ "/var/lib/media-stack/${app}:/var/lib/${app}" ];
-        }
-        // lib.optionalAttrs (app != "prowlarr") {
-          ProtectSystem = "strict";
-          ReadWritePaths = [
-            "/tank/data/media"
-            "/var/lib/${app}"
-          ];
+    nixos = { pkgs, ... }: {
+      services = {
+        sonarr = {
+          enable = true;
+          settings.server.bindaddress = "127.0.0.1";
         };
-      })
-      // lib.genAttrs [ "sonarr-storage" "radarr-storage" "prowlarr-storage" ] (
-        name:
-        let
-          app = lib.removeSuffix "-storage" name;
-          subdir =
-            {
-              sonarr = ".config/NzbDrone";
-              radarr = ".config/Radarr";
-              prowlarr = ".";
-            }
-            .${app};
-        in
-        {
-          description = "Prepare ${app} state";
-          after = [ "media-storage.service" ];
-          requires = [ "media-storage.service" ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
+        radarr = {
+          enable = true;
+          settings.server.bindaddress = "127.0.0.1";
+        };
+        prowlarr = {
+          enable = true;
+          settings.server.bindaddress = "127.0.0.1";
+        };
+      };
+
+      users = {
+        users = {
+          prowlarr = {
+            isSystemUser = true;
+            group = "prowlarr";
           };
-          script = ''
-            ${pkgs.coreutils}/bin/install -d -m 0700 -o ${app} -g ${app} \
-              /var/lib/media-stack/${app} /var/lib/media-stack/${app}/${subdir}
-          '';
-        }
-      );
+          sonarr.extraGroups = [ "media" ];
+          radarr.extraGroups = [ "media" ];
+        };
+        groups.prowlarr = { };
+      };
+
+      systemd.services =
+        lib.genAttrs [ "sonarr" "radarr" "prowlarr" ] (app: {
+          after = [ "${app}-storage.service" ];
+          requires = [ "${app}-storage.service" ];
+          unitConfig.AssertPathIsMountPoint = [
+            "/var/lib/media-stack"
+            "/tank/data/media"
+          ];
+          serviceConfig = {
+            # Fixed users, because state on the dataset and files in the library outlive the service.
+            DynamicUser = lib.mkForce false;
+            User = app;
+            Group = app;
+            # Group-writable, so these apps and qBittorrent can share the library through the media group.
+            UMask = lib.mkForce "0002";
+            BindPaths = [ "/var/lib/media-stack/${app}:/var/lib/${app}" ];
+          }
+          // lib.optionalAttrs (app != "prowlarr") {
+            ProtectSystem = "strict";
+            ReadWritePaths = [
+              "/tank/data/media"
+              "/var/lib/${app}"
+            ];
+          };
+        })
+        // lib.genAttrs [ "sonarr-storage" "radarr-storage" "prowlarr-storage" ] (
+          name:
+          let
+            app = lib.removeSuffix "-storage" name;
+            subdir =
+              {
+                sonarr = ".config/NzbDrone";
+                radarr = ".config/Radarr";
+                prowlarr = ".";
+              }
+              .${app};
+          in
+          {
+            description = "Prepare ${app} state";
+            after = [ "media-storage.service" ];
+            requires = [ "media-storage.service" ];
+            serviceConfig = {
+              Type = "oneshot";
+              RemainAfterExit = true;
+            };
+            script = ''
+              ${pkgs.coreutils}/bin/install -d -m 0700 -o ${app} -g ${app} \
+                /var/lib/media-stack/${app} /var/lib/media-stack/${app}/${subdir}
+            '';
+          }
+        );
+    };
   };
 }

@@ -47,110 +47,106 @@ in
       den.aspects.proton-backup
     ];
 
-    nixos =
-      {
-        ...
-      }:
-      {
-        disko.devices = {
-          disk.main = {
-            device = "/dev/disk/by-id/ata-WDC_WDS240G1G0B-00RC30_1711A9801663";
-            type = "disk";
-            content = {
-              type = "gpt";
-              partitions = {
-                ESP = {
-                  size = "2G";
-                  type = "EF00";
-                  content = {
-                    type = "filesystem";
-                    format = "vfat";
-                    extraArgs = [
-                      "-F"
-                      "32"
-                    ];
-                    mountpoint = "/boot";
-                    mountOptions = [ "umask=0077" ];
-                  };
+    nixos = _: {
+      disko.devices = {
+        disk.main = {
+          device = "/dev/disk/by-id/ata-WDC_WDS240G1G0B-00RC30_1711A9801663";
+          type = "disk";
+          content = {
+            type = "gpt";
+            partitions = {
+              ESP = {
+                size = "2G";
+                type = "EF00";
+                content = {
+                  type = "filesystem";
+                  format = "vfat";
+                  extraArgs = [
+                    "-F"
+                    "32"
+                  ];
+                  mountpoint = "/boot";
+                  mountOptions = [ "umask=0077" ];
                 };
-                zfs = {
-                  size = "100%";
-                  content = {
-                    type = "zfs";
-                    pool = "rpool";
-                  };
+              };
+              zfs = {
+                size = "100%";
+                content = {
+                  type = "zfs";
+                  pool = "rpool";
                 };
               };
             };
           };
+        };
 
-          zpool.rpool = {
-            type = "zpool";
-            options = {
-              ashift = "12";
-              autotrim = "on";
+        zpool.rpool = {
+          type = "zpool";
+          options = {
+            ashift = "12";
+            autotrim = "on";
+          };
+          rootFsOptions = {
+            mountpoint = "none";
+            canmount = "off";
+            compression = "zstd";
+            atime = "off";
+            xattr = "sa";
+            acltype = "posixacl";
+            dnodesize = "auto";
+          };
+          datasets = {
+            root = {
+              type = "zfs_fs";
+              mountpoint = "/";
             };
-            rootFsOptions = {
-              mountpoint = "none";
-              canmount = "off";
-              compression = "zstd";
-              atime = "off";
-              xattr = "sa";
-              acltype = "posixacl";
-              dnodesize = "auto";
+            nix = {
+              type = "zfs_fs";
+              mountpoint = "/nix";
             };
-            datasets = {
-              root = {
-                type = "zfs_fs";
-                mountpoint = "/";
-              };
-              nix = {
-                type = "zfs_fs";
-                mountpoint = "/nix";
-              };
-              var = {
-                type = "zfs_fs";
-                mountpoint = "/var";
-              };
-              "var/log" = {
-                type = "zfs_fs";
-                mountpoint = "/var/log";
-                options.quota = "5G";
-              };
-              home = {
-                type = "zfs_fs";
-                mountpoint = "/home";
-              };
+            var = {
+              type = "zfs_fs";
+              mountpoint = "/var";
+            };
+            "var/log" = {
+              type = "zfs_fs";
+              mountpoint = "/var/log";
+              options.quota = "5G";
+            };
+            home = {
+              type = "zfs_fs";
+              mountpoint = "/home";
             };
           };
         };
-
-        boot = {
-          kernelParams = [ "zfs.zfs_arc_max=4294967296" ];
-        };
-
-        security.sudo.wheelNeedsPassword = false;
-
-        networking = {
-          # Carried over from the previous install for zfs
-          hostId = "6985f698";
-
-          networkmanager.ensureProfiles.profiles.enp1s0 = {
-            connection = {
-              id = "enp1s0";
-              type = "ethernet";
-              interface-name = "enp1s0";
-              autoconnect = true;
-            };
-            ipv4 = {
-              method = "manual";
-              addresses = "${network.nasLanAddress}/${network.lanPrefixLength}";
-              gateway = network.routerAddress;
-              dns = network.routerAddress;
-            };
-          };
-        };
-
       };
+
+      boot = {
+        kernelParams = [ "zfs.zfs_arc_max=4294967296" ];
+      };
+
+      security.sudo.wheelNeedsPassword = false;
+
+      networking = {
+        # Carried over from the previous install for zfs
+        hostId = "6985f698";
+
+        networkmanager.ensureProfiles.profiles.enp1s0 = {
+          connection = {
+            id = "enp1s0";
+            type = "ethernet";
+            interface-name = "enp1s0";
+            autoconnect = true;
+          };
+          ipv4 = {
+            method = "manual";
+            addresses = "${network.nasLanAddress}/${network.lanPrefixLength}";
+            gateway = network.routerAddress;
+            dns = network.routerAddress;
+          };
+        };
+      };
+
+    };
   };
 }

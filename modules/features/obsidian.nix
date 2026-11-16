@@ -22,7 +22,7 @@ in
           inherit lib theme;
         };
         files."${themeDir}/manifest.json".text = builtins.toJSON {
-          name = theme.name;
+          inherit (theme) name;
           version = "1.0.0";
           minAppVersion = "1.0.0";
           author = "miko";

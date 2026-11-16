@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   den.aspects.bluetooth.nixos.hardware.bluetooth = {

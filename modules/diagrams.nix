@@ -4,7 +4,7 @@ let
   graph = diagram.graph.flattenEntityKinds (
     diagram.graph.foldProviders (
       diagram.graph.ofNamespace {
-        aspects = den.aspects;
+        inherit (den) aspects;
         name = "mikos-den";
         direction = "LR";
       }

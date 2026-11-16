@@ -3,9 +3,11 @@
 {
   den.aspects.systemd-boot.nixos = {
     boot.loader = {
-      systemd-boot.enable = true;
-      systemd-boot.editor = false;
-      systemd-boot.configurationLimit = 10;
+      systemd-boot = {
+        enable = true;
+        editor = false;
+        configurationLimit = 10;
+      };
       efi.canTouchEfiVariables = true;
     };
   };

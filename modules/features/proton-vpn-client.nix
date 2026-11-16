@@ -111,7 +111,7 @@
             wireguard.private-key = "$PROTONVPN_PRIVATE_KEY";
 
             "wireguard-peer.${cfg.publicKey}" = {
-              endpoint = cfg.endpoint;
+              inherit (cfg) endpoint;
               allowed-ips = "0.0.0.0/0;::/0;";
               persistent-keepalive = 25;
             };

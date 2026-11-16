@@ -12,7 +12,7 @@ let
     on_secondary = c.bg;
     tertiary = c.teal;
     on_tertiary = c.bg;
-    error = c.error;
+    inherit (c) error;
     on_error = c.bg;
     surface = c.bg;
     on_surface = c.fg;
@@ -40,8 +40,7 @@ let
       terminal = {
         background = c.bg;
         foreground = c.fg;
-        cursor = c.cursor;
-        cursorText = c.cursorText;
+        inherit (c) cursor cursorText;
         selectionBg = c.selection;
         selectionFg = c.fg;
         normal = lib.getAttrs ansiNames a;
@@ -139,91 +138,97 @@ in
         uiFont = "${theme.fonts.ui.name} ${toString theme.fonts.ui.size}";
       in
       {
-        programs.umbriel.enable = true;
-        programs.noctalia = {
-          enable = true;
-          recommendedServices.enable = true;
+        programs = {
+          umbriel.enable = true;
+          noctalia = {
+            enable = true;
+            recommendedServices.enable = true;
+          };
+
+          dconf.profiles.user.databases = [
+            {
+              locks = map (key: "/org/gnome/desktop/interface/${key}") [
+                "icon-theme"
+                "font-name"
+                "document-font-name"
+                "monospace-font-name"
+              ];
+
+              settings."org/gnome/desktop/interface" = {
+                font-name = uiFont;
+                document-font-name = uiFont;
+                monospace-font-name = "${theme.fonts.mono.name} ${toString theme.fonts.mono.size}";
+                gtk-theme = "adw-gtk3-${theme.variant}";
+                icon-theme = "Papirus-${lib.toSentenceCase theme.variant}";
+                cursor-theme = cursor.theme;
+                cursor-size = lib.gvariant.mkInt32 cursor.size;
+                color-scheme = "prefer-${theme.variant}";
+              };
+            }
+          ];
         };
 
-        services.displayManager.noctalia-greeter = {
-          enable = true;
-          cursorTheme = {
-            package = cursorPackage pkgs;
-            name = cursor.theme;
-          };
-          settings = {
-            session.default = "Umbriel";
-            user.default = lib.head (lib.attrNames host.users);
-            keyboard = {
-              inherit (xkb) layout variant;
+        services = {
+          displayManager.noctalia-greeter = {
+            enable = true;
+            cursorTheme = {
+              package = cursorPackage pkgs;
+              name = cursor.theme;
             };
-            cursor.size = cursor.size;
-            appearance = appearance // {
-              scheme = "Synced";
-              theme_mode = theme.variant;
-              scheme_selector_position = "hidden";
-              inherit palette;
-              wallpaper = {
-                path = "${wallpaperFor pkgs}";
-                fill_mode = "crop";
-                fill_color = c.bg;
+            settings = {
+              session.default = "Umbriel";
+              user.default = lib.head (lib.attrNames host.users);
+              keyboard = {
+                inherit (xkb) layout variant;
+              };
+              cursor.size = cursor.size;
+              appearance = appearance // {
+                scheme = "Synced";
+                theme_mode = theme.variant;
+                scheme_selector_position = "hidden";
+                inherit palette;
+                wallpaper = {
+                  path = "${wallpaperFor pkgs}";
+                  fill_mode = "crop";
+                  fill_color = c.bg;
+                };
               };
             };
           };
+
+          # Noctalia keeps its clipboard and notification history encrypted with a key
+          # from the Secret Service, and a bare compositor session doesn't provide one.
+          gnome.gnome-keyring.enable = true;
+
+          # Umbriel's lid_close event suspends instead (see the hjem half), because logind
+          # can't tell Noctalia's caffeine apart: it only holds an `idle` inhibitor, which
+          # logind never consults for the lid switch.
+          logind.settings.Login = {
+            HandleLidSwitch = "ignore";
+            HandleLidSwitchExternalPower = "ignore";
+            HandleLidSwitchDocked = "ignore";
+          };
         };
 
-        # Noctalia keeps its clipboard and notification history encrypted with a key
-        # from the Secret Service, and a bare compositor session doesn't provide one.
-        services.gnome.gnome-keyring.enable = true;
+        environment = {
+          sessionVariables.NIXOS_OZONE_WL = "1";
 
-        environment.sessionVariables.NIXOS_OZONE_WL = "1";
+          # The greeter looks for sessions under the system profile, which leaves this
+          # directory out unless asked; without it the login screen has no Umbriel to offer.
+          pathsToLink = [ "/share/wayland-sessions" ];
 
-        # Umbriel's lid_close event suspends instead (see the hjem half), because logind
-        # can't tell Noctalia's caffeine apart: it only holds an `idle` inhibitor, which
-        # logind never consults for the lid switch.
-        services.logind.settings.Login = {
-          HandleLidSwitch = "ignore";
-          HandleLidSwitchExternalPower = "ignore";
-          HandleLidSwitchDocked = "ignore";
+          systemPackages = [
+            pkgs.adw-gtk3
+            pkgs.adwaita-icon-theme
+            (cursorPackage pkgs)
+            pkgs.papirus-icon-theme
+          ];
         };
-
-        # The greeter looks for sessions under the system profile, which leaves this
-        # directory out unless asked; without it the login screen has no Umbriel to offer.
-        environment.pathsToLink = [ "/share/wayland-sessions" ];
-
-        environment.systemPackages = [
-          pkgs.adw-gtk3
-          pkgs.adwaita-icon-theme
-          (cursorPackage pkgs)
-          pkgs.papirus-icon-theme
-        ];
 
         qt = {
           enable = true;
           platformTheme = "kde";
         };
-
-        programs.dconf.profiles.user.databases = [
-          {
-            locks = map (key: "/org/gnome/desktop/interface/${key}") [
-              "icon-theme"
-              "font-name"
-              "document-font-name"
-              "monospace-font-name"
-            ];
-
-            settings."org/gnome/desktop/interface" = {
-              font-name = uiFont;
-              document-font-name = uiFont;
-              monospace-font-name = "${theme.fonts.mono.name} ${toString theme.fonts.mono.size}";
-              gtk-theme = "adw-gtk3-${theme.variant}";
-              icon-theme = "Papirus-${lib.toSentenceCase theme.variant}";
-              cursor-theme = cursor.theme;
-              cursor-size = lib.gvariant.mkInt32 cursor.size;
-              color-scheme = "prefer-${theme.variant}";
-            };
-          }
-        ];
       };
 
     hjem =
@@ -399,21 +404,23 @@ in
         '';
       in
       {
-        files.".config/noctalia/config.toml".source = shellConfig;
-        files.".config/noctalia/palettes/${theme.name}.json".source =
-          (pkgs.formats.json { }).generate "${theme.name}-palette.json"
-            shellPalette;
+        files = {
+          ".config/noctalia/config.toml".source = shellConfig;
+          ".config/noctalia/palettes/${theme.name}.json".source =
+            (pkgs.formats.json { }).generate "${theme.name}-palette.json"
+              shellPalette;
 
-        files.".config/umbriel/config.toml".source = ../../dots/umbriel/config.toml;
-        files.".config/umbriel/nix.toml".source = toml.generate "umbriel-nix.toml" {
-          # Other aspects and hosts drop their fragments into conf.d; Umbriel has no glob
-          # includes, so the list is built from the files hjem is about to install.
-          include.optional.files = map (f: "~/${f}") fragments;
-          input.keyboard = {
-            inherit (xkb) layout variant;
+          ".config/umbriel/config.toml".source = ../../dots/umbriel/config.toml;
+          ".config/umbriel/nix.toml".source = toml.generate "umbriel-nix.toml" {
+            # Other aspects and hosts drop their fragments into conf.d; Umbriel has no glob
+            # includes, so the list is built from the files hjem is about to install.
+            include.optional.files = map (f: "~/${f}") fragments;
+            input.keyboard = {
+              inherit (xkb) layout variant;
+            };
+            input.cursor = cursor;
+            events.lid_close = "${lidClose}";
           };
-          input.cursor = cursor;
-          events.lid_close = "${lidClose}";
         };
       };
   };

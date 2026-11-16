@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 {
   den.aspects.kicad.provides.to-users.hjem = { pkgs, ... }: {

@@ -84,58 +84,60 @@ in
         ) cfg.peers;
       in
       {
-        networking.wireguard.interfaces.wg0 = {
-          ips = [ cfg.address ];
-          listenPort = cfg.port;
-          privateKeyFile = config.age.secrets.wg-server-key.path;
-          peers = map (peer: {
-            inherit (peer) publicKey;
-            allowedIPs = [ "${peer.address}/32" ];
-          }) cfg.peers;
+        networking = {
+          wireguard.interfaces.wg0 = {
+            ips = [ cfg.address ];
+            listenPort = cfg.port;
+            privateKeyFile = config.age.secrets.wg-server-key.path;
+            peers = map (peer: {
+              inherit (peer) publicKey;
+              allowedIPs = [ "${peer.address}/32" ];
+            }) cfg.peers;
+          };
+
+          # The server's own name comes from the hostname module; peers add theirs so the
+          # hub can be dialled by name over the tunnel.
+          hosts = lib.mkMerge [
+            (lib.listToAttrs (
+              lib.concatMap (
+                peer:
+                lib.optional (peer.hostname != null) {
+                  name = peer.hostname;
+                  value = [ peer.address ];
+                }
+              ) cfg.peers
+            ))
+            # The tunnel address is in no DNS zone, so the NAS's own name needs pinning too.
+            { ${host.name} = [ serverAddress ]; }
+          ];
+
+          firewall = {
+            allowedUDPPorts = [ cfg.port ];
+            # Peers are my own devices, and WireGuard only accepts their allowedIPs, so the
+            # tunnel skips the host firewall. Forwarding is still limited per peer below.
+            trustedInterfaces = [ "wg0" ];
+          };
+
+          # The NAT module's own rules would let every wg0 peer reach the LAN, so it gets no
+          # internal interfaces; the rules below forward and masquerade per peer instead.
+          nat = {
+            enable = true;
+            internalInterfaces = [ ];
+            externalInterface = cfg.wanInterface;
+            extraCommands = ''
+              # Every peer reaches the home LAN; reachPeers grants directed tunnel access.
+              ${lib.concatStringsSep "\n" forwardRules}
+              ${lib.concatStringsSep "\n" natRules}
+            '';
+          };
         };
 
         age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
-
-        # The server's own name comes from the hostname module; peers add theirs so the
-        # hub can be dialled by name over the tunnel.
-        networking.hosts = lib.mkMerge [
-          (lib.listToAttrs (
-            lib.concatMap (
-              peer:
-              lib.optional (peer.hostname != null) {
-                name = peer.hostname;
-                value = [ peer.address ];
-              }
-            ) cfg.peers
-          ))
-          # The tunnel address is in no DNS zone, so the NAS's own name needs pinning too.
-          { ${host.name} = [ serverAddress ]; }
-        ];
-
-        networking.firewall = {
-          allowedUDPPorts = [ cfg.port ];
-          # Peers are my own devices, and WireGuard only accepts their allowedIPs, so the
-          # tunnel skips the host firewall. Forwarding is still limited per peer below.
-          trustedInterfaces = [ "wg0" ];
-        };
 
         # The key file's path never changes, so a rotated key wouldn't restart the tunnel otherwise.
         systemd.services.wireguard-wg0.restartTriggers = [
           (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
         ];
-
-        # The NAT module's own rules would let every wg0 peer reach the LAN, so it gets no
-        # internal interfaces; the rules below forward and masquerade per peer instead.
-        networking.nat = {
-          enable = true;
-          internalInterfaces = [ ];
-          externalInterface = cfg.wanInterface;
-          extraCommands = ''
-            # Every peer reaches the home LAN; reachPeers grants directed tunnel access.
-            ${lib.concatStringsSep "\n" forwardRules}
-            ${lib.concatStringsSep "\n" natRules}
-          '';
-        };
       };
   };
 }

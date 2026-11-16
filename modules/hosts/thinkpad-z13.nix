@@ -3,15 +3,17 @@
 {
   den.hosts.x86_64-linux.thinkpad-z13 = {
     users.miko = { };
-    settings.nas-vpn-client = {
-      secret = "wg-thinkpad-env";
+    settings = {
+      nas-vpn-client = {
+        secret = "wg-thinkpad-env";
+      };
+      proton-vpn-client = {
+        publicKey = "c/PBUk5lfuqGRwA57J7SLNirHU476Op5QuihdNZZkFA=";
+        endpoint = "89.222.96.187:51820";
+        secret = "proton-thinkpad-env";
+      };
+      noctalia.idleSuspendSeconds = 900;
     };
-    settings.proton-vpn-client = {
-      publicKey = "c/PBUk5lfuqGRwA57J7SLNirHU476Op5QuihdNZZkFA=";
-      endpoint = "89.222.96.187:51820";
-      secret = "proton-thinkpad-env";
-    };
-    settings.noctalia.idleSuspendSeconds = 900;
   };
 
   den.aspects.thinkpad-z13 = {
@@ -46,9 +48,7 @@
       # Needed to stop laptop from shutting down after opening lid
       boot.blacklistedKernelModules = [ "tiny_power_button" ];
 
-      disko.devices.disk.main = (
-        import ../../lib/disks/encrypted-ext4.nix "/dev/disk/by-id/nvme-eui.e8238fa6bf530001001b444a481737ed"
-      );
+      disko.devices.disk.main = import ../../lib/disks/encrypted-ext4.nix "/dev/disk/by-id/nvme-eui.e8238fa6bf530001001b444a481737ed";
     };
   };
 }
