@@ -56,10 +56,10 @@ can reach the NAS by name. Below, `<host>` is its name under `den.hosts.x86_64-l
 5. Include `den.aspects.syncthing` in the host's file. It syncs the default folders
    unless the host sets its own.
 
-6. Stage the new files, because the flake can't see untracked ones, then check:
+6. Let `jj` register the new files, because the flake can't see files git doesn't know, then check:
 
    ```sh
-   git add secrets/syncthing-<host>-key.age dots/syncthing/<host>-cert.pem
+   jj st
    nix flake check --no-build --no-write-lock-file path:.
    ```
 

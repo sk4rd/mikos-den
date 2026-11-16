@@ -26,7 +26,6 @@
       den.aspects.learnharness
       den.aspects.voxtype
       den.aspects.ai
-      den.aspects.review-inbox
     ];
 
     provides.miko.hjem.files.".config/umbriel/conf.d/host.toml".text = ''

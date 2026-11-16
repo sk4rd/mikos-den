@@ -1,18 +1,5 @@
 {
   "permissions": {
-    "ask": ["Bash(ssh *)", "Bash(git push *)"]
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "f=$(jq -r '.tool_input.file_path') && git -C \"$(dirname \"$f\")\" add -N -- \"$f\" 2>/dev/null || true"
-          }
-        ]
-      }
-    ]
+    "ask": ["Bash(ssh *)", "Bash(git push *)", "Bash(jj git push *)"]
   }
 }

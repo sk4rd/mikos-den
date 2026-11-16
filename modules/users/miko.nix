@@ -22,6 +22,13 @@
         email = mikolaj.ba@pm.me
     '';
 
+    # conf.d leaves ~/.config/jj/config.toml writable for `jj config set --user`.
+    hjem.files.".config/jj/conf.d/identity.toml".text = ''
+      [user]
+      name = "Mikołaj Bajtkiewicz"
+      email = "mikolaj.ba@pm.me"
+    '';
+
     user = { osConfig, ... }: {
       createHome = true;
       description = "Mikołaj Bajtkiewicz";
