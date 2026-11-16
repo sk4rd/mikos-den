@@ -17,6 +17,7 @@
       den.aspects.disko
       den.aspects.desktop
       den.aspects.syncthing
+      den.aspects.direnv
     ];
 
     provides.miko.includes = [
