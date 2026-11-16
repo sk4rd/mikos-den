@@ -306,9 +306,14 @@ map('n', '<leader>gk', function()
 end, 'Check staged commit (build the index)')
 
 -- Hunks (lowercase) and files (capital)
-map('n', '<leader>gh', staging(function()
-  gitsigns.stage_hunk()
-end), 'Stage or unstage hunk')
+map(
+  'n',
+  '<leader>gh',
+  staging(function()
+    gitsigns.stage_hunk()
+  end),
+  'Stage or unstage hunk'
+)
 map('x', '<leader>gh', on_selection('stage_hunk'), 'Stage selected lines')
 map('n', '<leader>gH', gitsigns.stage_buffer, 'Stage file')
 map('n', '<leader>gU', gitsigns.reset_buffer_index, 'Unstage file')

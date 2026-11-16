@@ -1,14 +1,14 @@
-id          = "miko/vpn"
-name        = "VPN controls"
-version     = "1.0.0"
-plugin_api  = 24
-author      = "miko"
+id = "miko/vpn"
+name = "VPN controls"
+version = "1.0.0"
+plugin_api = 24
+author = "miko"
 description = "Bar buttons for the Proton VPN connection and its kill switch."
 
 [[widget]]
-id    = "vpn"
+id = "vpn"
 entry = "vpn.luau"
 
 [[widget]]
-id    = "killswitch"
+id = "killswitch"
 entry = "killswitch.luau"
