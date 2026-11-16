@@ -1,4 +1,4 @@
-{ config, inputs, ... }:
+{ config, ... }:
 
 let
   inherit (config) theme;
@@ -61,11 +61,6 @@ in
               nvim-highlight-colors
               which-key-nvim
               claudecode-nvim
-              (pkgs.vimUtils.buildVimPlugin {
-                pname = "walkthrough-nvim";
-                version = "unstable-${inputs.walkthrough-nvim.shortRev}";
-                src = inputs.walkthrough-nvim;
-              })
             ];
           })
         ];

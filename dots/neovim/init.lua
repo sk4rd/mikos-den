@@ -248,29 +248,12 @@ local function map(mode, lhs, rhs, desc)
   vim.keymap.set(mode, lhs, rhs, { desc = desc })
 end
 
--- Staging needs git to know the file. New files (also ones an "unstage all"
--- turned back into untracked) are first registered with `git add -N`,
--- which stages no content. See with_tracked in
--- lua/walkthrough/stage.lua of the walkthrough.nvim plugin.
-local function staging(fn)
-  return function()
-    require('walkthrough').with_tracked(0, fn)
-  end
-end
-
 -- Run a gitsigns hunk action on the selected lines, then leave visual mode.
 local function on_selection(action)
   return function()
     local range = { vim.fn.line('.'), vim.fn.line('v') }
     vim.cmd('normal! ' .. vim.keycode('<Esc>'))
-    local run = function()
-      gitsigns[action](range)
-    end
-    if action == 'stage_hunk' then
-      staging(run)()
-    else
-      run()
-    end
+    gitsigns[action](range)
   end
 end
 
@@ -288,32 +271,8 @@ map('n', '<leader>gD', function()
 end, 'Toggle changeset diff')
 map({ 'n', 'x' }, '<leader>gF', ':DiffviewFileHistory %<CR>', 'File or selection history')
 
--- Check what is staged before committing: lists staged vs unstaged files and
--- builds every host from exactly the index (commit-check.sh in the
--- walkthrough skill). Runs in a terminal split so the build progress shows;
--- <leader>ab there sends the result to Claude, q closes it.
-map('n', '<leader>gk', function()
-  local script = vim.fn.expand('~/.claude/skills/walkthrough/commit-check.sh')
-  if vim.fn.executable(script) == 0 then
-    vim.notify('commit check: ' .. script .. ' not found', vim.log.levels.WARN)
-    return
-  end
-  local file = vim.api.nvim_buf_get_name(0)
-  local dir = (file ~= '' and vim.bo.buftype == '') and vim.fs.dirname(file) or vim.fn.getcwd()
-  vim.cmd('botright 15new')
-  vim.fn.jobstart({ script }, { term = true, cwd = dir })
-  vim.keymap.set('n', 'q', '<cmd>bdelete!<CR>', { buffer = true, desc = 'Close commit check' })
-end, 'Check staged commit (build the index)')
-
 -- Hunks (lowercase) and files (capital)
-map(
-  'n',
-  '<leader>gh',
-  staging(function()
-    gitsigns.stage_hunk()
-  end),
-  'Stage or unstage hunk'
-)
+map('n', '<leader>gh', gitsigns.stage_hunk, 'Stage or unstage hunk')
 map('x', '<leader>gh', on_selection('stage_hunk'), 'Stage selected lines')
 map('n', '<leader>gH', gitsigns.stage_buffer, 'Stage file')
 map('n', '<leader>gU', gitsigns.reset_buffer_index, 'Unstage file')
@@ -345,23 +304,13 @@ require('neogit').setup({
 -- Claude Code
 -- Runs `claude` in a terminal split and connects over the IDE protocol, so
 -- selections go to it as @file#L1-10 references.
--- Which side Claude's terminal opens on. The walkthrough panel goes on the
--- same side of the code, so a tour always reads Claude | notes | code with
--- the explanation in the middle: 'left' gives [ Claude | notes | code ],
--- 'right' gives [ code | notes | Claude ].
-local claude_side = 'left'
-
 require('claudecode').setup({
-  terminal = { provider = 'native', split_side = claude_side },
+  terminal = { provider = 'native', split_side = 'left' },
   -- Don't attach every visual selection to the next message ("⧉ 3 lines
   -- selected"): selecting is often for staging, not for asking. Lines go to
   -- Claude only on purpose, with <leader>as below.
   track_selection = false,
 })
--- Code tours that an agent drives over the server socket. `keys = true` maps
--- ]w [w (steps), ]n [n (notes) and every other action under <leader>w;
--- <leader>w? lists them.
-require('walkthrough').setup({ panel_side = claude_side, keys = true })
 
 -- Claude's terminal is always in Terminal mode when its window is entered,
 -- so what is typed goes to Claude. claudecode.nvim only does that when the

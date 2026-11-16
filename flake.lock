@@ -154,11 +154,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794168541,
-        "narHash": "sha256-QI5YH7Q41c1w2djwRg+TnrpYtGEwnQ8c75cz99tpzgI=",
+        "lastModified": 1794763951,
+        "narHash": "sha256-GxSGiQU8Q/npHruQqN/IHEH4n+1B5qeOi4XQLn7vRkE=",
         "owner": "sk4rd",
         "repo": "keyboard-hud",
-        "rev": "3805df2a15bf1cffa3fd1e15c0818b93a1195349",
+        "rev": "41b34362582462eaf2fa0d8e4782e358686ccf75",
         "type": "github"
       },
       "original": {
@@ -232,8 +232,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-brave": "nixpkgs-brave",
-        "treefmt-nix": "treefmt-nix",
-        "walkthrough-nvim": "walkthrough-nvim"
+        "treefmt-nix": "treefmt-nix"
       }
     },
     "treefmt-nix": {
@@ -253,22 +252,6 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "walkthrough-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1794663601,
-        "narHash": "sha256-9CCQZ3sxj1Eu1WoUM9+fpHP8OC6v+uXqEE97haq17W4=",
-        "owner": "sk4rd",
-        "repo": "walkthrough.nvim",
-        "rev": "336d52e1aa11dfcfa60bf480bdd71f6f5b1b17b5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sk4rd",
-        "repo": "walkthrough.nvim",
         "type": "github"
       }
     }

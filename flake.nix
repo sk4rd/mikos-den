@@ -46,11 +46,6 @@
       url = "github:sk4rd/keyboard-hud";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    walkthrough-nvim = {
-      url = "github:sk4rd/walkthrough.nvim";
-      flake = false;
-    };
   };
 
   outputs =
