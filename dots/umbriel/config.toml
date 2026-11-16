@@ -1,5 +1,4 @@
-# Paths use ~ because this file is a symlink into the Nix store, where a relative include
-# would resolve.
+# Paths use ~: this file is a symlink into the Nix store, where a relative include would resolve.
 [include.optional]
 files = ["~/.config/umbriel/nix.toml", "~/.config/umbriel/noctalia.toml"]
 
@@ -35,7 +34,6 @@ accel_profile = "adaptive"
 scroll_factor = 0.5
 disable_while_typing = true
 
-# Defining this table replaces Umbriel's built-in binds, so everything wanted is listed.
 [keybinds]
 "Mod" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
 # The Charybdis has Super only as the Space key held, so a quick tap of Super and
@@ -148,7 +146,6 @@ blur = true
 blur_ignore_alpha = 0.5
 blur_popups = true
 
-# These open over windows, so they blur the live content behind them.
 [[layer_rule]]
 match.namespace = "^noctalia-(notification|dock|panel|attached-panel|osd)$"
 blur_optimized = false

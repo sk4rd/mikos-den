@@ -1,4 +1,3 @@
-# Desktop-wide fonts. Per-app theming lives with each app.
 { config, ... }:
 
 let

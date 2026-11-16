@@ -50,7 +50,6 @@ let
     text-normal = c.fg;
     text-muted = c.subtle;
     text-faint = c.dim;
-    # Oxocarbon's accent is light, so buttons need dark labels.
     text-on-accent = c.bg;
     text-on-accent-inverted = c.bg;
     text-success = c.success;

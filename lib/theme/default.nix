@@ -1,5 +1,3 @@
-# The canonical theme: semantic roles over the raw palette. Consumers read `config.theme`
-# (modules/theme/option.nix), never the palette file directly.
 { lib }:
 let
   p = import ./oxocarbon.nix;
@@ -44,13 +42,12 @@ in
   palette = p;
 
   colors = {
-    # Surfaces, darkest to lightest.
     bgDim = p.blend;
     bg = p.base00;
     surface = p.base01;
     overlay = p.base02;
     muted = p.base03;
-    dim = p.gray50; # between muted and subtle: inactive UI text
+    dim = p.gray50;
     subtle = p.base04;
     fg = p.base05;
     fgBright = p.base06;
@@ -67,7 +64,6 @@ in
     info = p.base09;
     hint = p.base08;
 
-    # Hues by name.
     blue = p.base09;
     sky = p.base11;
     lightBlue = p.base15;
@@ -80,7 +76,7 @@ in
     yellow = p.yellow30;
     orange = p.orange40;
 
-    # Syntax roles, after oxocarbon.nvim.
+    # The assignments follow oxocarbon.nvim.
     syntax = {
       keyword = p.base09;
       type = p.base09;
@@ -146,11 +142,8 @@ in
   };
 
   lib = {
-    # "#78a9ff" -> "78a9ff"
     inherit bare;
-    # "#78a9ff" -> "120,169,255"
     rgb = hex: lib.concatMapStringsSep "," toString (channels hex);
-    # "#78a9ff" -> [ 120 169 255 ]
     inherit channels;
   };
 }

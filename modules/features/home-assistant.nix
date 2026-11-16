@@ -69,24 +69,23 @@ in
           configDir = stateDir;
           config = { };
 
-          # Only default_config is implicit; anything else is unregistered and its config flow fails.
           extraComponents = [
-            "fritz" # FRITZ!Box Tools: presence trackers for LAN/WiFi devices
-            "google_translate" # onboarding TTS choice; needs the gtts module
-            "ipp" # Lexmark MC3224adwe
-            "samsungtv" # Samsung S95BA
-            "zha" # SLZB-06M Zigbee coordinator
+            "fritz"
+            "google_translate" # onboarding's TTS choice
+            "ipp"
+            "samsungtv"
+            "zha"
           ];
 
           # nixpkgs' requirement map misses some default_config deps; one that cannot import
           # takes the whole bundle (and ssdp/zeroconf discovery) down.
           extraPackages = ps: [
-            (mkAioipp pkgs ps) # ipp
+            (mkAioipp pkgs ps)
             ps.aiodhcpwatcher # dhcp
             ps.aiodiscover # dhcp
             ps.cached-ipaddress # dhcp
             ps.av # stream
-            ps.go2rtc-client # go2rtc
+            ps.go2rtc-client
             ps.pymetno # met
             ps.pyturbojpeg # stream
           ];

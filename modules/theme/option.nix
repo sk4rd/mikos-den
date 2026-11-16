@@ -1,4 +1,3 @@
-# The canonical theme (lib/theme), exposed to every module as `config.theme`.
 { lib, ... }:
 
 {

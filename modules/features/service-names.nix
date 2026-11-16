@@ -4,7 +4,6 @@ let
   network = import ../../lib/network.nix;
   domain = "sk4rd.com";
 
-  # Services that are not explicitly public stay reachable from the LAN and the VPN only.
   internalRanges = [
     "127.0.0.1/32"
     "::1/128"
@@ -69,12 +68,10 @@ in
         }
       ];
 
-      # Certs come from DNS-01, so nothing has to be reachable from outside.
       services.caddy = {
         enable = true;
         email = "admin@${domain}";
 
-        # DNS-01 needs the Cloudflare provider, which upstream Caddy omits.
         package = pkgs.caddy.withPlugins {
           plugins = [ "github.com/caddy-dns/cloudflare@v0.2.4" ];
           hash = "sha256-QSiwKqKvSxhksWBF4/MlBOpyXba5xOQ2sRwA0R7399E=";

@@ -1,4 +1,3 @@
--- lualine theme from the canonical palette; deployed as lua/lualine/themes/oxocarbon.lua.
 local c = require('palette').colors
 
 local function mode(color)

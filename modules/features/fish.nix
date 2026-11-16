@@ -5,7 +5,6 @@ let
   h = config.theme.lib.bare;
 in
 {
-  # Globals shadow fish's universal colour variables, so the theme always wins.
   den.aspects.fish.hjem.files.".config/fish/conf.d/theme.fish".text = ''
     set -g fish_color_normal ${h c.fg}
     set -g fish_color_command ${h c.blue}

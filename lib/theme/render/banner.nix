@@ -1,4 +1,3 @@
-# README colour bar from the canonical theme: one block per hue on the theme background.
 { lib, theme }:
 let
   c = theme.colors;

@@ -21,8 +21,6 @@ function update()
   refresh()
 end
 
--- Connecting also arms the kill switch (the NetworkManager dispatcher does it);
--- disconnecting leaves it armed.
 function onClick()
   local verb = connected and "down" or "up"
   noctalia.runAsync({ "nmcli", "connection", verb, "proton-vpn" }, function(result)

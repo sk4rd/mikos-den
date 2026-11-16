@@ -40,9 +40,6 @@ in
           font-family = ${theme.fonts.mono.name}
           font-size = ${toString theme.fonts.mono.size}
           shell-integration = fish
-
-          # A config-file path resolves relative to the file holding the directive,
-          # which here is a store path, so name it with ~ instead.
           config-file = ~/.config/ghostty/keybinds
         '';
       };

@@ -17,7 +17,6 @@ let
       snapshot = "working";
       inherit props;
     };
-    # Video is already compressed, and large records suit big sequential files.
     "data/media" = {
       props = {
         recordsize = "1M";
@@ -32,7 +31,6 @@ let
       snapshot = "archive";
       inherit props;
     };
-    # The quota keeps downloads from filling the pool.
     "data/torrents" = {
       props = {
         recordsize = "1M";
@@ -145,7 +143,6 @@ in
       services.sanoid = {
         enable = true;
         interval = "hourly";
-        # working changes often, so it gets hourly snapshots; archive rarely does, so it keeps more months.
         templates.working = {
           hourly = 24;
           daily = 7;

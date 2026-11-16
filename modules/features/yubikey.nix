@@ -24,7 +24,6 @@
           };
         };
 
-        # gpg-agent handles ssh requests instead
         programs.ssh.startAgent = false;
 
         services.udev.packages = [
@@ -41,9 +40,8 @@
       };
 
       hjem.files = {
-        # age identities (PIV slot 2, name AGENIX), one file per YubiKey: given
-        # several identities, age-plugin-yubikey also connects to the YubiKeys it
-        # did not decrypt with and asks you to insert them
+        # One file per YubiKey: given several identities, age-plugin-yubikey asks for the YubiKeys
+        # it did not decrypt with.
         ".config/age/keys-25869697.txt" = identityFile ''
           AGE-PLUGIN-YUBIKEY-1SX7C5QVRPRM8U3CW29PK5
         '';
@@ -51,13 +49,11 @@
           AGE-PLUGIN-YUBIKEY-1KFEKKQVR979TCMQJL45JT
         '';
 
-        # both identities, for plain `age -i ~/.config/age/keys.txt`
         ".config/age/keys.txt" = identityFile ''
           AGE-PLUGIN-YUBIKEY-1SX7C5QVRPRM8U3CW29PK5
           AGE-PLUGIN-YUBIKEY-1KFEKKQVR979TCMQJL45JT
         '';
 
-        # autoloaded only when agenix runs, and works for pasted or recalled lines
         ".config/fish/functions/agenix.fish".text = ''
           function agenix --wraps=agenix --description 'agenix with the age identity of the connected YubiKey'
               if contains -- -i $argv; or contains -- --identity $argv
@@ -71,7 +67,6 @@
               set -l serial (command ykman list --serials 2>/dev/null | head -n1)
               set -l identity ~/.config/age/keys-$serial.txt
               if not test -f $identity
-                  # unknown key or no PC/SC access: pass both identities instead
                   set identity ~/.config/age/keys.txt
               end
               if not test -f $identity

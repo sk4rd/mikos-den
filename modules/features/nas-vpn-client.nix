@@ -33,7 +33,7 @@ in
         peer = lib.findFirst (peer: peer.hostname == host.name) null nasPeers;
         incomingPeers = lib.filter (peer: lib.elem host.name peer.reachPeers) nasPeers;
 
-        # NetworkManager resolves the endpoint only on activation; refresh a changed IP.
+        # NetworkManager resolves the endpoint only on activation.
         endpointUpdater = pkgs.writeShellApplication {
           name = "nas-vpn-endpoint";
           inheritPath = false;
@@ -45,7 +45,6 @@ in
           text = ''
             [ -d /sys/class/net/wg-nas ] || exit 0
 
-            # Offline lookups are expected and leave the current endpoint alone.
             resolved=$(getent ahostsv4 ${lib.escapeShellArg endpointHost} 2>/dev/null) || exit 0
             addr=$(awk 'NR == 1 { print $1 }' <<< "$resolved")
             [ -n "$addr" ] || exit 0
@@ -94,7 +93,6 @@ in
               persistent-keepalive = 25;
             };
 
-            # Split tunnel: only the LAN and VPN ranges use it, and they are IPv4 only.
             ipv4 = {
               method = "manual";
               addresses = if peer == null then "" else "${peer.address}/32";

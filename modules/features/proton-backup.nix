@@ -2,13 +2,10 @@
 let
   repo = "/tank/backups/restic";
   passwordSecret = ../../secrets/restic-password.age;
-  # Folder in Proton Drive that receives the mirrored restic repository
-  # (Proton paths start at /my-files; created by the upload if missing).
+  # Proton Drive paths start at /my-files.
   remoteParent = "/my-files/Backups/nas";
   stateDir = "/var/lib/proton-backup";
 
-  # Backed up from a ZFS snapshot taken just before restic runs, so a sync or
-  # a CouchDB write landing mid-backup can't leave a mix of old and new files.
   snapshotName = "restic";
   sources = {
     "services/syncthing" = {
@@ -55,7 +52,7 @@ in
         owner = "root";
         group = "root";
         mode = "0700";
-        props.compression = "off"; # restic packs are already compressed and encrypted
+        props.compression = "off";
       };
     };
 
@@ -70,13 +67,12 @@ in
         ) snapshots;
 
         protonEnv = {
-          # Headless: session kept in a 0600 file under stateDir instead of a keyring.
+          # The NAS is headless, so there is no keyring.
           PROTON_DRIVE_CREDENTIALS_STORE = "unsafe_file";
           PROTON_DRIVE_CACHE_DIR = stateDir;
           PROTON_DRIVE_LOG_LEVEL = "INFO";
         };
 
-        # One-time interactive sign-in on the NAS: `sudo proton-backup-login`.
         login = pkgs.writeShellApplication {
           name = "proton-backup-login";
           runtimeInputs = [ proton-drive ];
@@ -89,8 +85,8 @@ in
           '';
         };
 
-        # Uploads never delete: pruned packs stay in Proton Drive, which keeps the
-        # remote copy a consistent (if larger) restic repository. Locks are not uploaded.
+        # Nothing is deleted remotely: pruned packs pile up, and the copy stays a valid restic
+        # repository.
         upload = pkgs.writeShellApplication {
           name = "proton-backup-upload";
           runtimeInputs = [
@@ -100,7 +96,6 @@ in
             pkgs.gnugrep
           ];
           text = ''
-            # Create the remote folders one level at a time if they don't exist.
             parent=""
             IFS=/ read -ra parts <<<${lib.escapeShellArg remoteParent}
             for part in "''${parts[@]}"; do
@@ -117,7 +112,6 @@ in
               --folder-conflict-strategy merge --skip-thumbnails \
               "''${items[@]}" ${lib.escapeShellArg remoteParent}
 
-            # Verify: the newest local snapshot must now exist in Proton Drive.
             latest=$(find snapshots -type f -printf '%T@ %f\n' | sort -n | tail -n1 | cut -d' ' -f2)
             [[ -n $latest ]] || { echo "no local snapshots" >&2; exit 1; }
             if ! proton-drive filesystem list ${lib.escapeShellArg "${remoteParent}/snapshots"} | grep -qF "$latest"; then
@@ -133,8 +127,8 @@ in
           OnFailure = [ "status-heartbeat@${id}.fail.service" ];
         };
 
-        # Without these, an unmounted repo would get a fresh `restic init` on the
-        # parent dataset, and an unmounted source would back up an empty directory.
+        # With initialize = true, an unmounted repo would get a fresh restic init on the parent
+        # dataset.
         mountGuards = paths: {
           after = [ "zfs-datasets.service" ];
           requires = [ "zfs-datasets.service" ];
@@ -143,7 +137,6 @@ in
         sourceMounts = lib.mapAttrsToList (_: src: src.mountpoint) sources;
       in
       lib.mkMerge [
-        # Always available: the Proton sign-in doesn't need the restic password.
         {
           environment.systemPackages = [
             login
@@ -196,7 +189,6 @@ in
                 }
               ];
 
-              # Weekly: verify the repository structure and read back 10% of the data.
               restic-check-nas = lib.mkMerge [
                 (mountGuards [ repo ])
                 {

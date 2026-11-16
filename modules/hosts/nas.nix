@@ -16,7 +16,7 @@ in
           hostname = "thinkpad-z13";
         }
         {
-          # Allow the iPhone to connect to the laptop.
+          # The iPhone.
           publicKey = "ZL9PsG2Rmm6e3ncYdRL4jem0bu2aZzJPEz/wGq/nMms=";
           address = "10.100.0.5";
           reachPeers = [ "thinkpad-z13" ];

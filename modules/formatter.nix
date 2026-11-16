@@ -27,7 +27,6 @@ let
       taplo.enable = true;
     };
 
-    # Indent case arms, matching the existing scripts.
     settings.formatter.shfmt.options = [ "-ci" ];
 
     settings.global.excludes = [

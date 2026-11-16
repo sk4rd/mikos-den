@@ -1,21 +1,17 @@
 vim.loader.enable()
 
--- Leaders
-vim.g.mapleader = ' ' -- space
+vim.g.mapleader = ' '
 
--- Colors
 vim.cmd.colorscheme('oxocarbon')
 require('nvim-highlight-colors').setup({
   enable_named_colors = false,
 })
 
--- UI / display
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true
 vim.opt.signcolumn = 'yes'
 
--- Indentation
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
@@ -26,14 +22,12 @@ vim.api.nvim_create_autocmd('FileType', {
   callback = function(event)
     vim.bo.shiftwidth = 2
     if event.match == 'nix' then
-      -- Wrap comments at 80 columns, but never code.
       vim.bo.textwidth = 80
       vim.opt_local.formatoptions:remove('t')
     end
   end,
 })
 
--- Treesitter
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'bash', 'nix', 'sh' },
   callback = function()
@@ -41,17 +35,14 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- Text editing and search
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Window behavior and scrolling
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.scrolloff = 10
 vim.opt.diffopt:append('algorithm:histogram')
 
--- In a diff, drop the temporary side and keep the real file.
 vim.keymap.set('n', '<leader>q', function()
   if not vim.wo.diff then
     vim.cmd('silent! close')
@@ -65,17 +56,14 @@ vim.keymap.set('n', '<leader>q', function()
   vim.cmd('diffoff!')
 end, { desc = 'Close pane' })
 
--- Responsiveness
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 500
 
--- Persistence and system integration
 vim.opt.undofile = true
 vim.cmd.packadd('nvim.undotree')
 vim.keymap.set('n', '<leader>u', '<cmd>Undotree<CR>', { desc = 'Toggle undo tree' })
 vim.opt.clipboard = 'unnamedplus'
 
--- Completion
 vim.opt.completeopt = { 'menu', 'menuone', 'noselect', 'fuzzy', 'popup' }
 vim.opt.wildoptions:append('fuzzy')
 
@@ -104,7 +92,6 @@ end, {
   desc = 'Accept command-line completion first',
 })
 
--- LSP
 vim.lsp.config('nixd', {
   cmd = { 'nixd' },
   filetypes = { 'nix' },
@@ -121,7 +108,6 @@ vim.lsp.config('nixd', {
 vim.lsp.config('lua_ls', {
   cmd = { 'lua-language-server' },
   filetypes = { 'lua' },
-  -- Nested lists are priority tiers: a project config beats a linter config beats .git.
   root_markers = {
     { '.luarc.json', '.luarc.jsonc' },
     { '.luacheckrc' },
@@ -165,7 +151,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- Statusline
 require('lualine').setup({
   options = { theme = 'oxocarbon' },
   sections = {
@@ -173,7 +158,6 @@ require('lualine').setup({
   },
 })
 
--- which-key
 require('which-key').setup({
   preset = 'helix',
   delay = 100,
@@ -185,7 +169,6 @@ require('which-key').add({
   { '<leader>g', group = 'git' },
 })
 
--- Telescope
 require('telescope').setup({
   defaults = {
     file_ignore_patterns = { '^%.git/' },
@@ -216,7 +199,6 @@ vim.keymap.set('n', '<leader>fo', builtin.oldfiles, { desc = 'Recent files' })
 vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Symbols in file' })
 vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = 'Search in file' })
 
--- File tree
 local fyler = require('fyler')
 
 fyler.setup({
@@ -239,8 +221,6 @@ vim.keymap.set('n', '<leader>e', function()
   fyler.toggle()
 end, { desc = 'Toggle file tree' })
 
--- Git: lowercase keys act on a hunk, capitals on the whole file or repo.
--- Repo-wide work (status, commit, push, rebase, stash...) lives in Neogit.
 local gitsigns = require('gitsigns')
 gitsigns.setup()
 
@@ -248,7 +228,6 @@ local function map(mode, lhs, rhs, desc)
   vim.keymap.set(mode, lhs, rhs, { desc = desc })
 end
 
--- Run a gitsigns hunk action on the selected lines, then leave visual mode.
 local function on_selection(action)
   return function()
     local range = { vim.fn.line('.'), vim.fn.line('v') }
@@ -257,7 +236,6 @@ local function on_selection(action)
   end
 end
 
--- Neogit and diffview
 map('n', '<leader>gg', '<cmd>Neogit<CR>', 'Neogit status')
 map('n', '<leader>gc', '<cmd>Neogit commit<CR>', 'Commit')
 map('n', '<leader>gl', '<cmd>Neogit log<CR>', 'Log')
@@ -271,7 +249,6 @@ map('n', '<leader>gD', function()
 end, 'Toggle changeset diff')
 map({ 'n', 'x' }, '<leader>gF', ':DiffviewFileHistory %<CR>', 'File or selection history')
 
--- Hunks (lowercase) and files (capital)
 map('n', '<leader>gh', gitsigns.stage_hunk, 'Stage or unstage hunk')
 map('x', '<leader>gh', on_selection('stage_hunk'), 'Stage selected lines')
 map('n', '<leader>gH', gitsigns.stage_buffer, 'Stage file')
@@ -280,7 +257,6 @@ map('n', '<leader>gr', gitsigns.reset_hunk, 'Discard hunk')
 map('x', '<leader>gr', on_selection('reset_hunk'), 'Discard selected lines')
 map('n', '<leader>gR', gitsigns.reset_buffer, 'Discard file changes')
 
--- Looking at changes
 map('n', '<leader>gp', gitsigns.preview_hunk_inline, 'Preview hunk inline')
 map('n', '<leader>gd', gitsigns.diffthis, 'Diff file against index')
 map('n', '<leader>gb', gitsigns.blame_line, 'Blame line')
@@ -296,39 +272,20 @@ map('n', '[h', function()
   gitsigns.nav_hunk('prev')
 end, 'Previous hunk')
 
--- Neogit setup
 require('neogit').setup({
   integrations = { telescope = true, diffview = true },
 })
 
--- Claude Code
--- Runs `claude` in a terminal split and connects over the IDE protocol, so
--- selections go to it as @file#L1-10 references.
 require('claudecode').setup({
   terminal = { provider = 'native', split_side = 'left' },
-  -- Don't attach every visual selection to the next message ("⧉ 3 lines
-  -- selected"): selecting is often for staging, not for asking. Lines go to
-  -- Claude only on purpose, with <leader>as below.
   track_selection = false,
 })
 
--- Claude's terminal is always in Terminal mode when its window is entered,
--- so what is typed goes to Claude. claudecode.nvim only does that when the
--- window is opened or focused with its own commands; entering it with a
--- window command (or coming back from another tab) lands in Normal mode,
--- where Claude seems not to react. <C-\><C-n> still leaves Terminal mode on
--- purpose, to scroll or copy Claude's output: that lasts until the window is
--- entered the next time. See :help terminal-input.
 local function is_claude_terminal(buf)
   local ok, term = pcall(require, 'claudecode.terminal')
   return ok and vim.bo[buf].buftype == 'terminal' and term.get_active_terminal_bufnr() == buf
 end
 
--- <C-w> is the window prefix inside Claude's terminal too, as everywhere
--- else: <C-w>l goes to the window on the right. Claude Code no longer gets
--- <C-w> (delete the word before the cursor); <M-BS> does the same there.
--- One key follows the prefix, <Esc> cancels. When the command leaves the
--- cursor in Claude's window (no window on that side), typing goes on.
 local function claude_window_command()
   local key = vim.fn.getcharstr()
   if key == vim.keycode('<Esc>') then
@@ -353,6 +310,7 @@ local function claude_window_command()
   end)
 end
 
+-- claudecode.nvim enters Terminal mode only when its own commands open or focus the window.
 vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter', 'WinEnter' }, {
   group = vim.api.nvim_create_augroup('claude_terminal_mode', { clear = true }),
   callback = function()
@@ -364,6 +322,7 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter', 'WinEnter' }, {
         return
       end
       if not vim.b[buf].claude_window_prefix then
+        -- Costs Claude Code its own <C-w> (delete word); <M-BS> does the same there.
         vim.keymap.set('t', '<C-w>', claude_window_command, { buffer = buf, desc = 'Window command' })
         vim.b[buf].claude_window_prefix = true
       end
@@ -374,8 +333,6 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter', 'WinEnter' }, {
   end,
 })
 
--- Buffers without a file (Neogit, help, :messages...) cannot be referenced by
--- path, so their text is dumped to a temp file and added as context instead.
 local function claude_add_text(lines, name)
   local tmp = vim.fn.tempname() .. '-' .. name .. '.txt'
   vim.fn.writefile(lines, tmp)

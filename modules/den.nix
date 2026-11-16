@@ -11,7 +11,6 @@
     default.includes = [ den.batteries.hostname ];
     default.nixos.system.stateVersion = "26.11";
 
-    # Structural, so den doesn't read an aspect's typed settings as a child aspect.
     reservedKeys = [ "settings" ];
 
     quirks = {

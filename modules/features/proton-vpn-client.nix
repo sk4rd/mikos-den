@@ -34,8 +34,6 @@
         endpointHost = lib.head endpointParts;
         endpointPort = lib.elemAt endpointParts 1;
 
-        # Own table, so the NixOS firewall is untouched. Loaded when wg-proton comes up
-        # and kept until the kill switch is toggled off.
         killswitchRules = ''
           table inet proton-killswitch {
             chain output {
@@ -55,9 +53,7 @@
         nft = lib.getExe pkgs.nftables;
         systemctl = lib.getExe' config.systemd.package "systemctl";
 
-        # Arms the kill switch when the tunnel comes up. There is deliberately no
-        # `down` branch: only the toggle (or `systemctl stop`) disarms it, so a
-        # dropped tunnel cannot leak.
+        # No "down" branch on purpose: a dropped tunnel must not disarm the kill switch.
         arm = pkgs.writeShellApplication {
           name = "proton-killswitch-arm";
           inheritPath = false;
@@ -80,8 +76,6 @@
               ${systemctl} stop proton-killswitch.service
               notify-send --icon=shield-off "Kill switch off" "Traffic is no longer restricted."
             else
-              # Armed first, so there is no window without it. The table allows the
-              # tunnel's own UDP, so the connection can still come up.
               ${systemctl} start proton-killswitch.service
               # Re-arming while connected must not restart the tunnel.
               if [ -d /sys/class/net/wg-proton ] || nmcli --wait 20 connection up proton-vpn; then
@@ -104,7 +98,6 @@
               id = "proton-vpn";
               type = "wireguard";
               interface-name = "wg-proton";
-              # Routes all traffic, so it's switched on by hand.
               autoconnect = false;
             };
 
@@ -116,7 +109,6 @@
               persistent-keepalive = 25;
             };
 
-            # A negative priority makes NetworkManager drop other DNS while connected, so lookups can't leak.
             ipv4 = {
               method = "manual";
               address1 = "10.2.0.2/32";
@@ -133,8 +125,7 @@
           };
         };
 
-        # Not wanted by any target: the tunnel coming up (or the toggle) starts it, and
-        # it does not return after a reboot.
+        # Deliberately not wanted by any target: the kill switch does not come back after a reboot.
         systemd.services.proton-killswitch = {
           description = "Proton VPN kill switch";
           serviceConfig = {
@@ -152,7 +143,6 @@
           }
         ];
 
-        # The toggle runs as the logged-in user. Let wheel start and stop this one unit.
         security.polkit.extraConfig = ''
           polkit.addRule(function(action, subject) {
             if (action.id == "org.freedesktop.systemd1.manage-units" &&

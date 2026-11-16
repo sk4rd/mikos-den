@@ -69,9 +69,7 @@ let
 
   wallpaperFor = pkgs: import ../../lib/theme/render/wallpaper.nix { inherit pkgs lib theme; };
 
-  # The icon font has only an outline skull, so the kill switch button swaps two SVGs: an
-  # accent outline when off and a filled one in the theme red when on. Both share one head
-  # outline; the filled one cuts the eyes and teeth out of it.
+  # The icon font has no filled skull, so the kill switch button swaps two SVGs instead of a glyph.
   skullSvg =
     filled:
     let
@@ -84,7 +82,6 @@ let
     in
     ''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">${body}</svg>'';
 
-  # A path source: a directory holding one directory per plugin.
   pluginsFor =
     pkgs:
     pkgs.linkFarm "noctalia-plugins" [
@@ -196,8 +193,8 @@ in
             };
           };
 
-          # Noctalia keeps its clipboard and notification history encrypted with a key
-          # from the Secret Service, and a bare compositor session doesn't provide one.
+          # Noctalia encrypts its clipboard and notification history with a key from the
+          # Secret Service.
           gnome.gnome-keyring.enable = true;
 
           # Umbriel's lid_close event suspends instead (see the hjem half), because logind
@@ -313,11 +310,8 @@ in
               occupied_color = "secondary";
               empty_color = "outline_variant";
             };
-            # Both come from the proton-vpn-client aspect: the connection, and
-            # proton-killswitch.service.
             proton-vpn.type = "miko/vpn:vpn";
             vpn-killswitch.type = "miko/vpn:killswitch";
-            # Fed by the status line command of the ai aspect; hidden until that has run.
             claude-usage.type = "miko/claude:usage";
             clock.format = "{:%a %d %b  %H:%M}";
             media = {
@@ -395,7 +389,6 @@ in
         fragments = lib.filter (lib.hasPrefix ".config/umbriel/conf.d/") (lib.attrNames config.files);
 
         lidClose = pkgs.writeShellScript "lid-close" ''
-          # Caffeine is visible to logind as a blocking idle inhibitor held by noctalia.
           if ${pkgs.systemd}/bin/systemd-inhibit --list --no-legend \
             | ${pkgs.gnugrep}/bin/grep -Eq '^noctalia\s.*\sidle\s+Caffeine\s+block'; then
             exit 0
@@ -412,8 +405,8 @@ in
 
           ".config/umbriel/config.toml".source = ../../dots/umbriel/config.toml;
           ".config/umbriel/nix.toml".source = toml.generate "umbriel-nix.toml" {
-            # Other aspects and hosts drop their fragments into conf.d; Umbriel has no glob
-            # includes, so the list is built from the files hjem is about to install.
+            # Umbriel has no glob includes, so the list is built from the files hjem is about to
+            # install.
             include.optional.files = map (f: "~/${f}") fragments;
             input.keyboard = {
               inherit (xkb) layout variant;

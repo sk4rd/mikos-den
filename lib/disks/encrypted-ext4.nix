@@ -1,4 +1,3 @@
-# FAT32 ESP + LUKS2 ext4 root; takes the disk id.
 device: {
   inherit device;
   type = "disk";

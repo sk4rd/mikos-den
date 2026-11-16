@@ -29,7 +29,6 @@
       let
         cfg = host.settings.ddns;
         routes = lib.foldl' (acc: entry: acc // entry) { } service-routes;
-        # Only public routes get records, so this never publishes a private service's name.
         publicNames = lib.attrNames (lib.filterAttrs (_: route: route.public or false) routes);
         names = cfg.extraNames ++ publicNames;
         nameArgs = lib.concatStringsSep " " (map lib.escapeShellArg names);

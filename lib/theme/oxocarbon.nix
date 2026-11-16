@@ -1,9 +1,6 @@
-# Oxocarbon dark: raw palette data. The only Nix file with hex colour literals;
-# everything else reads the semantic roles built from it in ./default.nix.
-#
-# base00..base15 and blend come from nyoom-engineering/oxocarbon.nvim. Oxocarbon has no
-# yellow or orange, so the missing hues (and brighter steps for the ANSI bright slots)
-# come from IBM Carbon, the design system Oxocarbon is derived from.
+# base00..base15, blend and the diff backgrounds come from nyoom-engineering/oxocarbon.nvim.
+# Oxocarbon has no yellow or orange, so those hues, and the brighter steps for the ANSI bright
+# slots, come from IBM Carbon, the design system Oxocarbon is derived from.
 {
   base00 = "#161616";
   base01 = "#262626";
@@ -23,7 +20,6 @@
   base15 = "#82cfff";
   blend = "#131313";
 
-  # IBM Carbon tokens.
   gray50 = "#8d8d8d";
   yellow30 = "#f1c21b";
   yellow20 = "#fddc69";
@@ -32,7 +28,6 @@
   blue30 = "#a6c8ff";
   purple30 = "#d4bbff";
 
-  # Diff backgrounds (oxocarbon.nvim).
   diffAdd = "#122f2f";
   diffChange = "#222a39";
   diffText = "#2f3f5c";

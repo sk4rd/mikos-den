@@ -30,7 +30,6 @@ in
             options = {
               publicKey = lib.mkOption { type = lib.types.str; };
               address = lib.mkOption { type = ipv4; };
-              # Lets peers reach the server by name; the hub's Syncthing address uses it.
               hostname = lib.mkOption {
                 type = lib.types.nullOr lib.types.str;
                 default = null;
@@ -55,14 +54,12 @@ in
 
         serverAddress = lib.head (lib.splitString "/" cfg.address);
 
-        # Inserted at the head of the chain (`-I ... 1`), above the drops appended after it.
         peerRule =
           chain: peer: rule:
           "iptables -w -I ${chain} 1 -i wg0 -s ${peer.address}/32 ${rule}";
 
-        # Every peer may forward out to the LAN; reachPeers adds wg0 -> wg0 grants. Replies
-        # pass through the NAT module's ESTABLISHED,RELATED rule. FORWARD defaults to ACCEPT,
-        # so the drops at the end close everything else.
+        # Replies pass through the NAT module's ESTABLISHED,RELATED rule, which sits above the
+        # appended drops.
         forwardRules =
           map (peer: peerRule "nixos-filter-forward" peer "-o ${cfg.wanInterface} -j ACCEPT") cfg.peers
           ++ lib.concatMap (
@@ -76,8 +73,6 @@ in
             "iptables -w -A nixos-filter-forward -o wg0 -j DROP"
           ];
 
-        # Masquerade only the peers' traffic. The NAT module's own rule marks and
-        # NATs everything on wg0, so it is disabled below and this replaces it.
         natRules = map (
           peer:
           "iptables -w -t nat -A nixos-nat-post -s ${peer.address}/32 -o ${cfg.wanInterface} -j MASQUERADE"
@@ -95,8 +90,6 @@ in
             }) cfg.peers;
           };
 
-          # The server's own name comes from the hostname module; peers add theirs so the
-          # hub can be dialled by name over the tunnel.
           hosts = lib.mkMerge [
             (lib.listToAttrs (
               lib.concatMap (
@@ -113,8 +106,6 @@ in
 
           firewall = {
             allowedUDPPorts = [ cfg.port ];
-            # Peers are my own devices, and WireGuard only accepts their allowedIPs, so the
-            # tunnel skips the host firewall. Forwarding is still limited per peer below.
             trustedInterfaces = [ "wg0" ];
           };
 
@@ -125,7 +116,6 @@ in
             internalInterfaces = [ ];
             externalInterface = cfg.wanInterface;
             extraCommands = ''
-              # Every peer reaches the home LAN; reachPeers grants directed tunnel access.
               ${lib.concatStringsSep "\n" forwardRules}
               ${lib.concatStringsSep "\n" natRules}
             '';
@@ -134,7 +124,6 @@ in
 
         age.secrets.wg-server-key.file = ../../secrets/wg-server-key.age;
 
-        # The key file's path never changes, so a rotated key wouldn't restart the tunnel otherwise.
         systemd.services.wireguard-wg0.restartTriggers = [
           (builtins.hashFile "sha256" ../../secrets/wg-server-key.age)
         ];

@@ -48,7 +48,6 @@ let
     border-strong = c.muted;
     border-focus = c.accent;
 
-    # The accent is light, so text on it is dark.
     control-primary-background-default = c.accent;
     control-primary-background-hover = c.lightBlue;
     control-primary-background-active = c.lightBlue;

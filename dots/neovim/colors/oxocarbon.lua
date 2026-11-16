@@ -1,7 +1,3 @@
--- Oxocarbon, built from the canonical theme (lua/palette.lua is generated from
--- config.theme in modules/features/neovim.nix). Syntax roles follow oxocarbon.nvim;
--- diagnostics use the real red/yellow/green added from IBM Carbon.
-
 local t = require('palette')
 local c = t.colors
 local s = c.syntax
@@ -20,7 +16,6 @@ for i, color in ipairs(t.ansi) do
 end
 
 local groups = {
-  -- Editor
   Normal = { fg = c.fg, bg = c.bg },
   NormalNC = { link = 'Normal' },
   NormalFloat = { fg = c.fg, bg = c.bgDim },
@@ -82,7 +77,6 @@ local groups = {
   SpellLocal = { undercurl = true, sp = c.info },
   SpellRare = { undercurl = true, sp = c.purple },
 
-  -- Diff
   DiffAdd = { bg = d.add },
   DiffChange = { bg = d.change },
   DiffText = { bg = d.text },
@@ -94,7 +88,6 @@ local groups = {
   diffChanged = { link = 'Changed' },
   diffRemoved = { link = 'Removed' },
 
-  -- Diagnostics
   DiagnosticError = { fg = c.error },
   DiagnosticWarn = { fg = c.warning },
   DiagnosticInfo = { fg = c.info },
@@ -115,7 +108,6 @@ local groups = {
   HealthWarning = { link = 'DiagnosticWarn' },
   HealthSuccess = { link = 'DiagnosticOk' },
 
-  -- LSP
   LspReferenceText = { bg = c.overlay },
   LspReferenceRead = { link = 'LspReferenceText' },
   LspReferenceWrite = { link = 'LspReferenceText' },
@@ -123,7 +115,6 @@ local groups = {
   LspCodeLens = { fg = c.muted },
   LspInlayHint = { fg = c.muted, bg = c.bgDim },
 
-  -- Syntax
   Comment = { fg = s.comment, italic = true },
   Constant = { fg = c.subtle },
   String = { fg = s.string },
@@ -162,7 +153,6 @@ local groups = {
   Error = { fg = c.error },
   Todo = { fg = c.bg, bg = c.warning, bold = true },
 
-  -- Treesitter
   ['@variable'] = { fg = s.variable },
   ['@variable.builtin'] = { fg = s.builtin },
   ['@variable.parameter'] = { fg = s.variable },
@@ -211,7 +201,6 @@ local groups = {
   ['@diff.minus'] = { link = 'Removed' },
   ['@diff.delta'] = { link = 'Changed' },
 
-  -- Markup (markdown, help)
   ['@markup.heading'] = { fg = c.magenta, bold = true },
   ['@markup.strong'] = { bold = true },
   ['@markup.italic'] = { italic = true },
@@ -227,7 +216,6 @@ local groups = {
   ['@markup.list.checked'] = { fg = c.success },
   ['@markup.list.unchecked'] = { fg = c.muted },
 
-  -- LSP semantic tokens
   ['@lsp.type.namespace'] = { link = '@module' },
   ['@lsp.type.type'] = { link = '@type' },
   ['@lsp.type.class'] = { link = '@type' },
@@ -249,7 +237,6 @@ local groups = {
   ['@lsp.typemod.variable.defaultLibrary'] = { link = '@variable.builtin' },
   ['@lsp.typemod.function.defaultLibrary'] = { link = '@function.builtin' },
 
-  -- Telescope
   TelescopeNormal = { fg = c.fg, bg = c.bgDim },
   TelescopeBorder = { fg = c.bgDim, bg = c.bgDim },
   TelescopePromptNormal = { fg = c.fg, bg = c.overlay },
@@ -263,7 +250,6 @@ local groups = {
   TelescopeMatching = { fg = c.cyan, bold = true },
   TelescopePreviewLine = { bg = c.surface },
 
-  -- gitsigns
   GitSignsAdd = { fg = c.warning },
   GitSignsChange = { fg = c.warning },
   GitSignsDelete = { fg = c.error },
@@ -277,7 +263,6 @@ local groups = {
   GitSignsChangeLnInline = { link = 'DiffText' },
   GitSignsDeleteVirtLnInline = { link = 'DiffText' },
 
-  -- which-key
   WhichKey = { fg = c.cyan },
   WhichKeyGroup = { fg = c.accent },
   WhichKeyDesc = { fg = c.subtle },

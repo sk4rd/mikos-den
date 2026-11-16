@@ -75,7 +75,6 @@ in
       usbutils
       wget
 
-      # Network diagnostics: DNS, routes, packets.
       bind.dnsutils
       ethtool
       mtr
@@ -85,14 +84,12 @@ in
     ];
 
     files = {
-      # The ANSI theme follows the terminal palette.
       ".config/bat/config".text = ''
         --theme=ansi
       '';
 
       ".config/btop/themes/${theme.name}.theme".text = btopTheme + "\n";
 
-      # Read-only symlink: btop must not try to save it on exit.
       ".config/btop/btop.conf".text = ''
         color_theme = "${theme.name}"
         theme_background = false

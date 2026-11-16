@@ -1,17 +1,15 @@
 { lib, ... }:
 let
-  # An ini file, so the password stays out of the Nix store:
+  # Contents, a CouchDB ini fragment:
   #   [admins]
   #   admin = <password>
   adminSecret = ../../secrets/couchdb-admin.age;
-  # The dataset, route and status check need the couchdb user, which only exists once this is on.
   enabled = builtins.pathExists adminSecret;
   dataDir = "/var/lib/couchdb";
   port = 5984;
 in
 {
   den.aspects.livesync = {
-    # Holds the Obsidian vault for LiveSync. Hourly snapshots, plus the proton-backup copy.
     storage-datasets = lib.optionalAttrs enabled {
       "services/couchdb" = {
         mountpoint = dataDir;

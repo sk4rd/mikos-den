@@ -23,7 +23,6 @@ _:
           whisper = {
             model = "${model}";
             language = "en";
-            # A hint rather than a guarantee: it steers Whisper towards these spellings.
             initial_prompt = "Nix, NixOS, nixpkgs, flake, Noctalia, Umbriel, Jellyfin,
             agenix, Vulkan, mikos-den, Claude, Claude Code, CLAUDE.md.";
           };

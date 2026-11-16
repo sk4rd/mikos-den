@@ -15,7 +15,6 @@ let
     "(?d).zig-cache"
     "(?d)result"
     "(?d)result-*"
-    # Git's lock files; a synced one blocks git on the other machine.
     "**/.git/**.lock"
   ];
   ignores = {
@@ -48,12 +47,10 @@ let
         key = config.age.secrets."syncthing-${name}-key".path;
         settings = {
           inherit devices;
-          # Newest edit wins and the older copy is dropped instead of kept as a
-          # .sync-conflict file. The hub's hourly ZFS snapshots and the nightly
-          # restic backup are where a lost edit comes back from.
+          # Conflict copies are off on purpose: a lost edit comes back from the hub's ZFS snapshots
+          # or the restic backup.
           folders = lib.mapAttrs (_: f: f // { maxConflicts = 0; }) folders;
 
-          # Every peer has a fixed address, so nothing needs public discovery or relays.
           options = {
             listenAddresses = [ "tcp://0.0.0.0:${toString port}" ];
             globalAnnounceEnabled = false;
@@ -116,14 +113,12 @@ in
               path = "${home}/${path}";
               devices = [ hubHost ];
             }) host.settings.syncthing.folders;
-            # Clients only talk to the always-on NAS.
             devices.${hubHost} = {
               id = deviceIds.${hubHost};
               addresses = [ "tcp://${hubHost}:${toString port}" ];
             };
           })
           {
-            # Runs as miko so synced files stay owned by miko.
             services.syncthing = {
               user = "miko";
               group = "users";
@@ -135,7 +130,6 @@ in
         ];
     };
 
-    # Hourly snapshots are the undo for a sync that overwrites the wrong copy.
     syncthing-hub.storage-datasets."services/syncthing" = {
       mountpoint = hubDir;
       owner = "syncthing";
@@ -179,7 +173,6 @@ in
             configDir = "${hubDir}/config";
           };
 
-          # Peers on the VPN arrive through the trusted wg0, so this is for the LAN.
           networking.firewall.allowedTCPPorts = [ port ];
 
           systemd.services.syncthing = {

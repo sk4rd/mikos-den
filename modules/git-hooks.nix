@@ -12,7 +12,6 @@ let
   };
 in
 {
-  # Per-system merge rules, so this check and `formatting` from formatter.nix both survive.
   imports = [
     inputs.den.flakeOutputs.checks
     inputs.den.flakeOutputs.devShells

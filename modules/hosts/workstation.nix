@@ -8,7 +8,6 @@
       endpoint = "89.222.96.187:51820";
       secret = "proton-workstation-env";
     };
-    # No idle suspend, so it stays reachable over SSH; manual sleep still works.
     settings.noctalia.idleSuspendSeconds = null;
   };
 
@@ -38,7 +37,7 @@
     '';
 
     nixos = {
-      # LAN IP allowlist: includes masqueraded VPN peers and everything the NAS itself sends.
+      # VPN peers arrive masqueraded as the NAS, so this admits them too.
       networking.firewall.extraCommands =
         let
           network = import ../../lib/network.nix;
@@ -72,8 +71,7 @@
         DRI_PRIME = "pci-0000_03_00_0";
       };
 
-      # A boot menu entry where the JetKVM on the motherboard's HDMI-A-2 is the only
-      # display, from the disk unlock prompt onwards. Every other connector is switched off.
+      # The JetKVM is on the motherboard's HDMI-A-2, the one connector not listed.
       specialisation.jetkvm.configuration.boot.kernelParams = map (connector: "video=${connector}:d") [
         "DP-1"
         "DP-2"

@@ -1,5 +1,3 @@
-# Wallpaper generated from the canonical theme: a dark field with a faint Carbon-style
-# grid and one thin diagonal accent band (blue -> purple -> pink). 16:10, crops to 16:9.
 {
   pkgs,
   lib,
@@ -24,7 +22,6 @@ let
         ''<line x1="0" y1="${p}" x2="${toString len}" y2="${p}"/>''
     ) (lib.range 1 count);
 
-  # The band runs from the bottom edge (left of centre) to the right edge.
   band = "M 1400 ${toString h} L 1436 ${toString h} L ${toString w} 840 L ${toString w} 804 Z";
 
   svg = pkgs.writeText "wallpaper.svg" ''

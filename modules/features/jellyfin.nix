@@ -70,7 +70,6 @@
         serviceConfig = {
           BindPaths = [ "/var/lib/media-stack/jellyfin:/var/lib/jellyfin" ];
           ReadOnlyPaths = [ "/tank/data/media" ];
-          # Incomplete downloads stay out of the library.
           InaccessiblePaths = [ "-/tank/data/media/downloads" ];
         };
       };

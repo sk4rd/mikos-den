@@ -41,7 +41,6 @@ in
           pkgs.nixfmt
           pkgs.lua-language-server
           (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
-            # Keep init.lua as the rc file (wrapRc = false).
             wrapRc = false;
             plugins = with pkgs.vimPlugins; [
               lualine-nvim

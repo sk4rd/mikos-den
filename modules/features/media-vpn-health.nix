@@ -19,8 +19,6 @@
     nixos =
       { pkgs, lib, ... }:
       let
-        # Proves torrent traffic is behind the tunnel, not just that the units run: the namespace's public IP
-        # must differ from the host's, and DNS and the listener are checked from inside qBittorrent.
         healthScript = pkgs.writeShellScript "media-vpn-health" ''
           export PATH="${
             lib.makeBinPath (
@@ -70,13 +68,13 @@
             wantedBy = [ "timers.target" ];
             timerConfig = {
               OnBootSec = "30s";
+              # Must stay under MAX_AGE_SECONDS (180) in media-vpn-health-server.py.
               OnUnitActiveSec = "60s";
               AccuracySec = "5s";
               Unit = "media-vpn-health.service";
             };
           };
 
-          # Results older than 180s count as failed, so a stopped timer reads as down rather than stale.
           services.media-vpn-health-http = {
             description = "Serve media VPN health status";
             wantedBy = [ "multi-user.target" ];

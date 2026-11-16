@@ -11,7 +11,7 @@
         inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.agenix
       ];
 
-      # Each host decrypts with its own age key provisioned manually
+      # Placed by hand at install (docs/install.md); nothing generates it.
       age.identityPaths = [ "/etc/age/host.key" ];
 
       systemd.tmpfiles.rules = [

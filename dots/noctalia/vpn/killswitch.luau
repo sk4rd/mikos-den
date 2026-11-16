@@ -1,4 +1,3 @@
--- The skull images are generated in modules/features/noctalia.nix so they follow the theme.
 local OFF = "skull.svg"
 local ON = "skull-filled.svg"
 local SIZE = 20
@@ -25,7 +24,6 @@ function update()
   refresh()
 end
 
--- proton-killswitch-toggle sends its own notification on success.
 function onClick()
   noctalia.runAsync({ "proton-killswitch-toggle" }, function(result)
     if result.exitCode ~= 0 then

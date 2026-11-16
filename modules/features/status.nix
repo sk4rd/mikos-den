@@ -10,7 +10,6 @@ let
     minimum-reminder-interval = "1h";
   };
 
-  # Endpoint groups shown as one suite: only services that depend on each other.
   suiteGroups.Media = "Media stack";
 
   heartbeatTokenFile = "/var/lib/status-heartbeat/env";
@@ -63,7 +62,6 @@ in
           // endpoint
         ) status-endpoints;
 
-        # always-run, because a suite otherwise skips every step after a failure and hides them.
         partitioned = lib.partition (endpoint: suiteGroups ? ${endpoint.group}) healthEndpoints;
         groupSuites = lib.mapAttrsToList (group: name: {
           inherit name group;
@@ -94,8 +92,6 @@ in
           alerts = [ ntfyAlert ];
         }) ddnsNames;
 
-        # A unit reports through OnSuccess/OnFailure = status-heartbeat@<id>.<ok|fail>.service.
-        # A push missing for longer than the interval alerts too.
         heartbeats = lib.foldl' (acc: entry: acc // entry) { } status-heartbeats;
         hasHeartbeats = heartbeats != { };
 
@@ -217,7 +213,6 @@ in
           gatus = {
             requires = lib.mkIf hasHeartbeats [ "status-heartbeat-token.service" ];
             serviceConfig = {
-              # A fixed user, so it can own the agenix secret.
               DynamicUser = lib.mkForce false;
               User = "gatus";
               Group = "gatus";
@@ -234,7 +229,6 @@ in
             };
           };
 
-          # Random push token, created once; readable by root and gatus only.
           status-heartbeat-token = lib.mkIf hasHeartbeats {
             description = "Create the Gatus heartbeat token";
             wantedBy = [ "gatus.service" ];
