@@ -44,7 +44,6 @@ There are no tests. A change is done when the affected hosts evaluate and the fo
 ## Left to the user
 
 - Merging a reviewed branch into `main`, and pushing.
-
 - Deploying: the user runs `sudo nixos-rebuild switch --flake .#<host>`.
 - Secrets need a YubiKey. Add the recipients to `secrets/agenix-rules.nix`, then the user runs
   `cd secrets && agenix -e <name>.age`. See `docs/secrets.md`.
