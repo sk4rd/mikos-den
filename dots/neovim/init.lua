@@ -166,7 +166,7 @@ require('which-key').setup({
 require('which-key').add({
   { '<leader>f', group = 'find' },
   { '<leader>a', group = 'claude' },
-  { '<leader>g', group = 'git' },
+  { '<leader>g', group = 'jj' },
 })
 
 require('telescope').setup({
@@ -236,10 +236,50 @@ local function on_selection(action)
   end
 end
 
-map('n', '<leader>gg', '<cmd>Neogit<CR>', 'Neogit status')
-map('n', '<leader>gc', '<cmd>Neogit commit<CR>', 'Commit')
-map('n', '<leader>gl', '<cmd>Neogit log<CR>', 'Log')
-map('n', '<leader>gB', '<cmd>Neogit branch<CR>', 'Branches')
+local function jj(args, message)
+  vim.system(
+    vim.list_extend({ 'jj' }, args),
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        vim.notify(vim.trim(result.stderr), vim.log.levels.ERROR)
+      elseif message then
+        vim.notify(message)
+      end
+      vim.cmd.checktime()
+    end)
+  )
+end
+
+map('n', '<leader>gg', function()
+  vim.cmd.tabnew()
+  local buf = vim.api.nvim_get_current_buf()
+  vim.fn.jobstart({ 'jjui' }, {
+    term = true,
+    on_exit = function()
+      if vim.api.nvim_buf_is_valid(buf) then
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end
+      vim.cmd.checktime()
+    end,
+  })
+  vim.cmd.startinsert()
+end, 'jjui')
+map('n', '<leader>gc', function()
+  local current = vim.system({ 'jj', 'log', '--no-graph', '-r', '@', '-T', 'description' }, { text = true }):wait()
+  vim.ui.input({ prompt = 'Describe: ', default = vim.trim(current.stdout or '') }, function(message)
+    if message and message ~= '' then
+      jj({ 'describe', '-m', message }, 'jj: described')
+    end
+  end)
+end, 'Describe change')
+map('n', '<leader>gn', function()
+  jj({ 'new' }, 'jj: new change')
+end, 'New change')
+map('n', '<leader>gl', function()
+  vim.cmd('botright 15new')
+  vim.fn.jobstart({ 'jj', '--no-pager', 'log' }, { term = true })
+end, 'Log')
 map('n', '<leader>gD', function()
   if require('diffview.lib').get_current_view() then
     vim.cmd('DiffviewClose')
@@ -249,16 +289,12 @@ map('n', '<leader>gD', function()
 end, 'Toggle changeset diff')
 map({ 'n', 'x' }, '<leader>gF', ':DiffviewFileHistory %<CR>', 'File or selection history')
 
-map('n', '<leader>gh', gitsigns.stage_hunk, 'Stage or unstage hunk')
-map('x', '<leader>gh', on_selection('stage_hunk'), 'Stage selected lines')
-map('n', '<leader>gH', gitsigns.stage_buffer, 'Stage file')
-map('n', '<leader>gU', gitsigns.reset_buffer_index, 'Unstage file')
 map('n', '<leader>gr', gitsigns.reset_hunk, 'Discard hunk')
 map('x', '<leader>gr', on_selection('reset_hunk'), 'Discard selected lines')
 map('n', '<leader>gR', gitsigns.reset_buffer, 'Discard file changes')
 
 map('n', '<leader>gp', gitsigns.preview_hunk_inline, 'Preview hunk inline')
-map('n', '<leader>gd', gitsigns.diffthis, 'Diff file against index')
+map('n', '<leader>gd', gitsigns.diffthis, 'Diff file against the parent change')
 map('n', '<leader>gb', gitsigns.blame_line, 'Blame line')
 map('n', '<leader>gv', function()
   local enabled = gitsigns.toggle_deleted()
@@ -272,9 +308,7 @@ map('n', '[h', function()
   gitsigns.nav_hunk('prev')
 end, 'Previous hunk')
 
-require('neogit').setup({
-  integrations = { telescope = true, diffview = true },
-})
+require('hunk').setup()
 
 require('claudecode').setup({
   terminal = { provider = 'native', split_side = 'left' },
@@ -368,3 +402,11 @@ map('x', '<leader>as', function()
 end, 'Send selection to Claude')
 map('n', '<leader>aa', '<cmd>ClaudeCodeDiffAccept<CR>', 'Accept Claude diff')
 map('n', '<leader>ad', '<cmd>ClaudeCodeDiffDeny<CR>', 'Deny Claude diff')
+
+-- Loaded from its checkout until it is published, so an edit to it needs only a restart.
+local feedback = vim.fn.expand('~/Projects/feedback.nvim')
+if vim.uv.fs_stat(feedback) then
+  vim.opt.runtimepath:append(feedback)
+  map({ 'n', 'x' }, '<leader>n', ':FeedbackAdd<CR>', 'Add feedback note')
+  map('n', '<leader>N', '<cmd>FeedbackSend<CR>', 'Send feedback')
+end
