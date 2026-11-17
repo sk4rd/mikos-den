@@ -1,8 +1,4 @@
-{
-  config,
-  inputs,
-  ...
-}:
+{ inputs, ... }:
 
 {
   flake.packages.x86_64-linux.charybdis-hud-firmware =
@@ -15,7 +11,7 @@
       "Mod+Shift+B" = { action = "spawn keyboard-hud --move", repeat = false }
     '';
 
-    nixos = {
+    nixos = { host, ... }: {
       imports = [ inputs.keyboard-hud.nixosModules.default ];
 
       services.xserver.xkb = {
@@ -32,9 +28,9 @@
       programs.keyboard-hud = {
         enable = true;
         theme = {
-          background = config.theme.colors.bg;
-          foreground = config.theme.colors.fg;
-          palette = config.theme.ansiNamed;
+          background = host.theme.colors.bg;
+          foreground = host.theme.colors.fg;
+          palette = host.theme.ansiNamed;
         };
         hidrawAccess = false;
         shortcut = null;

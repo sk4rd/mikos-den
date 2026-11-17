@@ -1,18 +1,17 @@
 {
-  config,
   den,
   lib,
   ...
 }:
-let
-  inherit (config) theme;
-  themeDir = "Notes/.obsidian/themes/${theme.name}";
-in
 {
   den.aspects.obsidian = {
     includes = [ (den.batteries.unfree [ "obsidian" ]) ];
     hjem =
-      { pkgs, ... }:
+      { host, pkgs, ... }:
+      let
+        inherit (host) theme;
+        themeDir = "Notes/.obsidian/themes/${theme.name}";
+      in
       {
         packages = [
           pkgs.obsidian

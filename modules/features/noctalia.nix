@@ -1,34 +1,10 @@
 {
-  config,
   inputs,
   lib,
   ...
 }:
 
 let
-  inherit (config) theme;
-  c = theme.colors;
-  a = theme.ansiNamed;
-
-  palette = {
-    primary = c.accent;
-    on_primary = c.bg;
-    secondary = c.accentAlt;
-    on_secondary = c.bg;
-    tertiary = c.teal;
-    on_tertiary = c.bg;
-    inherit (c) error;
-    on_error = c.bg;
-    surface = c.bg;
-    on_surface = c.fg;
-    surface_variant = c.surface;
-    on_surface_variant = c.subtle;
-    outline = c.muted;
-    shadow = c.bgDim;
-    hover = c.overlay;
-    on_hover = c.fgBright;
-  };
-
   ansiNames = [
     "black"
     "red"
@@ -40,30 +16,11 @@ let
     "white"
   ];
 
-  shellPalette = {
-    dark = lib.mapAttrs' (name: lib.nameValuePair (lib.toCamelCase name)) palette // {
-      terminal = {
-        background = c.bg;
-        foreground = c.fg;
-        inherit (c) cursor cursorText;
-        selectionBg = c.selection;
-        selectionFg = c.fg;
-        normal = lib.getAttrs ansiNames a;
-        bright = lib.genAttrs ansiNames (n: a."bright${lib.toSentenceCase n}");
-      };
-    };
-  };
-
   cursor = {
     theme = "Bibata-Modern-Ice";
     size = 24;
   };
   cursorPackage = pkgs: pkgs.bibata-cursors;
-
-  appearance = {
-    font_family = theme.fonts.ui.name;
-    corner_radius_scale = 1.25;
-  };
 
   groupStyle = {
     border = "outline_variant";
@@ -72,53 +29,108 @@ let
   };
   capsuleStyle = lib.mapAttrs' (n: lib.nameValuePair "capsule_${n}") groupStyle;
 
-  wallpaperFor = pkgs: import ../../lib/theme/render/wallpaper.nix { inherit pkgs lib theme; };
-
-  # The icon font has no filled skull, so the kill switch button swaps two SVGs instead of a glyph.
-  skullSvg =
-    filled:
+  themed =
+    theme:
     let
-      head = "M12 4c4.418 0 8 3.358 8 7.5c0 1.901-.755 3.637-2 4.96V19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2.54C4.755 15.137 4 13.401 4 11.5C4 7.358 7.582 4 12 4z";
-      body =
-        if filled then
-          ''<path fill="${c.error}" fill-rule="evenodd" d="${head}M9 9.5a1.75 1.75 0 1 0 0 3.5a1.75 1.75 0 1 0 0-3.5zM15 9.5a1.75 1.75 0 1 0 0 3.5a1.75 1.75 0 1 0 0-3.5zM9.6 16.5h.8v2.5h-.8zM13.6 16.5h.8v2.5h-.8z"/>''
-        else
-          ''<g fill="none" stroke="${c.accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${head}"/><circle cx="9" cy="11.25" r="1"/><circle cx="15" cy="11.25" r="1"/><path d="M10 16.5V20M14 16.5V20"/></g>'';
-    in
-    ''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">${body}</svg>'';
+      c = theme.colors;
+      a = theme.ansiNamed;
 
-  pluginsFor =
-    pkgs:
-    pkgs.linkFarm "noctalia-plugins" [
-      {
-        name = "claude/plugin.toml";
-        path = ../../dots/noctalia/claude/plugin.toml;
-      }
-      {
-        name = "claude/usage.luau";
-        path = ../../dots/noctalia/claude/usage.luau;
-      }
-      {
-        name = "vpn/plugin.toml";
-        path = ../../dots/noctalia/vpn/plugin.toml;
-      }
-      {
-        name = "vpn/vpn.luau";
-        path = ../../dots/noctalia/vpn/vpn.luau;
-      }
-      {
-        name = "vpn/killswitch.luau";
-        path = ../../dots/noctalia/vpn/killswitch.luau;
-      }
-      {
-        name = "vpn/skull.svg";
-        path = pkgs.writeText "skull.svg" (skullSvg false);
-      }
-      {
-        name = "vpn/skull-filled.svg";
-        path = pkgs.writeText "skull-filled.svg" (skullSvg true);
-      }
-    ];
+      palette = {
+        primary = c.accent;
+        on_primary = c.bg;
+        secondary = c.accentAlt;
+        on_secondary = c.bg;
+        tertiary = c.teal;
+        on_tertiary = c.bg;
+        inherit (c) error;
+        on_error = c.bg;
+        surface = c.bg;
+        on_surface = c.fg;
+        surface_variant = c.surface;
+        on_surface_variant = c.subtle;
+        outline = c.muted;
+        shadow = c.bgDim;
+        hover = c.overlay;
+        on_hover = c.fgBright;
+      };
+
+      shellPalette = {
+        dark = lib.mapAttrs' (name: lib.nameValuePair (lib.toCamelCase name)) palette // {
+          terminal = {
+            background = c.bg;
+            foreground = c.fg;
+            inherit (c) cursor cursorText;
+            selectionBg = c.selection;
+            selectionFg = c.fg;
+            normal = lib.getAttrs ansiNames a;
+            bright = lib.genAttrs ansiNames (n: a."bright${lib.toSentenceCase n}");
+          };
+        };
+      };
+
+      appearance = {
+        font_family = theme.fonts.ui.name;
+        corner_radius_scale = 1.25;
+      };
+
+      wallpaperFor = pkgs: import ../../lib/theme/render/wallpaper.nix { inherit pkgs lib theme; };
+
+      # The icon font has no filled skull, so the kill switch button swaps two SVGs instead of a glyph.
+      skullSvg =
+        filled:
+        let
+          head = "M12 4c4.418 0 8 3.358 8 7.5c0 1.901-.755 3.637-2 4.96V19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2.54C4.755 15.137 4 13.401 4 11.5C4 7.358 7.582 4 12 4z";
+          body =
+            if filled then
+              ''<path fill="${c.error}" fill-rule="evenodd" d="${head}M9 9.5a1.75 1.75 0 1 0 0 3.5a1.75 1.75 0 1 0 0-3.5zM15 9.5a1.75 1.75 0 1 0 0 3.5a1.75 1.75 0 1 0 0-3.5zM9.6 16.5h.8v2.5h-.8zM13.6 16.5h.8v2.5h-.8z"/>''
+            else
+              ''<g fill="none" stroke="${c.accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${head}"/><circle cx="9" cy="11.25" r="1"/><circle cx="15" cy="11.25" r="1"/><path d="M10 16.5V20M14 16.5V20"/></g>'';
+        in
+        ''<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">${body}</svg>'';
+
+      pluginsFor =
+        pkgs:
+        pkgs.linkFarm "noctalia-plugins" [
+          {
+            name = "claude/plugin.toml";
+            path = ../../dots/noctalia/claude/plugin.toml;
+          }
+          {
+            name = "claude/usage.luau";
+            path = ../../dots/noctalia/claude/usage.luau;
+          }
+          {
+            name = "vpn/plugin.toml";
+            path = ../../dots/noctalia/vpn/plugin.toml;
+          }
+          {
+            name = "vpn/vpn.luau";
+            path = ../../dots/noctalia/vpn/vpn.luau;
+          }
+          {
+            name = "vpn/killswitch.luau";
+            path = ../../dots/noctalia/vpn/killswitch.luau;
+          }
+          {
+            name = "vpn/skull.svg";
+            path = pkgs.writeText "skull.svg" (skullSvg false);
+          }
+          {
+            name = "vpn/skull-filled.svg";
+            path = pkgs.writeText "skull-filled.svg" (skullSvg true);
+          }
+        ];
+
+    in
+    {
+      inherit
+        palette
+        shellPalette
+        appearance
+        wallpaperFor
+        pluginsFor
+        ;
+    };
 in
 {
   den.aspects.noctalia = {
@@ -136,6 +148,8 @@ in
         ...
       }:
       let
+        inherit (host) theme;
+        inherit (themed theme) palette appearance wallpaperFor;
         xkb = config.services.xserver.xkb;
         uiFont = "${theme.fonts.ui.name} ${toString theme.fonts.ui.size}";
       in
@@ -196,7 +210,7 @@ in
                 wallpaper = {
                   path = "${wallpaperFor pkgs}";
                   fill_mode = "crop";
-                  fill_color = c.bg;
+                  fill_color = theme.colors.bg;
                 };
               };
             };
@@ -246,6 +260,13 @@ in
         ...
       }:
       let
+        inherit (host) theme;
+        inherit (themed theme)
+          shellPalette
+          appearance
+          wallpaperFor
+          pluginsFor
+          ;
         toml = pkgs.formats.toml { };
         suspendAfter = host.settings.noctalia.idleSuspendSeconds;
 
