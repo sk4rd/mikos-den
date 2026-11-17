@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 
 let
   inherit (config) theme;
@@ -136,7 +141,11 @@ in
       in
       {
         programs = {
-          umbriel.enable = true;
+          umbriel = {
+            enable = true;
+            # Built against this flake's nixpkgs, so the compositor shares its Mesa and wlroots with the system.
+            package = pkgs.callPackage "${inputs.umbriel}/nix/package.nix" { rev = inputs.umbriel.shortRev; };
+          };
           noctalia = {
             enable = true;
             recommendedServices.enable = true;

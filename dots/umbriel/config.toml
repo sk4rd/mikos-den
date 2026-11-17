@@ -39,7 +39,6 @@ disable_while_typing = true
 # The Charybdis has Super only as the Space key held, so a quick tap of Super and
 # Super+Space are out of reach there. Mod+A and Mod+G do the same jobs.
 "Mod+A" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
-"Mod+T" = { action = "spawn ghostty +new-window", repeat = false }
 "Mod+Return" = { action = "spawn ghostty +new-window", repeat = false }
 "Mod+Q" = { action = "window-close", repeat = false }
 "Mod+Escape" = "session-quit"

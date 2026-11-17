@@ -42,6 +42,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Fork with scratchpad-window-toggle, umbriel_output_rect for shaders, and fixes for scratchpad windows that
+    # replay their show or hide animation.
+    umbriel = {
+      url = "github:sk4rd/umbriel?ref=fix/scratchpad-hiding-refade";
+      flake = false;
+    };
+
     keyboard-hud = {
       url = "github:sk4rd/keyboard-hud";
       inputs.nixpkgs.follows = "nixpkgs";

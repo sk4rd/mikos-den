@@ -232,7 +232,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-brave": "nixpkgs-brave",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": "treefmt-nix",
+        "umbriel": "umbriel"
       }
     },
     "treefmt-nix": {
@@ -252,6 +253,23 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "umbriel": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794925338,
+        "narHash": "sha256-bC3X97m2FP584HigIf0gRZ4wMlJN9AO39sS0Bx8yqxQ=",
+        "owner": "sk4rd",
+        "repo": "umbriel",
+        "rev": "08c05094845ea836953fc4bc8bb77932cc9ca441",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sk4rd",
+        "ref": "fix/scratchpad-hiding-refade",
+        "repo": "umbriel",
         "type": "github"
       }
     }
