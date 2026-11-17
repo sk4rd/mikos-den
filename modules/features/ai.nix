@@ -75,8 +75,11 @@
           default_scratchpad = "claude"
           default_floating_size = { width = 0.4, height = 1.0 }
           default_position = { x = 0, y = 0, anchor = "left" }
+          border_width = 0
+          corner_radius = 0
 
           [animation.scratchpad]
+          dim = 0.0
           effect = "slide-left"
 
           [effects.preset.slide-left]
