@@ -4,6 +4,7 @@
   den.aspects.ai = {
     includes = [
       (den.batteries.unfree [ "claude-code" ])
+      den.aspects.plannotator
     ];
 
     # Agents install prebuilt binaries on the fly (uv wheels, npm packages).
