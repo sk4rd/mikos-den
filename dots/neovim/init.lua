@@ -280,6 +280,7 @@ map('n', '<leader>gl', function()
   vim.cmd('botright 15new')
   vim.fn.jobstart({ 'jj', '--no-pager', 'log' }, { term = true })
 end, 'Log')
+require('diffview').setup({ preferred_adapter = 'jj' })
 map('n', '<leader>gD', function()
   if require('diffview.lib').get_current_view() then
     vim.cmd('DiffviewClose')
@@ -287,7 +288,7 @@ map('n', '<leader>gD', function()
     vim.cmd('DiffviewOpen')
   end
 end, 'Toggle changeset diff')
-map({ 'n', 'x' }, '<leader>gF', ':DiffviewFileHistory %<CR>', 'File or selection history')
+map('n', '<leader>gF', '<Cmd>DiffviewFileHistory %<CR>', 'File history')
 
 map('n', '<leader>gr', gitsigns.reset_hunk, 'Discard hunk')
 map('x', '<leader>gr', on_selection('reset_hunk'), 'Discard selected lines')

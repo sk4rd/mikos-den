@@ -52,7 +52,7 @@ in
               gitsigns-nvim
               hunk-nvim
               nui-nvim
-              diffview-nvim
+              diffview-plus-nvim
               nvim-web-devicons
               fyler-nvim
               (nvim-treesitter.withPlugins (p: [
