@@ -52,6 +52,7 @@ disable_while_typing = true
 "Alt+Shift+Tab" = "spawn noctalia msg window-switcher hold reverse"
 "Print" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
 "Mod+Shift+A" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
+"Mod+Shift+S" = { action = "spawn noctalia msg screenshot-region", repeat = false }
 
 # Routed through Noctalia so its OSDs show.
 "XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
