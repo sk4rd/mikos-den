@@ -26,7 +26,6 @@ types.submodule {
       ];
     };
 
-    palette = mkOption { type = types.attrsOf hexColor; };
     colors = mkOption { type = types.attrsOf (types.either hexColor (types.attrsOf hexColor)); };
     ansiNamed = mkOption { type = types.attrsOf hexColor; };
     ansi = mkOption {

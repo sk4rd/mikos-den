@@ -8,8 +8,8 @@ if vim.fn.exists('syntax_on') == 1 then
   vim.cmd('syntax reset')
 end
 vim.o.termguicolors = true
-vim.o.background = 'dark'
-vim.g.colors_name = 'oxocarbon'
+vim.o.background = t.variant
+vim.g.colors_name = t.name
 
 for i, color in ipairs(t.ansi) do
   vim.g['terminal_color_' .. (i - 1)] = color

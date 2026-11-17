@@ -2,7 +2,7 @@ vim.loader.enable()
 
 vim.g.mapleader = ' '
 
-vim.cmd.colorscheme('oxocarbon')
+vim.cmd.colorscheme(require('palette').name)
 require('nvim-highlight-colors').setup({
   enable_named_colors = false,
 })
@@ -152,7 +152,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 require('lualine').setup({
-  options = { theme = 'oxocarbon' },
+  options = { theme = require('palette').name },
   sections = {
     lualine_x = { 'lsp_status', 'filetype' },
   },

@@ -72,10 +72,17 @@ in
             [ui]
             diff-editor = ["nvim", "-c", "DiffEditor $left $right $output"]
           '';
-          ".config/nvim/colors/oxocarbon.lua".source = ../../dots/neovim/colors/oxocarbon.lua;
-          ".config/nvim/lua/lualine/themes/oxocarbon.lua".source = ../../dots/neovim/lualine-oxocarbon.lua;
+          ".config/nvim/colors/${theme.name}.lua".source = ../../dots/neovim/colorscheme.lua;
+          ".config/nvim/lua/lualine/themes/${theme.name}.lua".source = ../../dots/neovim/lualine-theme.lua;
           ".config/nvim/lua/palette.lua".text = "return ${
-            lib.generators.toLua { } { inherit (theme) name colors ansi; }
+            lib.generators.toLua { } {
+              inherit (theme)
+                name
+                variant
+                colors
+                ansi
+                ;
+            }
           }\n";
         };
       };
