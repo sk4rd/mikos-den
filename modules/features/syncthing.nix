@@ -22,6 +22,36 @@ let
       "*.part"
       "*.crdownload"
     ];
+    claude = [
+      # Refresh tokens rotate, so a shared login would sign the other machine out.
+      "/.credentials.*"
+      # From hjem.
+      "/CLAUDE.md"
+      # Claude Code runs files from these on its own: a synced one would start a session or a command on the other
+      # machine.
+      "/daemon"
+      "/daemon.json"
+      "/jobs"
+      "/shell-snapshots"
+      "/session-env"
+      # Live sessions, IDE locks, caches and logs of this machine.
+      "/sessions"
+      "/ide"
+      "/state"
+      "/cache"
+      "/statsig"
+      "/stats-cache.json"
+      "/backups"
+      "/debug"
+      "/telemetry"
+      "/daemon.log"
+      "/.host-config-snapshot-*"
+      "/.last-cleanup"
+      # Installed plugins carry node_modules, which every folder ignores; settings.json still says which are enabled.
+      "/plugins"
+      # Synced through the claude.ai account already.
+      "/skills/synced"
+    ];
   };
   stignore = id: lib.concatLines (ignoreAll ++ ignores.${id} or [ ]);
 
@@ -77,6 +107,9 @@ in
           videos = "Videos";
           projects = "Projects";
           learnharness = ".config/LearnHarness/data";
+          # Sessions, prompt history, settings and memory. ~/.claude.json stays per machine: it holds the machine ID
+          # and this machine's caches.
+          claude = ".claude";
         };
         description = "Folders to sync through the NAS: folder ID to path relative to the home directory";
       };

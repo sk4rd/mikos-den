@@ -76,8 +76,17 @@ system needs that lookup changed as well.
 ## Folders
 
 By default every client syncs `Desktop`, `Documents`, `Downloads`, `Music`, `Pictures`,
-`Videos`, `Projects` and LearnHarness's data, the default of `settings.syncthing.folders`.
-Dotfiles stay out, because hjem links them into the Nix store separately on each host.
+`Videos`, `Projects`, LearnHarness's data and `~/.claude`, the default of
+`settings.syncthing.folders`. Dotfiles stay out, because hjem links them into the Nix store
+separately on each host.
+
+`~/.claude` carries Claude Code's sessions, prompt history, memory and settings, so a
+session started on one machine resumes on the other. Its `.stignore` keeps out the login,
+the folders Claude Code runs files from by itself (`daemon`, `jobs`, `shell-snapshots`,
+`session-env`), installed plugins, and each machine's caches and logs. `~/.claude.json` is
+outside the folder and stays per machine: it holds the machine ID and caches, so each
+machine asks once to trust a project. Prompt history and a session open on both machines
+follow the rule under [Recovery](#recovery), so use Claude on one machine at a time.
 
 To add a folder for every machine, add it to that default. For one machine, set the
 whole list in its host file, since setting it replaces the default:
