@@ -15,6 +15,10 @@ These apply in every project.
 
 - Write commit messages as Conventional Commits, on one line. Add a body only when the change is
   really complex.
+- Keep the subject short, under about 60 characters. Say what the change does, not how or why:
+  leave the mechanism, the details and the reasons to the diff. Write
+  `feat(plannotator): add plannotator for plan and code review`, not
+  `feat(plannotator): review plans and diffs from Claude Code in Plannotator, pinned with its plugin and with the usage ping off`.
 - Never add a `Co-authored-by` trailer.
 
 ## Code comments
