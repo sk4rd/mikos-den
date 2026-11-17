@@ -1,6 +1,5 @@
 # Paths use ~ because this file is a symlink into the Nix store, where a relative include
-# would resolve. nix.toml holds the values generated from Nix and includes every fragment
-# that aspects and hosts install under conf.d/; noctalia.toml has the colours Noctalia renders.
+# would resolve.
 [include.optional]
 files = ["~/.config/umbriel/nix.toml", "~/.config/umbriel/noctalia.toml"]
 
@@ -42,13 +41,12 @@ disable_while_typing = true
 # The Charybdis has Super only as the Space key held, so a quick tap of Super and
 # Super+Space are out of reach there. Mod+A and Mod+G do the same jobs.
 "Mod+A" = { action = "spawn noctalia msg panel-toggle launcher", repeat = false }
-"Mod+T" = { action = "spawn ghostty", repeat = false }
-"Mod+Return" = { action = "spawn ghostty", repeat = false }
+"Mod+T" = { action = "spawn ghostty +new-window", repeat = false }
+"Mod+Return" = { action = "spawn ghostty +new-window", repeat = false }
 "Mod+Q" = { action = "window-close", repeat = false }
 "Mod+Escape" = "session-quit"
 "Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
 
-# Noctalia panels and tools.
 "Mod+S" = { action = "spawn noctalia msg panel-toggle control-center", repeat = false }
 "Mod+V" = { action = "spawn noctalia msg panel-toggle clipboard", repeat = false }
 "Mod+Shift+Comma" = { action = "spawn noctalia msg settings-toggle", repeat = false }
@@ -58,7 +56,7 @@ disable_while_typing = true
 "Print" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
 "Mod+Shift+A" = { action = "spawn noctalia msg screenshot-annotate", repeat = false }
 
-# Routed through Noctalia so its OSDs show. Safe while locked.
+# Routed through Noctalia so its OSDs show.
 "XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
 "XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
 "XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true, repeat = false }
@@ -68,7 +66,6 @@ disable_while_typing = true
 "XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up", allow_when_locked = true }
 "XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down", allow_when_locked = true }
 
-# Vim-style focus and movement, plus the arrows.
 "Mod+H" = "window-focus-left"
 "Mod+J" = "window-focus-down"
 "Mod+K" = "window-focus-up"
@@ -88,7 +85,6 @@ disable_while_typing = true
 "Mod+WheelUp" = "window-focus-left"
 "Mod+WheelDown" = "window-focus-right"
 
-# Window state and layout.
 "Mod+Space" = { action = "window-toggle-floating", repeat = false }
 "Mod+G" = { action = "window-toggle-floating", repeat = false }
 "Mod+P" = { action = "window-toggle-pinned", repeat = false }
@@ -105,7 +101,6 @@ disable_while_typing = true
 "Mod+W" = { action = "column-toggle-tabbed", repeat = false }
 "Mod+O" = { action = "overview-toggle", repeat = false }
 
-# Workspaces.
 "Mod+1" = "workspace-switch 1"
 "Mod+2" = "workspace-switch 2"
 "Mod+3" = "workspace-switch 3"

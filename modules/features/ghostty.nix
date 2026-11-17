@@ -17,8 +17,14 @@ let
 in
 {
   den.aspects.ghostty = {
-    provides.to-hosts.nixos = { pkgs, ... }: {
+    provides.to-hosts.nixos = { lib, pkgs, ... }: {
       environment.sessionVariables.TERMINAL = "${pkgs.ghostty}/bin/ghostty";
+
+      systemd.packages = [ pkgs.ghostty ];
+      systemd.user.services."app-com.mitchellh.ghostty" = {
+        wantedBy = [ "graphical-session.target" ];
+        environment.PATH = lib.mkForce null;
+      };
     };
 
     hjem = { pkgs, ... }: {
@@ -35,9 +41,8 @@ in
           font-size = ${toString theme.fonts.mono.size}
           shell-integration = fish
 
-          # Vim-style pane control. A config-file path resolves relative to the
-          # file holding the directive, which here is a store path, so name it
-          # with ~ instead.
+          # A config-file path resolves relative to the file holding the directive,
+          # which here is a store path, so name it with ~ instead.
           config-file = ~/.config/ghostty/keybinds
         '';
       };
