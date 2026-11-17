@@ -43,9 +43,46 @@ the app's own docs still apply. A module installs it. Anything that depends on N
 values gets generated instead, like the Neovim palette built in
 `modules/features/neovim.nix`.
 
-## One theme
+## One theme per host
 
-`lib/theme/oxocarbon.nix` holds the raw colours, and `lib/theme/default.nix` turns
-them into roles like `accent` and `error`. Apps read those roles from `config.theme`,
-so they can't drift apart and a palette change reaches everything at once. Files
-generated entirely from the theme live in `lib/theme/render/`.
+Each theme is one file in `lib/theme/themes/`: a standard
+[Base24](https://github.com/tinted-theming/base24) palette (`base00` to `base17`),
+with optional `overrides` for any role and optional `fonts`. `lib/theme/roles.nix`
+turns any such palette into roles like `accent`, `error` and `syntax.keyword`, then
+applies the overrides. Apps read only roles, so none of them knows which theme is
+active, and a palette change reaches everything at once. Oxocarbon, the default, uses
+overrides to keep oxocarbon.nvim's exact choices; the other themes need none.
+
+A host chooses its theme with `settings.theme.name`, and class modules read the
+result as `host.theme`, so every app on a machine shows the same one. Flake outputs
+that have no host, like the README banner, use the default. Files generated entirely
+from the theme live in `lib/theme/render/`.
+
+Adding a theme takes two steps:
+
+1. Add `lib/theme/themes/<name>.nix`. For a scheme from
+   [tinted-theming/schemes](https://github.com/tinted-theming/schemes), copy its
+   palette as it is and put the source URL, with its commit, at the top. A Base16
+   scheme can leave out `base10` to `base17`; they fall back as the Base24 spec says.
+   `name` must match the file name.
+
+   ```nix
+   # https://github.com/tinted-theming/schemes/blob/<commit>/base24/<name>.yaml
+   {
+     name = "<name>";
+     variant = "dark";
+
+     base00 = "#rrggbb";
+     base01 = "#rrggbb";
+     # … through base17
+   }
+   ```
+
+2. Set it on a host:
+
+   ```nix
+   den.hosts.x86_64-linux.workstation.settings.theme.name = "<name>";
+   ```
+
+`nix flake check` runs every theme through `lib/theme/types.nix` and the pure
+renderers, so a broken theme fails even before a host uses it.

@@ -9,7 +9,7 @@ in
     settings.name = lib.mkOption {
       type = lib.types.enum (lib.attrNames themes);
       default = (import ../../lib/theme { inherit lib; }).name;
-      description = "Theme for this host, the name of a file in lib/theme/themes/";
+      description = "Theme for this host: the name of a file in lib/theme/themes/. Class modules read it resolved as host.theme.";
     };
 
     nixos =

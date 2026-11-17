@@ -23,13 +23,17 @@ There are no tests. A change is done when the affected hosts evaluate and the fo
   before evaluating.
 - An aspect every host needs adds itself with `den.schema.host.includes` in its own file. Don't
   add it to a host's include list.
-- `config.theme` is the flake-level config. Read it from a file's top-level arguments, not from inside
-  the `nixos` or `hjem` modules. Hex colours belong only in `lib/theme/oxocarbon.nix`.
+- A class module reads the theme as `host.theme`: take `host` in the `nixos` or `hjem` module, as in
+  `{ host, pkgs, ... }:`. There is no flake-level `config.theme`, so anything a file builds from the
+  theme at its top level must be a function of the theme. Hex colours belong only in
+  `lib/theme/themes/`, and `nix flake check` fails on any other.
+- A host picks its theme with `settings.theme.name`, the name of a file in `lib/theme/themes/`. It
+  defaults to `oxocarbon`.
 - A new NAS service declares its routes, health checks and datasets as quirks, following
   `jellyfin.nix`, and goes in the include list in `modules/hosts/nas.nix`. Its routes are private
   unless it sets `public = true`.
-- After a palette change, run `nix eval --raw .#banner > docs/banner.svg`. GitHub only shows the
-  committed file.
+- After a change to the default theme's palette, run `nix eval --raw .#banner > docs/banner.svg`.
+  GitHub only shows the committed file, and `nix flake check` fails while it is stale.
 - `REVIEW.md` is a review from 2026-11-09. Check a finding against the current code before acting on it.
 
 ## Version control
