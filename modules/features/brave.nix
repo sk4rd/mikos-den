@@ -1,7 +1,7 @@
-{ config, inputs, ... }:
+{ inputs, ... }:
 
 {
-  den.aspects.brave.nixos = { pkgs, ... }: {
+  den.aspects.brave.nixos = { host, pkgs, ... }: {
     # nixpkgs-unstable's chromium module no longer writes /etc/brave policies.
     disabledModules = [ "programs/chromium.nix" ];
     imports = [ "${inputs.nixpkgs-brave}/nixos/modules/programs/chromium.nix" ];
@@ -13,7 +13,7 @@
     programs.chromium = {
       enable = true;
       extraOpts = {
-        BrowserThemeColor = config.theme.colors.bg;
+        BrowserThemeColor = host.theme.colors.bg;
         # Chromium expands ${user_name} itself on Linux; it has no home-directory variable.
         DownloadDirectory = "/home/\${user_name}/Downloads";
         PromptForDownloadLocation = false;

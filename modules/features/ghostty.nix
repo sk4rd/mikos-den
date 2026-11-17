@@ -1,19 +1,19 @@
-{ config, ... }:
-
 let
-  inherit (config) theme;
-  c = theme.colors;
-
-  ghosttyTheme = ''
-    ${builtins.concatStringsSep "\n" (
-      builtins.genList (i: "palette = ${toString i}=${builtins.elemAt theme.ansi i}") 16
-    )}
-    background = ${c.bg}
-    foreground = ${c.fg}
-    cursor-color = ${c.cursor}
-    cursor-text = ${c.cursorText}
-    selection-background = ${c.selection}
-  '';
+  ghosttyTheme =
+    theme:
+    let
+      c = theme.colors;
+    in
+    ''
+      ${builtins.concatStringsSep "\n" (
+        builtins.genList (i: "palette = ${toString i}=${builtins.elemAt theme.ansi i}") 16
+      )}
+      background = ${c.bg}
+      foreground = ${c.fg}
+      cursor-color = ${c.cursor}
+      cursor-text = ${c.cursorText}
+      selection-background = ${c.selection}
+    '';
 in
 {
   den.aspects.ghostty = {
@@ -28,8 +28,9 @@ in
     };
 
     hjem =
-      { pkgs, ... }:
+      { host, pkgs, ... }:
       let
+        inherit (host) theme;
         # One animation serves every scratchpad window, so it slides each window off whichever side
         # edge of the output it is nearer. umbriel_output_rect comes from the Umbriel fork in
         # flake.nix. uv spans the window alone; this reads as a slide off the screen edge because
@@ -57,7 +58,7 @@ in
         ];
 
         files = {
-          ".config/ghostty/themes/${theme.name}".text = ghosttyTheme;
+          ".config/ghostty/themes/${theme.name}".text = ghosttyTheme theme;
 
           ".config/ghostty/keybinds".source = ../../dots/ghostty/keybinds;
 

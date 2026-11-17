@@ -1,8 +1,3 @@
-{ config, ... }:
-
-let
-  inherit (config) theme;
-in
 {
   den.aspects.neovim = {
     provides.to-hosts.nixos.environment.sessionVariables = {
@@ -30,10 +25,14 @@ in
 
     hjem =
       {
+        host,
         pkgs,
         lib,
         ...
       }:
+      let
+        inherit (host) theme;
+      in
       {
         packages = [
           pkgs.ripgrep
