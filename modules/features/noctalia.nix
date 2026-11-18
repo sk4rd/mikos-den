@@ -228,6 +228,7 @@ in
             pkgs.adwaita-icon-theme
             (cursorPackage pkgs)
             pkgs.papirus-icon-theme
+            pkgs.wl-clipboard
           ];
         };
 
