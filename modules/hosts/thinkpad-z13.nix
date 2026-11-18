@@ -29,6 +29,7 @@
       den.aspects.gh
       den.aspects.obsidian
       den.aspects.learnharness
+      den.aspects.nimbalyst
       den.aspects.voxtype
       den.aspects.ai
       den.aspects.review-inbox
