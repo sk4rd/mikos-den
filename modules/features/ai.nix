@@ -44,10 +44,11 @@
     hjem =
       { pkgs, ... }:
       {
-        # side-toggle and the "side" scratchpad come from ghostty.nix.
+        # side-toggle and the "side" scratchpad come from ghostty.nix. Claude Code never remembers trust for the home
+        # directory, so a session started there asks every time.
         files.".config/umbriel/conf.d/claude-scratch.toml".text = ''
           [keybinds]
-          "Mod+C" = { action = "spawn side-toggle den.claude claude", repeat = false }
+          "Mod+C" = { action = "spawn side-toggle den.claude --dir scratch claude", repeat = false }
 
           [[window_rule]]
           match.app_id = "^den.claude$"
