@@ -23,11 +23,11 @@
     "cadpilot": {
       "flake": false,
       "locked": {
-        "lastModified": 1795029302,
-        "narHash": "sha256-tzqmDjgcFBSp6SjXZ6n3yT/HFM1zevEYug5udR42VMU=",
+        "lastModified": 1795157053,
+        "narHash": "sha256-uOTSEyxls9+Mw8i+i755HJ7hUFOXKjtDojJVkgRUlns=",
         "owner": "sk4rd",
         "repo": "cadpilot",
-        "rev": "907bac38ef7fd81540d7801ab1713f32b2734b86",
+        "rev": "97baaa2a540c157fa1de6f6744544e52510ac855",
         "type": "github"
       },
       "original": {
