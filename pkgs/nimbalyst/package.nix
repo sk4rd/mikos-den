@@ -1,4 +1,9 @@
-{ appimageTools, fetchurl }:
+{
+  appimageTools,
+  fetchurl,
+  python3,
+  runCommand,
+}:
 
 let
   pname = "nimbalyst";
@@ -8,9 +13,17 @@ let
     hash = "sha256-j1YU0CFfjir3YcBPgbCYRU+ItxEQRmeVN9Q6X+US3C8=";
   };
   contents = appimageTools.extract { inherit pname version src; };
+  # A full copy rather than a symlink tree: Electron finds its resources from its resolved path,
+  # and the tutorial copies symlinks as symlinks.
+  patched = runCommand "${pname}-${version}-patched" { nativeBuildInputs = [ python3 ]; } ''
+    cp -r ${contents} $out
+    chmod -R u+w $out
+    python3 ${./patch-tutorial.py} ${contents}/resources/app.asar $out/resources/app.asar
+  '';
 in
-appimageTools.wrapType2 {
-  inherit pname version src;
+appimageTools.wrapAppImage {
+  inherit pname version;
+  src = patched;
   extraInstallCommands = ''
     install -Dm444 ${contents}/nimbalyst.desktop -t $out/share/applications
     substituteInPlace $out/share/applications/nimbalyst.desktop \
