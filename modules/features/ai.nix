@@ -17,28 +17,6 @@
         type = "command";
         command = "bash ${./claude-statusline.sh}";
       };
-      hooks = {
-        WorktreeCreate = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "bash ${./claude-worktree.sh} create";
-              }
-            ];
-          }
-        ];
-        WorktreeRemove = [
-          {
-            hooks = [
-              {
-                type = "command";
-                command = "bash ${./claude-worktree.sh} remove";
-              }
-            ];
-          }
-        ];
-      };
     };
 
     hjem =

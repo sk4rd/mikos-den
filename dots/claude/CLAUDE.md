@@ -4,13 +4,6 @@
 
 These apply in every project.
 
-## Version control
-
-- My repositories use Jujutsu (`jj`) on top of git. In a repository with a `.jj` folder, use `jj`,
-  and do not run git commands that change state, such as commit, switch, rebase, merge or stash.
-  Git commands that only read are fine.
-- A change's description is its commit message. Set it with `jj describe -m`.
-
 ## Commits
 
 - Write commit messages as Conventional Commits, on one line. Add a body only when the change is

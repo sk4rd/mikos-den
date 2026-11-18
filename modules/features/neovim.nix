@@ -40,7 +40,6 @@ in
           pkgs.nixd
           pkgs.nixfmt
           pkgs.lua-language-server
-          pkgs.jjui
           (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped {
             wrapRc = false;
             plugins = with pkgs.vimPlugins; [
@@ -50,9 +49,8 @@ in
               telescope-ui-select-nvim
               plenary-nvim
               gitsigns-nvim
-              hunk-nvim
-              nui-nvim
-              diffview-plus-nvim
+              neogit
+              diffview-nvim
               nvim-web-devicons
               fyler-nvim
               (nvim-treesitter.withPlugins (p: [
@@ -68,10 +66,6 @@ in
 
         files = {
           ".config/nvim/init.lua".source = ../../dots/neovim/init.lua;
-          ".config/jj/conf.d/neovim.toml".text = ''
-            [ui]
-            diff-editor = ["nvim", "-c", "DiffEditor $left $right $output"]
-          '';
           ".config/nvim/colors/oxocarbon.lua".source = ../../dots/neovim/colors/oxocarbon.lua;
           ".config/nvim/lua/lualine/themes/oxocarbon.lua".source = ../../dots/neovim/lualine-oxocarbon.lua;
           ".config/nvim/lua/palette.lua".text = "return ${
