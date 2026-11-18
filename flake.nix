@@ -49,6 +49,12 @@
       flake = false;
     };
 
+    # Fork of LBurny/cadpilot with the fixes found modelling in FreeCAD 1.1.
+    cadpilot = {
+      url = "github:sk4rd/cadpilot";
+      flake = false;
+    };
+
     keyboard-hud = {
       url = "github:sk4rd/keyboard-hud";
       inputs.nixpkgs.follows = "nixpkgs";

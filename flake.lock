@@ -20,6 +20,22 @@
         "type": "github"
       }
     },
+    "cadpilot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795029302,
+        "narHash": "sha256-tzqmDjgcFBSp6SjXZ6n3yT/HFM1zevEYug5udR42VMU=",
+        "owner": "sk4rd",
+        "repo": "cadpilot",
+        "rev": "907bac38ef7fd81540d7801ab1713f32b2734b86",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sk4rd",
+        "repo": "cadpilot",
+        "type": "github"
+      }
+    },
     "den": {
       "locked": {
         "lastModified": 1794428243,
@@ -222,6 +238,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "cadpilot": "cadpilot",
         "den": "den",
         "den-diagram": "den-diagram",
         "disko": "disko",

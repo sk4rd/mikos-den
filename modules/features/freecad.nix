@@ -1,9 +1,33 @@
-_:
+{ inputs, ... }:
 
 let
-  # The CADPilot fork (github.com/sk4rd/cadpilot) as a git checkout. FreeCAD loads its add-on and Claude Code
-  # runs its MCP server straight from the checkout, so a fix there reaches both without a rebuild.
-  checkout = "/home/miko/Projects/cadpilot";
+  cadpilot =
+    pkgs:
+    pkgs.python3Packages.buildPythonApplication {
+      pname = "cadpilot";
+      version = "0.7.7-${inputs.cadpilot.shortRev}";
+      pyproject = true;
+      src = inputs.cadpilot;
+
+      build-system = [ pkgs.python3Packages.hatchling ];
+      dependencies =
+        with pkgs.python3Packages;
+        [
+          mcp
+          validators
+        ]
+        ++ mcp.optional-dependencies.cli;
+
+      nativeCheckInputs = [ pkgs.python3Packages.pytestCheckHook ];
+
+      # The server talks to this add-on over RPC, so the two are pinned together. It goes into FreeCAD's Mod folder.
+      postInstall = ''
+        mkdir -p $out/share/cadpilot
+        cp -r addon/CADPilot $out/share/cadpilot/
+      '';
+
+      meta.mainProgram = "cadpilot";
+    };
   # Every CADPilot tool but the two that run arbitrary Python, which keep asking first.
   tools = [
     "create_document"
@@ -58,19 +82,13 @@ in
           "cadpilot/.claude-plugin/plugin.json" = {
             name = "cadpilot";
             # Claude Code keeps installed plugins in a cache keyed by version, so a change here needs a new one.
-            version = "0.7.7";
+            inherit (cadpilot pkgs) version;
             description = "Model in the running FreeCAD with Claude through CADPilot";
           };
           "cadpilot/.mcp.json".mcpServers.cadpilot = {
             type = "stdio";
-            command = pkgs.lib.getExe pkgs.uv;
-            args = [
-              "run"
-              "--frozen"
-              "--directory"
-              checkout
-              "cadpilot"
-            ];
+            command = pkgs.lib.getExe (cadpilot pkgs);
+            args = [ ];
           };
         };
         # Real files, not store symlinks: Claude Code reads MCP server files without following symlinks.
@@ -98,7 +116,7 @@ in
       {
         packages = [ pkgs.freecad ];
         files.".local/share/FreeCAD/v1-1/Mod/CADPilot" = {
-          source = "${checkout}/addon/CADPilot";
+          source = "${cadpilot pkgs}/share/cadpilot/CADPilot";
           # A link made by hand may already sit there.
           clobber = true;
         };
