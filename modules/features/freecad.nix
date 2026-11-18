@@ -1,7 +1,39 @@
-{ inputs, ... }:
+_:
 
 let
-  freecad-mcp = pkgs: inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.freecad-mcp;
+  # The CADPilot fork (github.com/sk4rd/cadpilot) as a git checkout. FreeCAD loads its add-on and Claude Code
+  # runs its MCP server straight from the checkout, so a fix there reaches both without a rebuild.
+  checkout = "/home/miko/Projects/cadpilot";
+  # Every CADPilot tool but the two that run arbitrary Python, which keep asking first.
+  tools = [
+    "create_document"
+    "open_document"
+    "save_document"
+    "cad"
+    "get_task_result"
+    "get_view"
+    "get_objects"
+    "list_documents"
+    "session"
+    "step_plan"
+    "step_control"
+    "get_addon_log"
+    "diagnose"
+    "save_pattern"
+    "recall_patterns"
+    "operation_help"
+    "inspect_freecad"
+    "measure_geometry"
+    "get_topology"
+    "check_interference"
+    "get_positioning_info"
+    "align_shapes"
+    "get_anchors"
+    "set_anchors"
+    "assemble"
+    "verify_assembly"
+    "assembly_session"
+  ];
 in
 {
   den.aspects.freecad = {
@@ -17,22 +49,28 @@ in
             description = "Plugins installed by mikos-den";
             plugins = [
               {
-                name = "freecad";
-                source = "./freecad";
-                description = "Create and edit models in the running FreeCAD through freecad-mcp";
+                name = "cadpilot";
+                source = "./cadpilot";
+                description = "Model in the running FreeCAD with Claude through CADPilot";
               }
             ];
           };
-          "freecad/.claude-plugin/plugin.json" = {
-            name = "freecad";
-            # Claude Code keeps installed plugins in a cache keyed by version, so an update needs a new one.
-            inherit (freecad-mcp pkgs) version;
-            description = "Create and edit models in the running FreeCAD through freecad-mcp";
+          "cadpilot/.claude-plugin/plugin.json" = {
+            name = "cadpilot";
+            # Claude Code keeps installed plugins in a cache keyed by version, so a change here needs a new one.
+            version = "0.7.7";
+            description = "Model in the running FreeCAD with Claude through CADPilot";
           };
-          "freecad/.mcp.json".mcpServers.freecad = {
+          "cadpilot/.mcp.json".mcpServers.cadpilot = {
             type = "stdio";
-            command = pkgs.lib.getExe (freecad-mcp pkgs);
-            args = [ ];
+            command = pkgs.lib.getExe pkgs.uv;
+            args = [
+              "run"
+              "--frozen"
+              "--directory"
+              checkout
+              "cadpilot"
+            ];
           };
         };
         # Real files, not store symlinks: Claude Code reads MCP server files without following symlinks.
@@ -50,7 +88,8 @@ in
             source = "directory";
             path = "${marketplace}";
           };
-          enabledPlugins."freecad@mikos-den" = true;
+          enabledPlugins."cadpilot@mikos-den" = true;
+          permissions.allow = map (tool: "mcp__plugin_cadpilot_cadpilot__${tool}") tools;
         };
       };
 
@@ -58,9 +97,11 @@ in
       { pkgs, ... }:
       {
         packages = [ pkgs.freecad ];
-        # The workbench whose RPC server freecad-mcp drives.
-        files.".local/share/FreeCAD/v1-1/Mod/FreeCADMCP".source =
-          "${freecad-mcp pkgs}/share/freecad-mcp/FreeCADMCP";
+        files.".local/share/FreeCAD/v1-1/Mod/CADPilot" = {
+          source = "${checkout}/addon/CADPilot";
+          # A link made by hand may already sit there.
+          clobber = true;
+        };
       };
   };
 }
